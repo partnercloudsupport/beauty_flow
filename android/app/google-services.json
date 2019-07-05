@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "288616394475",
+    "firebase_url": "https://beauty-flow.firebaseio.com",
+    "project_id": "beauty-flow",
+    "storage_bucket": "beauty-flow.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:288616394475:android:f538511b33c74742",
+        "android_client_info": {
+          "package_name": "com.beauty_flow.io"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "288616394475-kaa0cpqvnfr6ebe2bro7vvngvc0frfml.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCgef_6OP5ydCnV-c5-I8sLSPdEkrRHVBE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "288616394475-kaa0cpqvnfr6ebe2bro7vvngvc0frfml.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
