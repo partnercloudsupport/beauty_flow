@@ -252,7 +252,7 @@ class _ImagePost extends State<ImagePost> {
             Expanded(child: Text(description)),
           ],
         ),
-        SizedBox(height: 50.0)
+        // SizedBox(height: 30.0)
       ],
     );
   }

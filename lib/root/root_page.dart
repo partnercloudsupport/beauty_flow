@@ -30,15 +30,12 @@ class _RootPageState extends State<RootPage> {
   @override
   void initState() {
     super.initState();
-    widget.auth.getCurrentUser().then((user) async {
-      DocumentSnapshot userRecord;
+    widget.auth.getCurrentUser().then((user) {      
       if (user != null) {
-        userRecord = await ref.document(user?.uid).get();
       }
       setState(() {
         if (user != null) {
           _userId = user?.uid;
-          currentUserModel = User.fromDocument(userRecord);
         }
         authStatus =
             user?.uid == null ? AuthStatus.NOT_LOGGED_IN : AuthStatus.LOGGED_IN;
@@ -47,9 +44,12 @@ class _RootPageState extends State<RootPage> {
   }
 
   void _onLoggedIn() {
-    widget.auth.getCurrentUser().then((user){
+    DocumentSnapshot userRecord;
+    widget.auth.getCurrentUser().then((user) async {
+      userRecord = await ref.document(user.uid.toString()).get();
       setState(() {
         _userId = user.uid.toString();
+        currentUserModel = User.fromDocument(userRecord);
       });
     });
     setState(() {

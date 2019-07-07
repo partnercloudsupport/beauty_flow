@@ -62,6 +62,7 @@ flutter:
    - assets/img/picfive.jpeg
    - assets/img/picsix.jpeg
    - assets/img/as.png
+   - assets/img/person.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

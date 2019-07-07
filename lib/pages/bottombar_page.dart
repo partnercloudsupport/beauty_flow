@@ -28,8 +28,8 @@ class _BottomBarPageState extends State<BottomBarPage> {
       body: _getPage(currentPage),
       bottomNavigationBar: FancyBottomNavigation(
         tabs: [
-          TabData(iconData: Icons.dashboard, title: "Dashboard"),
-          TabData(iconData: Icons.add, title: "New Post"),    
+          TabData(iconData: Icons.home, title: "Home"),
+          TabData(iconData: Icons.add, title: "New Post"),
           TabData(iconData: Icons.person, title: "Profile")
         ],
         initialSelection: 0,
@@ -48,7 +48,8 @@ class _BottomBarPageState extends State<BottomBarPage> {
       case 0:
         return DashBoardPage(
           userId: widget.userId,
-          auth: widget.auth
+          auth: widget.auth,
+          onSignedOut: widget.onSignedOut
         );
       case 1:
         return NewPostPage(

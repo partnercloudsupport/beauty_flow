@@ -93,17 +93,7 @@ class _NewPostPageState extends State<NewPostPage> {
                                             child: new IconButton(
                                               icon: Icon(Icons.camera_alt),
                                               color: Colors.white,
-                                              onPressed: () async {
-                                                File imageFile =
-                                                    await ImagePicker.pickImage(
-                                                        source: ImageSource
-                                                            .gallery);
-                                                if (imageFile != null) {
-                                                  setState(() {
-                                                    file = imageFile;
-                                                  });
-                                                }
-                                              },
+                                              onPressed: () {_selectImage(context);},
                                             ),
                                           )
                                         ],
@@ -207,8 +197,8 @@ class _NewPostPageState extends State<NewPostPage> {
                                                 return 'Please enter price.';
                                               }
                                             },
-                                            onSaved: (val) => setState(() =>
-                                                _price = int.parse(val))),
+                                            onSaved: (val) => setState(
+                                                () => _price = int.parse(val))),
                                       ),
                                     ],
                                   ),
@@ -386,9 +376,52 @@ class _NewPostPageState extends State<NewPostPage> {
     );
   }
 
+  _selectImage(BuildContext parentContext) async {
+    return showDialog<Null>(
+      context: parentContext,
+      barrierDismissible: false, // user must tap button!
+
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          title: const Text('Create a Post'),
+          children: <Widget>[
+            SimpleDialogOption(
+                child: const Text('Take a photo'),
+                onPressed: () async {
+                  Navigator.pop(context);
+                  File imageFile = await ImagePicker.pickImage(
+                      source: ImageSource.camera,
+                      maxWidth: 1920,
+                      maxHeight: 1350);
+                  setState(() {
+                    file = imageFile;
+                  });
+                }),
+            SimpleDialogOption(
+                child: const Text('Choose from Gallery'),
+                onPressed: () async {
+                  Navigator.of(context).pop();
+                  File imageFile =
+                      await ImagePicker.pickImage(source: ImageSource.gallery);
+                  setState(() {
+                    file = imageFile;
+                  });
+                }),
+            SimpleDialogOption(
+              child: const Text("Cancel"),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            )
+          ],
+        );
+      },
+    );
+  }
+
   Future _getDownloadUrl() async {
     try {
-  DocumentSnapshot user =
+      DocumentSnapshot user =
           await _db.collection('users').document(widget.userId).get();
       String fileId = randomString(5);
       StorageReference reference =
@@ -418,8 +451,9 @@ class _NewPostPageState extends State<NewPostPage> {
         _isLoading = false;
       });
       _formKey.currentState?.reset();
-      Scaffold.of(context).showSnackBar(SnackBar(content: Text('Data Uploaded')));
-    } catch(exception, stackTrace){
+      Scaffold.of(context)
+          .showSnackBar(SnackBar(content: Text('Data Uploaded')));
+    } catch (exception, stackTrace) {
       print("exception: $exception");
       print("stackTrace: $stackTrace");
       Scaffold.of(context).showSnackBar(SnackBar(content: Text('Try Again')));

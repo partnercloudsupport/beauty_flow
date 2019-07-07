@@ -1,10 +1,12 @@
 import 'dart:async';
-
+import 'package:beauty_flow/authentication/authentication.dart';
 import 'package:beauty_flow/main.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
+final auth = Auth();
 
 class InstaList extends StatefulWidget {
   const InstaList(
@@ -19,7 +21,7 @@ class InstaList extends StatefulWidget {
   factory InstaList.fromDocument(DocumentSnapshot document) {
     return InstaList(
       displayName: document['displayName'],
-      price: document['price'],
+      price: document['price'].toDouble(),
       mediaUrl: document['mediaUrl'],
       likes: document['likes'],
       description: document['description'],
@@ -114,7 +116,7 @@ class _InstaListState extends State<InstaList> {
     return FutureBuilder(
       future: Firestore.instance
           .collection('users')
-          .document(currentUserModel.id)
+          .document(ownerId)
           .get(),
       builder: (context, snapshot) {
         String imageUrl = "";
@@ -144,7 +146,7 @@ class _InstaListState extends State<InstaList> {
                         shape: BoxShape.circle,
                         image: new DecorationImage(
                           fit: BoxFit.fill,
-                          image: NetworkImage(imageUrl),
+                          image: (imageUrl == "" || imageUrl == null) ? AssetImage("assets/img/person.png") : NetworkImage(imageUrl),
                         ),
                       ),
                     ),
@@ -167,7 +169,7 @@ class _InstaListState extends State<InstaList> {
                       icon: Icon(Icons.more_vert),
                       onPressed: () {
                         Scaffold.of(context).showSnackBar(new SnackBar(
-                          content: new Text("Options Pressed"),
+                          content: new Text("Options Comming Soon",textAlign: TextAlign.center,),
                         ));
                       },
                     )
@@ -184,7 +186,6 @@ class _InstaListState extends State<InstaList> {
   GestureDetector buildLikeableImage() {
     return GestureDetector(
       onDoubleTap: () {
-        print("Photo Tap");
         _likePost(postId);
       },
       child: Stack(
@@ -192,7 +193,7 @@ class _InstaListState extends State<InstaList> {
         children: <Widget>[
           Image(
             fit: BoxFit.fill,
-            image: NetworkImage(mediaUrl),
+            image: (mediaUrl == "" || mediaUrl == null) ? AssetImage("assets/img/person.png") : NetworkImage(mediaUrl),
             height: 400.0,
           ),
           showHeart
@@ -227,16 +228,13 @@ class _InstaListState extends State<InstaList> {
       color: color,
       onPressed: () {
         _likePost(postId);
-        Scaffold.of(context).showSnackBar(new SnackBar(
-          content: new Text("Heart Pressed"),
-        ));
       },
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    liked = (likes[widget.ownerId.toString()] == true);
+    liked = (likes[currentUserModel.id.toString()] == true);
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -258,7 +256,7 @@ class _InstaListState extends State<InstaList> {
                     icon: Icon(FontAwesomeIcons.comment),
                     onPressed: () {
                       Scaffold.of(context).showSnackBar(new SnackBar(
-                        content: new Text("Comment Pressed"),
+                        content: new Text("Comment Comming Soon",textAlign: TextAlign.center,),
                       ));
                     },
                   ),
@@ -266,7 +264,7 @@ class _InstaListState extends State<InstaList> {
                     icon: Icon(FontAwesomeIcons.paperPlane),
                     onPressed: () {
                       Scaffold.of(context).showSnackBar(new SnackBar(
-                        content: new Text("Share Pressed"),
+                        content: new Text("Share Comming Soon",textAlign: TextAlign.center,),
                       ));
                     },
                   ),
@@ -276,7 +274,7 @@ class _InstaListState extends State<InstaList> {
                 icon: Icon(FontAwesomeIcons.bookmark),
                 onPressed: () {
                   Scaffold.of(context).showSnackBar(new SnackBar(
-                    content: new Text("BookMark Pressed"),
+                    content: new Text("BookMark Comming Soon",textAlign: TextAlign.center,),
                   ));
                 },
               )
@@ -290,17 +288,32 @@ class _InstaListState extends State<InstaList> {
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0,vertical: 10.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                "Description : $description",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              Text(
+                "Price : $price",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+        ),
         SizedBox(height: 50.0)
       ],
     );
   }
 
   void _likePost(String postId2) {
-    var userId = widget.ownerId;
+    var userId = currentUserModel.id;
     bool _liked = likes[userId] == true;
 
     if (_liked) {
-      print('removing like');
       reference.document(postId).updateData({
         'likes.$userId': false
         //firestore plugin doesnt support deleting, so it must be nulled / falsed
@@ -316,7 +329,6 @@ class _InstaListState extends State<InstaList> {
     }
 
     if (!_liked) {
-      print('liking');
       reference.document(postId).updateData({'likes.$userId': true});
 
       addActivityFeedItem();
@@ -335,37 +347,27 @@ class _InstaListState extends State<InstaList> {
     }
   }
 
-  void addActivityFeedItem() async {
-    DocumentSnapshot user = await Firestore.instance
-        .collection('users')
-        .document(currentUserModel.id)
-        .get();
-
+  void addActivityFeedItem() {
     Firestore.instance
         .collection("deautyFeed")
-        .document(user.data["uid"])
+        .document(ownerId)
         .collection("items")
         .document(postId)
         .setData({
-      "displayName": user.data["displayName"],
-      "ownerId": ownerId,
+      "displayName": currentUserModel.displayName,
+      "userId": currentUserModel.id,
       "type": "like",
-      "userProfileImg": user.data["photoURL"],
+      "userProfileImg": currentUserModel.photoURL,
       "mediaUrl": mediaUrl,
       "timestamp": DateTime.now(),
       "postId": postId,
     });
   }
 
-  void removeActivityFeedItem() async {
-    DocumentSnapshot user = await Firestore.instance
-        .collection('users')
-        .document(currentUserModel.id)
-        .get();
-
+  void removeActivityFeedItem() {
     Firestore.instance
         .collection("deautyFeed")
-        .document(user.data["uid"])
+        .document(ownerId)
         .collection("items")
         .document(postId)
         .delete();
