@@ -5,24 +5,21 @@ import 'package:beauty_flow/pages/insta_list.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class ProfilePage extends StatefulWidget {
-  ProfilePage({Key key, this.auth, this.userId, this.onSignedOut})
-      : super(key: key);
+class SearchProfilePage extends StatefulWidget {
+  SearchProfilePage({Key key, this.auth, this.userId}) : super(key: key);
 
   final BaseAuth auth;
   final String userId;
-  final VoidCallback onSignedOut;
 
   @override
-  _ProfilePageState createState() => _ProfilePageState();
+  _SearchProfilePageState createState() => _SearchProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _SearchProfilePageState extends State<SearchProfilePage> {
   final Firestore _db = Firestore.instance;
   String currentUserId = currentUserModel.id;
   bool isFollowing = false;
   bool followButtonClicked = false;
-  int postCount = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -45,15 +42,6 @@ class _ProfilePageState extends State<ProfilePage> {
             isFollowing = true;
           }
           return Scaffold(
-            appBar: AppBar(
-              title: Center(child: Text("Beauty Flow")),
-              actions: <Widget>[
-                IconButton(
-                  icon: Icon(Icons.exit_to_app),
-                  onPressed: _signOut,
-                )
-              ],
-            ),
             body: ListView(
               children: <Widget>[
                 SizedBox(height: 20.0),
@@ -61,7 +49,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 _profileName(user.email, user.displayName),
                 _following(user),
                 buildProfileFollowButton(user),
-                Divider(),
+                SizedBox(height: 25.0),
                 _buildUserPosts()
               ],
             ),
@@ -74,15 +62,11 @@ class _ProfilePageState extends State<ProfilePage> {
       List<InstaList> posts = [];
       var snap = await _db
           .collection('beautyPosts')
-          .where('ownerId', isEqualTo: currentUserModel.id)
+          .where('ownerId', isEqualTo: widget.userId)
           .getDocuments();
-
       for (var doc in snap.documents) {
         posts.add(InstaList.fromDocument(doc));
       }
-      setState(() {
-        postCount = snap.documents.length;
-      });
       return posts.reversed.toList();
     }
 
@@ -164,26 +148,7 @@ class _ProfilePageState extends State<ProfilePage> {
   buildProfileFollowButton(User user) {
     // viewing your own profile - should show edit button
     if (currentUserId == widget.userId) {
-      return FlatButton(
-        onPressed: () {},
-        child: Container(
-          height: 40.0,
-          width: 200.0,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(30.0),
-            color: Color.fromRGBO(0, 60, 126, 1),
-          ),
-          child: Center(
-            child: Text(
-              "Edit Profile",
-              style: TextStyle(
-                  color: Colors.white,
-                  fontFamily: 'Montserrat',
-                  fontSize: 15.0),
-            ),
-          ),
-        ),
-      );
+      return Container();
     }
 
     if (isFollowing) {
@@ -275,25 +240,6 @@ class _ProfilePageState extends State<ProfilePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Text(
-                postCount.toString(),
-                style: TextStyle(
-                    fontFamily: 'Montserrat',
-                    color: Colors.red,
-                    fontSize: 17.0),
-              ),
-              Text(
-                'Posts',
-                style: TextStyle(
-                  fontFamily: 'Montserrat',
-                  color: Colors.grey,
-                ),
-              )
-            ],
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
                 _countFollowings(user.followers).toString(),
                 style: TextStyle(
                     fontFamily: 'Montserrat',
@@ -331,15 +277,6 @@ class _ProfilePageState extends State<ProfilePage> {
         ],
       ),
     );
-  }
-
-  _signOut() async {
-    try {
-      await widget.auth.signOut();
-      widget.onSignedOut();
-    } catch (e) {
-      print(e);
-    }
   }
 
   int _countFollowings(Map followings) {

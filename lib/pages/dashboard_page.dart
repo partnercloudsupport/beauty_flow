@@ -60,7 +60,7 @@ class _DashBoardPageState extends State<DashBoardPage>
               showSearch(
                   context: context,
                   delegate: DataSearch(
-                      onSignedOut: widget.onSignedOut, auth: widget.auth,queryResultSet: queryResultSet));
+                      auth: widget.auth, queryResultSet: queryResultSet));
             },
           )
         ],
@@ -82,7 +82,7 @@ class _DashBoardPageState extends State<DashBoardPage>
 
   _loadFeed() async {
     setState(() {
-      SearchService().searchByName('').then((QuerySnapshot docs) {
+      SearchService().searchByName().then((QuerySnapshot docs) {
         for (int i = 0; i < docs.documents.length; ++i) {
           queryResultSet.add(docs.documents[i].data);
         }

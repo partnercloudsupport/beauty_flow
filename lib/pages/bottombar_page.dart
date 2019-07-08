@@ -1,4 +1,5 @@
 import 'package:beauty_flow/authentication/authentication.dart';
+import 'package:beauty_flow/pages/booking_page.dart';
 import 'package:beauty_flow/pages/dashboard_page.dart';
 import 'package:beauty_flow/pages/newpost_page.dart';
 import 'package:beauty_flow/pages/profile_page.dart';
@@ -30,6 +31,7 @@ class _BottomBarPageState extends State<BottomBarPage> {
         tabs: [
           TabData(iconData: Icons.home, title: "Home"),
           TabData(iconData: Icons.add, title: "New Post"),
+          TabData(iconData: Icons.calendar_today, title: "Bookings"),
           TabData(iconData: Icons.person, title: "Profile")
         ],
         initialSelection: 0,
@@ -57,6 +59,11 @@ class _BottomBarPageState extends State<BottomBarPage> {
           auth: widget.auth
         );
       case 2:
+        return BookingPage(
+          userId: widget.userId,
+          auth: widget.auth
+        );
+      case 3:
         return ProfilePage(
           userId: widget.userId,
           auth: widget.auth,

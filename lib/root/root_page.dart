@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:beauty_flow/pages/login_page.dart';
 import 'package:beauty_flow/authentication/authentication.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final ref = Firestore.instance.collection('users');
 
@@ -30,9 +31,8 @@ class _RootPageState extends State<RootPage> {
   @override
   void initState() {
     super.initState();
-    widget.auth.getCurrentUser().then((user) {      
-      if (user != null) {
-      }
+    widget.auth.getCurrentUser().then((user) {
+      if (user != null) {}
       setState(() {
         if (user != null) {
           _userId = user?.uid;
@@ -54,15 +54,18 @@ class _RootPageState extends State<RootPage> {
     });
     setState(() {
       authStatus = AuthStatus.LOGGED_IN;
-
     });
   }
 
-  void _onSignedOut() {
+  void _onSignedOut() async {
     setState(() {
       authStatus = AuthStatus.NOT_LOGGED_IN;
       _userId = "";
     });
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+
+    currentUserModel = null;
   }
 
   Widget _buildWaitingScreen() {
@@ -93,7 +96,8 @@ class _RootPageState extends State<RootPage> {
             auth: widget.auth,
             onSignedOut: _onSignedOut,
           );
-        } else return _buildWaitingScreen();
+        } else
+          return _buildWaitingScreen();
         break;
       default:
         return _buildWaitingScreen();

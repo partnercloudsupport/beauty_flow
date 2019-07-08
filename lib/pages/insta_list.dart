@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 final auth = Auth();
 
@@ -14,8 +15,11 @@ class InstaList extends StatefulWidget {
       this.displayName,
       this.price,
       this.description,
+      this.beautyPro,
+      this.duration,
       this.likes,
       this.postId,
+      this.style,
       this.ownerId});
 
   factory InstaList.fromDocument(DocumentSnapshot document) {
@@ -23,8 +27,11 @@ class InstaList extends StatefulWidget {
       displayName: document['displayName'],
       price: document['price'].toDouble(),
       mediaUrl: document['mediaUrl'],
+      style: document['style'],
       likes: document['likes'],
       description: document['description'],
+      beautyPro: document['beautyPro'],
+      duration: document['duration'].toDouble(),
       postId: document.documentID,
       ownerId: document['ownerId'],
     );
@@ -35,8 +42,11 @@ class InstaList extends StatefulWidget {
       displayName: data['displayName'],
       price: data['price'].toDouble(),
       mediaUrl: data['mediaUrl'],
+      style: data['style'],
       likes: data['likes'],
       description: data['description'],
+      beautyPro: data['beautyPro'],
+      duration: data['duration'].toDouble(),
       ownerId: data['ownerId'],
       postId: data['postId'],
     );
@@ -60,8 +70,11 @@ class InstaList extends StatefulWidget {
 
   final String mediaUrl;
   final String displayName;
+  final String style;
   final double price;
+  final double duration;
   final String description;
+  final String beautyPro;
   final likes;
   final String postId;
   final String ownerId;
@@ -69,8 +82,11 @@ class InstaList extends StatefulWidget {
   _InstaListState createState() => _InstaListState(
         mediaUrl: this.mediaUrl,
         displayName: this.displayName,
+        style: this.style,
         price: this.price,
+        duration: this.duration,
         description: this.description,
+        beautyPro: this.beautyPro,
         likes: this.likes,
         likeCount: getLikeCount(this.likes),
         ownerId: this.ownerId,
@@ -81,8 +97,11 @@ class InstaList extends StatefulWidget {
 class _InstaListState extends State<InstaList> {
   final String mediaUrl;
   final String displayName;
+  final String style;
   final double price;
+  final double duration;
   final String description;
+  final String beautyPro;
   Map likes;
   int likeCount;
   final String postId;
@@ -101,8 +120,11 @@ class _InstaListState extends State<InstaList> {
   _InstaListState(
       {this.mediaUrl,
       this.displayName,
+      this.style,
       this.price,
+      this.duration,
       this.description,
+      this.beautyPro,
       this.likes,
       this.postId,
       this.likeCount,
@@ -114,10 +136,7 @@ class _InstaListState extends State<InstaList> {
     }
 
     return FutureBuilder(
-      future: Firestore.instance
-          .collection('users')
-          .document(ownerId)
-          .get(),
+      future: Firestore.instance.collection('users').document(ownerId).get(),
       builder: (context, snapshot) {
         String imageUrl = "";
         String username = "";
@@ -126,59 +145,64 @@ class _InstaListState extends State<InstaList> {
           imageUrl = snapshot.data.data['photoURL'];
           username = snapshot.data.data['displayName'];
         }
-        if (!snapshot.hasData) {
-          return Container(
-              alignment: FractionalOffset.center,
-              padding: const EdgeInsets.only(top: 10.0),
-              child: CircularProgressIndicator());
-        } else {
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16.0, 16.0, 8.0, 16.0),
-                child: Row(
-                  children: <Widget>[
-                    new Container(
-                      height: 40.0,
-                      width: 40.0,
-                      decoration: new BoxDecoration(
-                        shape: BoxShape.circle,
-                        image: new DecorationImage(
-                          fit: BoxFit.fill,
-                          image: (imageUrl == "" || imageUrl == null) ? AssetImage("assets/img/person.png") : NetworkImage(imageUrl),
+        return !snapshot.hasData
+            ? Center(child: CircularProgressIndicator())
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16.0, 16.0, 8.0, 16.0),
+                    child: Row(
+                      children: <Widget>[
+                        ClipOval(
+                          child: new Container(
+                            height: 40.0,
+                            width: 40.0,
+                            child: CachedNetworkImage(
+                              imageUrl: (imageUrl == "" || imageUrl == null)
+                                  ? "assets/img/person.png"
+                                  : imageUrl,
+                              fit: BoxFit.fill,
+                              fadeInDuration: Duration(milliseconds: 500),
+                              fadeInCurve: Curves.easeIn,
+                              placeholder: (context, url) =>
+                                  new CircularProgressIndicator(),
+                              errorWidget: (context, url, error) =>
+                                  Icon(Icons.error),
+                            ),
+                          ),
                         ),
-                      ),
+                        new SizedBox(
+                          width: 10.0,
+                        ),
+                        new Text(
+                          username,
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
                     ),
-                    new SizedBox(
-                      width: 10.0,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16.0, 16.0, 8.0, 16.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        new IconButton(
+                          icon: Icon(Icons.more_vert),
+                          onPressed: () {
+                            Scaffold.of(context).showSnackBar(new SnackBar(
+                              content: new Text(
+                                "Options Comming Soon",
+                                textAlign: TextAlign.center,
+                              ),
+                            ));
+                          },
+                        )
+                      ],
                     ),
-                    new Text(
-                      username,
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16.0, 16.0, 8.0, 16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    new IconButton(
-                      icon: Icon(Icons.more_vert),
-                      onPressed: () {
-                        Scaffold.of(context).showSnackBar(new SnackBar(
-                          content: new Text("Options Comming Soon",textAlign: TextAlign.center,),
-                        ));
-                      },
-                    )
-                  ],
-                ),
-              ),
-            ],
-          );
-        }
+                  ),
+                ],
+              );
       },
     );
   }
@@ -191,10 +215,14 @@ class _InstaListState extends State<InstaList> {
       child: Stack(
         alignment: Alignment.center,
         children: <Widget>[
-          Image(
+          CachedNetworkImage(
             fit: BoxFit.fill,
-            image: (mediaUrl == "" || mediaUrl == null) ? AssetImage("assets/img/person.png") : NetworkImage(mediaUrl),
+            imageUrl: mediaUrl == null ? "assets/img/person.png" : mediaUrl,
             height: 400.0,
+            fadeInDuration: Duration(milliseconds: 500),
+            fadeInCurve: Curves.easeIn,
+            placeholder: (context, url) => new CircularProgressIndicator(),
+            errorWidget: (context, url, error) => Icon(Icons.error),
           ),
           showHeart
               ? Positioned(
@@ -232,6 +260,26 @@ class _InstaListState extends State<InstaList> {
     );
   }
 
+  IconButton buildbookingIcon() {
+    Color color;
+    bool isDisabled;
+    if (ownerId == currentUserModel.id) {
+      color = Colors.red;
+      isDisabled = true;
+    } else {
+      isDisabled = false;
+    }
+
+    return IconButton(
+        icon: Icon(FontAwesomeIcons.calendar),
+        onPressed: isDisabled
+            ? null
+            : () {
+                _booking(postId);
+              },
+        disabledColor: color);
+  }
+
   @override
   Widget build(BuildContext context) {
     liked = (likes[currentUserModel.id.toString()] == true);
@@ -256,7 +304,10 @@ class _InstaListState extends State<InstaList> {
                     icon: Icon(FontAwesomeIcons.comment),
                     onPressed: () {
                       Scaffold.of(context).showSnackBar(new SnackBar(
-                        content: new Text("Comment Comming Soon",textAlign: TextAlign.center,),
+                        content: new Text(
+                          "Comment Comming Soon",
+                          textAlign: TextAlign.center,
+                        ),
                       ));
                     },
                   ),
@@ -264,17 +315,24 @@ class _InstaListState extends State<InstaList> {
                     icon: Icon(FontAwesomeIcons.paperPlane),
                     onPressed: () {
                       Scaffold.of(context).showSnackBar(new SnackBar(
-                        content: new Text("Share Comming Soon",textAlign: TextAlign.center,),
+                        content: new Text(
+                          "Share Comming Soon",
+                          textAlign: TextAlign.center,
+                        ),
                       ));
                     },
                   ),
+                  buildbookingIcon(),
                 ],
               ),
               new IconButton(
                 icon: Icon(FontAwesomeIcons.bookmark),
                 onPressed: () {
                   Scaffold.of(context).showSnackBar(new SnackBar(
-                    content: new Text("BookMark Comming Soon",textAlign: TextAlign.center,),
+                    content: new Text(
+                      "BookMark Comming Soon",
+                      textAlign: TextAlign.center,
+                    ),
                   ));
                 },
               )
@@ -289,10 +347,18 @@ class _InstaListState extends State<InstaList> {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0,vertical: 10.0),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
+              Text(
+                "Styled by : $beautyPro",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              Text(
+                "Style : $style",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               Text(
                 "Description : $description",
                 style: TextStyle(fontWeight: FontWeight.bold),
@@ -301,10 +367,14 @@ class _InstaListState extends State<InstaList> {
                 "Price : $price",
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
+              Text(
+                "Time Duration : $duration Min.",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
             ],
           ),
         ),
-        SizedBox(height: 50.0)
+        SizedBox(height: 40.0)
       ],
     );
   }
@@ -345,6 +415,31 @@ class _InstaListState extends State<InstaList> {
         });
       });
     }
+  }
+
+  void _booking(String postId) {
+    var fsReference = Firestore.instance.collection("bookings");
+
+    fsReference.add({
+      "postId": postId,
+      "price": price,
+      "mediaUrl": mediaUrl,
+      "beautyPro": beautyPro,
+      "displayName": displayName,
+      "style": style,
+      "bookedBy": currentUserModel.id,
+      "ownerId": ownerId,
+      "timestamp": DateTime.now(),
+    }).then((DocumentReference doc) {
+      String docId = doc.documentID;
+      fsReference.document(docId).updateData({"bookingId": docId});
+      Scaffold.of(context).showSnackBar(new SnackBar(
+        content: new Text(
+          "Booked",
+          textAlign: TextAlign.center,
+        ),
+      ));
+    });
   }
 
   void addActivityFeedItem() {

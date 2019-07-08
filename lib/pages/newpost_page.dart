@@ -22,6 +22,7 @@ class _NewPostPageState extends State<NewPostPage> {
   final Firestore _db = Firestore.instance;
   String _style;
   int _price;
+  int _duration;
   String _beautyPro;
   String _decription;
   bool _isLoading = false;
@@ -199,6 +200,51 @@ class _NewPostPageState extends State<NewPostPage> {
                                             },
                                             onSaved: (val) => setState(
                                                 () => _price = int.parse(val))),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                      left: 25.0, right: 25.0, top: 25.0),
+                                  child: new Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    children: <Widget>[
+                                      new Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: <Widget>[
+                                          new Text(
+                                            'Duration',
+                                            style: TextStyle(
+                                                fontSize: 16.0,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                      left: 25.0, right: 25.0, top: 2.0),
+                                  child: new Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    children: <Widget>[
+                                      new Flexible(
+                                        child: new TextFormField(
+                                            decoration: const InputDecoration(
+                                              hintText: "Enter Duration in Min",
+                                            ),
+                                            keyboardType: TextInputType.number,
+                                            validator: (value) {
+                                              if (value.isEmpty) {
+                                                return 'Please enter duration.';
+                                              }
+                                            },
+                                            onSaved: (val) => setState(
+                                                () => _duration = int.parse(val))),
                                       ),
                                     ],
                                   ),
@@ -436,6 +482,7 @@ class _NewPostPageState extends State<NewPostPage> {
         "displayName": user.data["displayName"],
         "style": _style,
         "price": _price,
+        "duration": _duration,
         "beautyPro": _beautyPro,
         "likes": {},
         "mediaUrl": downloadUrl,
