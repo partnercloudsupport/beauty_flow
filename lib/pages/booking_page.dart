@@ -16,40 +16,166 @@ class BookingPage extends StatefulWidget {
 class _BookingPageState extends State<BookingPage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
         appBar: AppBar(
-          title: Center(child: Text("Beauty Flow")),
+          bottom: TabBar(
+            tabs: [
+              Tab(
+                icon: Icon(Icons.calendar_today),
+                child: Text(
+                  "Your Bookings",
+                  style: TextStyle(
+                    fontFamily: 'Montserrat',
+                  ),
+                ),
+              ),
+              Tab(
+                icon: Icon(Icons.calendar_view_day),
+                child: Text(
+                  "Bookings For You",
+                  style: TextStyle(
+                    fontFamily: 'Montserrat',
+                  ),
+                ),
+              )
+            ],
+          ),
+          title: Text('Beauty Flow'),
         ),
-        body: Container(
-          height: 400.0,
-          child: StreamBuilder(
-              stream: Firestore.instance
-                  .collection("bookings")
-                  .where("bookedBy", isEqualTo: widget.userId)
-                  .snapshots(),
-              builder: (context, snapshot) {
-                return !snapshot.hasData
-                    ? Center(child: CircularProgressIndicator())
-                    : _buildCitiesList(context, snapshot.data.documents);
-              }),
-        ));
+        body: TabBarView(
+          children: [
+            Container(
+              height: 400.0,
+              child: StreamBuilder(
+                stream: Firestore.instance
+                    .collection("bookings")
+                    .where("bookedBy", isEqualTo: widget.userId)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  return !snapshot.hasData
+                      ? Center(child: CircularProgressIndicator())
+                      : _buildYourBookingList(context, snapshot.data.documents);
+                },
+              ),
+            ),
+            Container(
+              height: 400.0,
+              child: StreamBuilder(
+                stream: Firestore.instance
+                    .collection("bookings")
+                    .where("ownerId", isEqualTo: widget.userId)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  return !snapshot.hasData
+                      ? Center(child: CircularProgressIndicator())
+                      : _buildBookingForYouList(
+                          context, snapshot.data.documents);
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
-  Widget _buildCitiesList(
+  Widget _buildYourBookingList(
       BuildContext context, List<DocumentSnapshot> snapshots) {
-    return ListView.builder(
+    if (snapshots.length == 0) {
+      return Container(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Icon(
+              Icons.calendar_today,
+              size: 40.0,
+            ),
+            const Padding(
+              padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+            ),
+            Text(
+              "Not booked a style yet?",
+              style: TextStyle(
+                fontSize: 25.0,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Montserrat',
+              ),
+            ),
+            const Padding(
+              padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+            ),
+            Text(
+              "Go book the look you've been dreaming of",
+              style: TextStyle(
+                fontSize: 18.0,
+                fontFamily: 'Montserrat',
+              ),
+            ),
+            Text(
+              "and we'll keep the details in here for you",
+              style: TextStyle(
+                fontSize: 18.0,
+                fontFamily: 'Montserrat',
+              ),
+            ),
+          ],
+        ),
+      );
+    } else {
+      return ListView.builder(
         itemCount: snapshots.length,
         scrollDirection: Axis.vertical,
         physics: ClampingScrollPhysics(),
         itemBuilder: (context, index) {
-          return CustomListItemTwo(
+          return YourBookingList(
               booking: Booking.fromSnapshot(snapshots[index]));
-        });
+        },
+      );
+    }
   }
 }
 
-class _ArticleDescription extends StatelessWidget {
-  _ArticleDescription({Key key, this.booking}) : super(key: key);
+Widget _buildBookingForYouList(
+    BuildContext context, List<DocumentSnapshot> snapshots) {
+  if (snapshots.length == 0) {
+    return Container(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Icon(
+            Icons.calendar_today,
+            size: 40.0,
+          ),
+          const Padding(
+            padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+          ),
+          Text(
+            "No bookings found for you",
+            style: TextStyle(
+              fontSize: 22.0,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Montserrat',
+            ),
+          ),
+        ],
+      ),
+    );
+  } else {
+    return ListView.builder(
+      itemCount: snapshots.length,
+      scrollDirection: Axis.vertical,
+      physics: ClampingScrollPhysics(),
+      itemBuilder: (context, index) {
+        return BookingForList(booking: Booking.fromSnapshot(snapshots[index]));
+      },
+    );
+  }
+}
+
+class _YourBookingListArticleDescription extends StatelessWidget {
+  _YourBookingListArticleDescription({Key key, this.booking}) : super(key: key);
 
   final Booking booking;
 
@@ -64,21 +190,34 @@ class _ArticleDescription extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Text(
-                'Beauty Pro ${booking.beautyPro}',
+                'Beauty Pro: ${booking.beautyPro}',
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
+                  fontFamily: 'Montserrat',
                 ),
               ),
               const Padding(padding: EdgeInsets.only(bottom: 2.0)),
               Text(
-                'Beautician ${booking.displayName}',
+                'Beautician: ${booking.displayName}',
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   fontSize: 12.0,
                   color: Colors.black54,
+                  fontFamily: 'Montserrat',
+                ),
+              ),
+              const Padding(padding: EdgeInsets.only(bottom: 2.0)),
+              Text(
+                'Booked By: ${booking.bookedByUserName} (${booking.bookedByDisplayName})',
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 12.0,
+                  color: Colors.black54,
+                  fontFamily: 'Montserrat',
                 ),
               ),
             ],
@@ -91,17 +230,19 @@ class _ArticleDescription extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.end,
             children: <Widget>[
               Text(
-                'Cost ${booking.price} in Rs.',
+                'Cost: ${booking.price} in Rs.',
                 style: const TextStyle(
                   fontSize: 12.0,
                   color: Colors.black87,
+                  fontFamily: 'Montserrat',
                 ),
               ),
               Text(
-                'Booked On ${booking.timestamp.toDate()}',
+                'Booked On: ${booking.timestamp.toDate()}',
                 style: const TextStyle(
                   fontSize: 12.0,
                   color: Colors.black54,
+                  fontFamily: 'Montserrat',
                 ),
               ),
             ],
@@ -112,8 +253,8 @@ class _ArticleDescription extends StatelessWidget {
   }
 }
 
-class CustomListItemTwo extends StatelessWidget {
-  CustomListItemTwo({
+class YourBookingList extends StatelessWidget {
+  YourBookingList({
     Key key,
     this.booking,
   }) : super(key: key);
@@ -145,7 +286,132 @@ class CustomListItemTwo extends StatelessWidget {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(20.0, 10.0, 2.0, 10.0),
-                child: _ArticleDescription(
+                child: _YourBookingListArticleDescription(
+                  booking: booking,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _BookingForYouListArticleDescription extends StatelessWidget {
+  _BookingForYouListArticleDescription({Key key, this.booking})
+      : super(key: key);
+
+  final Booking booking;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Expanded(
+          flex: 2,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                'Booked By: ${booking.bookedByUserName} ( ${booking.bookedByDisplayName} )',
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Montserrat',
+                ),
+              ),
+              const Padding(padding: EdgeInsets.only(bottom: 2.0)),
+              Text(
+                'Booked Id: ${booking.bookingId}',
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 12.0,
+                  color: Colors.black54,
+                  fontFamily: 'Montserrat',
+                ),
+              ),
+              const Padding(padding: EdgeInsets.only(bottom: 2.0)),
+              Text(
+                'Booked Style: ${booking.style}',
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 12.0,
+                  color: Colors.black54,
+                  fontFamily: 'Montserrat',
+                ),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          flex: 1,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: <Widget>[
+              Text(
+                'Cost: ${booking.price} in Rs.',
+                style: const TextStyle(
+                  fontSize: 12.0,
+                  color: Colors.black87,
+                  fontFamily: 'Montserrat',
+                ),
+              ),
+              Text(
+                'Booking On: ${booking.timestamp.toDate()}',
+                style: const TextStyle(
+                  fontSize: 12.0,
+                  color: Colors.black54,
+                  fontFamily: 'Montserrat',
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class BookingForList extends StatelessWidget {
+  BookingForList({
+    Key key,
+    this.booking,
+  }) : super(key: key);
+
+  final Booking booking;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Container(
+        height: 150,
+        decoration: new BoxDecoration(
+          color: Colors.tealAccent,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            CachedNetworkImage(
+              imageUrl: (booking.mediaUrl == "" || booking.mediaUrl == null)
+                  ? "assets/img/person.png"
+                  : booking.mediaUrl,
+              fit: BoxFit.fill,
+              fadeInDuration: Duration(milliseconds: 500),
+              fadeInCurve: Curves.easeIn,
+              placeholder: (context, url) => new CircularProgressIndicator(),
+              errorWidget: (context, url, error) => Icon(Icons.error),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20.0, 10.0, 2.0, 10.0),
+                child: _BookingForYouListArticleDescription(
                   booking: booking,
                 ),
               ),

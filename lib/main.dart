@@ -17,7 +17,7 @@ bool get isInDebugMode {
 }
 /// Reports [error] along with its [stackTrace] to Sentry.io.
 Future<Null> _reportError(dynamic error, dynamic stackTrace) async {
-  print('Caught error: $error');
+  print('Caught error By Sentry.io. : $error');
 
   // Errors thrown in development mode are unlikely to be interesting. You can
   // check if you are running in dev mode using an assertion and omit sending

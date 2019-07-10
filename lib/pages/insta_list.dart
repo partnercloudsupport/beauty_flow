@@ -417,18 +417,35 @@ class _InstaListState extends State<InstaList> {
     }
   }
 
-  void _booking(String postId) {
+  void _booking(String postId) async {
     var fsReference = Firestore.instance.collection("bookings");
+
+    QuerySnapshot bookingRef = await Firestore.instance
+        .collection("styles")
+        .where("styleName", isEqualTo: style)
+        .getDocuments();
+    if (bookingRef.documents.isNotEmpty) {
+      var list = bookingRef.documents.toList();
+      print(list);
+      var sReference =
+          Firestore.instance.collection('styles').document(list[0].documentID);
+      sReference.updateData({
+        "bookings": (list[0]["bookings"] + 1),
+        "timestamp": DateTime.now(),
+      });
+    }
 
     fsReference.add({
       "postId": postId,
       "price": price,
       "mediaUrl": mediaUrl,
       "beautyPro": beautyPro,
-      "displayName": displayName,
+      "ownerId": ownerId,
+      "ownerIdDisplayName": displayName,
       "style": style,
       "bookedBy": currentUserModel.id,
-      "ownerId": ownerId,
+      "bookedByUserName": currentUserModel.username,
+      "bookedByDisplayName": currentUserModel.displayName,
       "timestamp": DateTime.now(),
     }).then((DocumentReference doc) {
       String docId = doc.documentID;

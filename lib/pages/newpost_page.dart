@@ -94,7 +94,9 @@ class _NewPostPageState extends State<NewPostPage> {
                                             child: new IconButton(
                                               icon: Icon(Icons.camera_alt),
                                               color: Colors.white,
-                                              onPressed: () {_selectImage(context);},
+                                              onPressed: () {
+                                                _selectImage(context);
+                                              },
                                             ),
                                           )
                                         ],
@@ -243,8 +245,8 @@ class _NewPostPageState extends State<NewPostPage> {
                                                 return 'Please enter duration.';
                                               }
                                             },
-                                            onSaved: (val) => setState(
-                                                () => _duration = int.parse(val))),
+                                            onSaved: (val) => setState(() =>
+                                                _duration = int.parse(val))),
                                       ),
                                     ],
                                   ),
@@ -477,6 +479,34 @@ class _NewPostPageState extends State<NewPostPage> {
       String downloadUrl = await taskSnapshot.ref.getDownloadURL();
 
       var fsReference = _db.collection('beautyPosts');
+      int count = 0;
+
+      QuerySnapshot ref = await _db.collection("styles").getDocuments();
+      if (ref.documents.isNotEmpty) {
+        count = ref.documents.length;
+      }
+
+      QuerySnapshot docExists = await _db
+          .collection("styles")
+          .where("styleName", isEqualTo: _style)
+          .getDocuments();
+
+      if (docExists.documents.isEmpty) {
+        var sReference = _db.collection('styles').document((count).toString());
+
+        sReference.setData({
+          "styleName": _style,
+          "bookings": 0,
+          "timestamp": DateTime.now(),
+        }, merge: true);
+      } else {
+        var list = docExists.documents.toList();
+        print(list);
+        var sReference = _db.collection('styles').document(list[0].documentID);
+        sReference.updateData({
+          "timestamp": DateTime.now(),
+        });
+      }
 
       fsReference.add({
         "displayName": user.data["displayName"],
