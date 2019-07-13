@@ -37,6 +37,8 @@ dependencies:
   shared_preferences: ^0.5.3+1
   sentry: any
   cached_network_image: 1.0.0
+  autocomplete_textfield: ^1.7.3
+  simple_autocomplete_formfield: ^0.2.3
 
 dev_dependencies:
   flutter_test:

@@ -1,7 +1,9 @@
 import 'package:beauty_flow/Model/User.dart';
 import 'package:beauty_flow/authentication/authentication.dart';
 import 'package:beauty_flow/main.dart';
+import 'package:beauty_flow/pages/editprofile_page.dart';
 import 'package:beauty_flow/pages/insta_list.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -109,12 +111,22 @@ class _ProfilePageState extends State<ProfilePage> {
       child: Column(children: <Widget>[
         Row(
           children: <Widget>[
-            CircleAvatar(
-              radius: 25.0,
-              backgroundColor: Colors.grey,
-              backgroundImage: photoURL == null
-                  ? AssetImage("assets/img/person.png")
-                  : NetworkImage(photoURL),
+            ClipOval(
+              child: new Container(
+                height: 50.0,
+                width: 50.0,
+                child: CachedNetworkImage(
+                  imageUrl: (photoURL == "" || photoURL == null)
+                      ? "assets/img/person.png"
+                      : photoURL,
+                  fit: BoxFit.fill,
+                  fadeInDuration: Duration(milliseconds: 500),
+                  fadeInCurve: Curves.easeIn,
+                  placeholder: (context, url) =>
+                      new CircularProgressIndicator(),
+                  errorWidget: (context, url, error) => Icon(Icons.error),
+                ),
+              ),
             ),
           ],
         ),
@@ -165,7 +177,15 @@ class _ProfilePageState extends State<ProfilePage> {
     // viewing your own profile - should show edit button
     if (currentUserId == widget.userId) {
       return FlatButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => EditProfilePage(
+                    userId: widget.userId,
+                  ),
+            ),
+          );
+        },
         child: Container(
           height: 40.0,
           width: 200.0,

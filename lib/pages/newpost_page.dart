@@ -1,10 +1,13 @@
 import 'dart:io';
+import 'package:beauty_flow/Model/User.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:simple_autocomplete_formfield/simple_autocomplete_formfield.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:beauty_flow/authentication/authentication.dart';
 import 'package:flutter/material.dart';
 import 'package:beauty_flow/util/random_string.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 
 class NewPostPage extends StatefulWidget {
   NewPostPage({Key key, this.auth, this.userId}) : super(key: key);
@@ -23,13 +26,36 @@ class _NewPostPageState extends State<NewPostPage> {
   String _style;
   int _price;
   int _duration;
-  String _beautyPro;
+  User _beautyPro;
   String _decription;
   bool _isLoading = false;
 
+  // AutoComplete
+  GlobalKey<AutoCompleteTextFieldState<User>> key = new GlobalKey();
+
+  AutoCompleteTextField searchTextField;
+
+  TextEditingController controller = new TextEditingController();
+
+  List<User> listUser = List<User>();
+
   @override
   void initState() {
+    _loadData();
     super.initState();
+  }
+
+  void _loadData() async {
+    Firestore _db = Firestore.instance;
+    var userRef = await _db
+        .collection('users')
+        .where('isPro', isEqualTo: true)
+        .getDocuments();
+    print(userRef.documents);
+    userRef.documents.forEach((f) {
+      var user = User.fromDocument(f);
+      listUser.add(user);
+    });
   }
 
   Widget build(BuildContext context) {
@@ -55,7 +81,7 @@ class _NewPostPageState extends State<NewPostPage> {
                           child: new Column(
                             children: <Widget>[
                               Padding(
-                                padding: EdgeInsets.only(top: 20.0, left: 20.0),
+                                padding: EdgeInsets.only(top: 10.0, left: 20.0),
                                 child: new Stack(
                                   fit: StackFit.loose,
                                   children: <Widget>[
@@ -83,7 +109,7 @@ class _NewPostPageState extends State<NewPostPage> {
                                     ),
                                     Padding(
                                       padding: EdgeInsets.only(
-                                          top: 90.0, right: 275.0),
+                                          top: 90.0, right: 285.0),
                                       child: new Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
@@ -263,50 +289,6 @@ class _NewPostPageState extends State<NewPostPage> {
                                         mainAxisSize: MainAxisSize.min,
                                         children: <Widget>[
                                           new Text(
-                                            'Beauty Pro',
-                                            style: TextStyle(
-                                                fontSize: 16.0,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(
-                                      left: 25.0, right: 25.0, top: 2.0),
-                                  child: new Row(
-                                    mainAxisSize: MainAxisSize.max,
-                                    children: <Widget>[
-                                      new Flexible(
-                                        child: new TextFormField(
-                                            decoration: const InputDecoration(
-                                              hintText: "BeautyFlow",
-                                            ),
-                                            validator: (value) {
-                                              if (value.isEmpty) {
-                                                return 'Please enter Beauty Pro';
-                                              }
-                                            },
-                                            onSaved: (val) => setState(
-                                                () => _beautyPro = val)),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(
-                                      left: 25.0, right: 25.0, top: 25.0),
-                                  child: new Row(
-                                    mainAxisSize: MainAxisSize.max,
-                                    children: <Widget>[
-                                      new Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: <Widget>[
-                                          new Text(
                                             'Description',
                                             style: TextStyle(
                                                 fontSize: 16.0,
@@ -340,6 +322,69 @@ class _NewPostPageState extends State<NewPostPage> {
                                     ],
                                   ),
                                 ),
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                      left: 25.0, right: 25.0, top: 25.0),
+                                  child: new Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    children: <Widget>[
+                                      new Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: <Widget>[
+                                          new Text(
+                                            'Beauty Pro',
+                                            style: TextStyle(
+                                                fontSize: 16.0,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                      left: 25.0, right: 25.0, top: 2.0),
+                                  child: SimpleAutocompleteFormField<User>(
+                                    decoration: InputDecoration(
+                                      hintText: 'Select Beauty Pro',
+                                    ),
+                                    suggestionsHeight: 100.0,
+                                    itemBuilder: (context, person) => Padding(
+                                          padding: EdgeInsets.all(8.0),
+                                          child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text('${person.username}',
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold)),
+                                                Text('${person.displayName}')
+                                              ]),
+                                        ),
+                                    onSearch: (search) async => listUser
+                                        .where((person) => person.username
+                                            .toLowerCase()
+                                            .contains(search.toLowerCase()))
+                                        .toList(),
+                                    itemFromString: (string) =>
+                                        listUser.singleWhere(
+                                            (person) =>
+                                                person.username.toLowerCase() ==
+                                                string.toLowerCase(),
+                                            orElse: () => null),
+                                    onChanged: (value) =>
+                                        setState(() => _beautyPro = value),
+                                    onSaved: (value) =>
+                                        setState(() => _beautyPro = value),
+                                    validator: (person) => person == null
+                                        ? 'Invalid person.'
+                                        : null,
+                                  ),
+                                ),
                                 _getActionButtons()
                               ],
                             ),
@@ -363,7 +408,7 @@ class _NewPostPageState extends State<NewPostPage> {
 
   Widget _getActionButtons() {
     return Padding(
-      padding: EdgeInsets.only(left: 25.0, right: 25.0, top: 45.0),
+      padding: EdgeInsets.only(left: 25.0, right: 25.0, top: 20.0),
       child: new Row(
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.start,
@@ -499,21 +544,16 @@ class _NewPostPageState extends State<NewPostPage> {
           "bookings": 0,
           "timestamp": DateTime.now(),
         }, merge: true);
-      } else {
-        var list = docExists.documents.toList();
-        print(list);
-        var sReference = _db.collection('styles').document(list[0].documentID);
-        sReference.updateData({
-          "timestamp": DateTime.now(),
-        });
       }
 
       fsReference.add({
-        "displayName": user.data["displayName"],
+        "ownerIddisplayName": user.data["displayName"],
         "style": _style,
         "price": _price,
         "duration": _duration,
-        "beautyPro": _beautyPro,
+        "beautyProUserName": _beautyPro.username,
+        "beautyProDisplayName": _beautyPro.displayName,
+        "beautyProId": _beautyPro.id,
         "likes": {},
         "mediaUrl": downloadUrl,
         "description": _decription,

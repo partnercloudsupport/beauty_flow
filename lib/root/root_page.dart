@@ -1,9 +1,9 @@
 import 'package:beauty_flow/Model/User.dart';
 import 'package:beauty_flow/main.dart';
 import 'package:beauty_flow/pages/bottombar_page.dart';
+import 'package:beauty_flow/pages/login_pagenew.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:beauty_flow/pages/login_page.dart';
 import 'package:beauty_flow/authentication/authentication.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -84,7 +84,7 @@ class _RootPageState extends State<RootPage> {
         return _buildWaitingScreen();
         break;
       case AuthStatus.NOT_LOGGED_IN:
-        return new LoginPage(
+        return new LoginPageNew(
           auth: widget.auth,
           onSignedIn: _onLoggedIn,
         );

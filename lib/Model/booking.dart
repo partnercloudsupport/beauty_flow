@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Booking {
-  final String beautyPro, bookedBy,bookedByUserName, bookedByDisplayName, bookingId, displayName, mediaUrl, ownerId, ownerIdDisplayName, postId, style;
+  final String beautyProId,beautyProDisplayName, beautyProUserName, bookedBy,bookedByUserName, bookedByDisplayName, bookingId, mediaUrl, postId, style;
   final double price;
   final Timestamp timestamp;
 
@@ -10,24 +10,23 @@ class Booking {
         assert(map['bookedByUserName'] != null),
         assert(map['bookedByDisplayName'] != null),
         assert(map['bookingId'] != null),
-        assert(map['displayName'] != null),
-        assert(map['beautyPro'] != null),
         assert(map['mediaUrl'] != null),
-        assert(map['ownerId'] != null),
-        assert(map['ownerIdDisplayName'] != null),
+        assert(map['beautyProId'] != null),
+        assert(map['beautyProDisplayName'] != null),
+        assert(map['beautyProUserName'] != null),
         assert(map['postId'] != null),
         assert(map['timestamp'] != null),
+        assert(map['price'] != null),
         assert(map['style'] != null),
-        beautyPro = map['beautyPro'],
+        beautyProId = map['beautyProId'],
         bookedBy = map['bookedBy'],
-        bookedByUserName = map['bookedByName'],
+        bookedByUserName = map['bookedByUserName'],
         bookedByDisplayName = map['bookedByDisplayName'],
         bookingId = map['bookingId'],
-        displayName = map['displayName'],
         price = map['price'],
         timestamp = map['timestamp'],
-        ownerId = map["ownerId"],
-        ownerIdDisplayName = map["ownerIdDisplayName"],
+        beautyProDisplayName = map["beautyProDisplayName"],
+        beautyProUserName = map["beautyProUserName"],
         postId = map["postId"],
         style = map["style"],
         mediaUrl = map["mediaUrl"];

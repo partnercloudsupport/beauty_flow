@@ -12,10 +12,12 @@ final auth = Auth();
 class InstaList extends StatefulWidget {
   const InstaList(
       {this.mediaUrl,
-      this.displayName,
+      this.ownerIddisplayName,
       this.price,
       this.description,
-      this.beautyPro,
+      this.beautyProId,
+      this.beautyProDisplayName,
+      this.beautyProUserName,
       this.duration,
       this.likes,
       this.postId,
@@ -24,13 +26,15 @@ class InstaList extends StatefulWidget {
 
   factory InstaList.fromDocument(DocumentSnapshot document) {
     return InstaList(
-      displayName: document['displayName'],
+      ownerIddisplayName: document['ownerIddisplayName'],
       price: document['price'].toDouble(),
       mediaUrl: document['mediaUrl'],
       style: document['style'],
       likes: document['likes'],
       description: document['description'],
-      beautyPro: document['beautyPro'],
+      beautyProId: document['beautyProId'],
+      beautyProDisplayName: document['beautyProDisplayName'],
+      beautyProUserName: document['beautyProUserName'],
       duration: document['duration'].toDouble(),
       postId: document.documentID,
       ownerId: document['ownerId'],
@@ -39,13 +43,15 @@ class InstaList extends StatefulWidget {
 
   factory InstaList.fromJSON(Map data) {
     return InstaList(
-      displayName: data['displayName'],
+      ownerIddisplayName: data['ownerIddisplayName'],
       price: data['price'].toDouble(),
       mediaUrl: data['mediaUrl'],
       style: data['style'],
       likes: data['likes'],
       description: data['description'],
-      beautyPro: data['beautyPro'],
+      beautyProId: data['beautyProId'],
+      beautyProDisplayName: data['beautyProDisplayName'],
+      beautyProUserName: data['beautyProUserName'],
       duration: data['duration'].toDouble(),
       ownerId: data['ownerId'],
       postId: data['postId'],
@@ -69,24 +75,28 @@ class InstaList extends StatefulWidget {
   }
 
   final String mediaUrl;
-  final String displayName;
+  final String ownerIddisplayName;
   final String style;
   final double price;
   final double duration;
   final String description;
-  final String beautyPro;
+  final String beautyProId;
+  final String beautyProDisplayName;
+  final String beautyProUserName;
   final likes;
   final String postId;
   final String ownerId;
 
   _InstaListState createState() => _InstaListState(
         mediaUrl: this.mediaUrl,
-        displayName: this.displayName,
+        ownerIddisplayName: this.ownerIddisplayName,
         style: this.style,
         price: this.price,
         duration: this.duration,
         description: this.description,
-        beautyPro: this.beautyPro,
+        beautyProId: this.beautyProId,
+        beautyProDisplayName: this.beautyProDisplayName,
+        beautyProUserName: this.beautyProUserName,
         likes: this.likes,
         likeCount: getLikeCount(this.likes),
         ownerId: this.ownerId,
@@ -96,12 +106,14 @@ class InstaList extends StatefulWidget {
 
 class _InstaListState extends State<InstaList> {
   final String mediaUrl;
-  final String displayName;
+  final String ownerIddisplayName;
   final String style;
   final double price;
   final double duration;
   final String description;
-  final String beautyPro;
+  final String beautyProId;
+  final String beautyProDisplayName;
+  final String beautyProUserName;
   Map likes;
   int likeCount;
   final String postId;
@@ -109,6 +121,7 @@ class _InstaListState extends State<InstaList> {
   final String ownerId;
 
   bool showHeart = false;
+  bool _isLoading;
 
   TextStyle boldStyle = TextStyle(
     color: Colors.black,
@@ -119,12 +132,14 @@ class _InstaListState extends State<InstaList> {
 
   _InstaListState(
       {this.mediaUrl,
-      this.displayName,
+      this.ownerIddisplayName,
       this.style,
       this.price,
       this.duration,
       this.description,
-      this.beautyPro,
+      this.beautyProId,
+      this.beautyProUserName,
+      this.beautyProDisplayName,
       this.likes,
       this.postId,
       this.likeCount,
@@ -175,9 +190,18 @@ class _InstaListState extends State<InstaList> {
                         new SizedBox(
                           width: 10.0,
                         ),
-                        new Text(
-                          username,
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(
+                              username,
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              'Styled By : $beautyProUserName',
+                              style: TextStyle(fontSize: 15.0),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -189,6 +213,7 @@ class _InstaListState extends State<InstaList> {
                       children: <Widget>[
                         new IconButton(
                           icon: Icon(Icons.more_vert),
+                          tooltip: "More Options",
                           onPressed: () {
                             Scaffold.of(context).showSnackBar(new SnackBar(
                               content: new Text(
@@ -240,6 +265,12 @@ class _InstaListState extends State<InstaList> {
     );
   }
 
+  @override
+  void initState() {
+    _isLoading = false;
+    super.initState();
+  }
+
   IconButton buildLikeIcon() {
     Color color;
     IconData icon;
@@ -263,15 +294,15 @@ class _InstaListState extends State<InstaList> {
   IconButton buildbookingIcon() {
     Color color;
     bool isDisabled;
-    if (ownerId == currentUserModel.id) {
+    if (beautyProId == currentUserModel.id) {
       color = Colors.red;
       isDisabled = true;
     } else {
       isDisabled = false;
     }
-
     return IconButton(
         icon: Icon(FontAwesomeIcons.calendar),
+        tooltip: "Book",
         onPressed: isDisabled
             ? null
             : () {
@@ -284,98 +315,120 @@ class _InstaListState extends State<InstaList> {
   Widget build(BuildContext context) {
     liked = (likes[currentUserModel.id.toString()] == true);
 
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+    return Stack(
       children: <Widget>[
-        buildPostHeader(ownerId: ownerId),
-        buildLikeableImage(),
-        Padding(
-          padding: const EdgeInsets.all(0.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              new Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  buildLikeIcon(),
-                  new IconButton(
-                    icon: Icon(FontAwesomeIcons.comment),
-                    onPressed: () {
-                      Scaffold.of(context).showSnackBar(new SnackBar(
-                        content: new Text(
-                          "Comment Comming Soon",
-                          textAlign: TextAlign.center,
-                        ),
-                      ));
-                    },
-                  ),
-                  new IconButton(
-                    icon: Icon(FontAwesomeIcons.paperPlane),
-                    onPressed: () {
-                      Scaffold.of(context).showSnackBar(new SnackBar(
-                        content: new Text(
-                          "Share Comming Soon",
-                          textAlign: TextAlign.center,
-                        ),
-                      ));
-                    },
-                  ),
-                  buildbookingIcon(),
-                ],
-              ),
-              new IconButton(
-                icon: Icon(FontAwesomeIcons.bookmark),
-                onPressed: () {
-                  Scaffold.of(context).showSnackBar(new SnackBar(
-                    content: new Text(
-                      "BookMark Comming Soon",
-                      textAlign: TextAlign.center,
-                    ),
-                  ));
-                },
-              )
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: Text(
-            "Liked by $likeCount People",
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+        Container(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              Text(
-                "Styled by : $beautyPro",
-                style: TextStyle(fontWeight: FontWeight.bold),
+              buildPostHeader(ownerId: ownerId),
+              buildLikeableImage(),
+              Padding(
+                padding: const EdgeInsets.all(0.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    new Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        buildLikeIcon(),
+                        new IconButton(
+                          icon: Icon(FontAwesomeIcons.comment),
+                          tooltip: "Comments",
+                          onPressed: () {
+                            Scaffold.of(context).showSnackBar(new SnackBar(
+                              content: new Text(
+                                "Comment Comming Soon",
+                                textAlign: TextAlign.center,
+                              ),
+                            ));
+                          },
+                        ),
+                        new IconButton(
+                          icon: Icon(FontAwesomeIcons.paperPlane),
+                          tooltip: "Share",
+                          onPressed: () {
+                            Scaffold.of(context).showSnackBar(new SnackBar(
+                              content: new Text(
+                                "Share Comming Soon",
+                                textAlign: TextAlign.center,
+                              ),
+                            ));
+                          },
+                        ),
+                        buildbookingIcon(),
+                      ],
+                    ),
+                    new IconButton(
+                      icon: Icon(FontAwesomeIcons.bookmark),
+                      tooltip: "BookMark",
+                      onPressed: () {
+                        Scaffold.of(context).showSnackBar(new SnackBar(
+                          content: new Text(
+                            "BookMark Comming Soon",
+                            textAlign: TextAlign.center,
+                          ),
+                        ));
+                      },
+                    )
+                  ],
+                ),
               ),
-              Text(
-                "Style : $style",
-                style: TextStyle(fontWeight: FontWeight.bold),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Text(
+                  "Liked by $likeCount People",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
               ),
-              Text(
-                "Description : $description",
-                style: TextStyle(fontWeight: FontWeight.bold),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 20.0, vertical: 10.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      "Style : $style",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const Padding(padding: EdgeInsets.fromLTRB(0, 3, 0, 3),),
+                    Text(
+                      "Description : $description",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const Padding(padding: EdgeInsets.fromLTRB(0, 3, 0, 3),),
+                    Text(
+                      "Price : $price",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const Padding(padding: EdgeInsets.fromLTRB(0, 3, 0, 5),),
+                    Text(
+                      "Time Duration : $duration Min.",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
               ),
-              Text(
-                "Price : $price",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              Text(
-                "Time Duration : $duration Min.",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
+              SizedBox(height: 40.0)
             ],
           ),
         ),
-        SizedBox(height: 40.0)
+        _showCircularProgress(),
       ],
+    );
+  }
+
+  Widget _showCircularProgress() {
+    if (_isLoading) {
+      return Center(
+        child: LinearProgressIndicator(),
+      );
+    }
+    return Container(
+      height: 0.0,
+      width: 0.0,
     );
   }
 
@@ -418,6 +471,9 @@ class _InstaListState extends State<InstaList> {
   }
 
   void _booking(String postId) async {
+    setState(() {
+      _isLoading = true;
+    });
     var fsReference = Firestore.instance.collection("bookings");
 
     QuerySnapshot bookingRef = await Firestore.instance
@@ -439,9 +495,9 @@ class _InstaListState extends State<InstaList> {
       "postId": postId,
       "price": price,
       "mediaUrl": mediaUrl,
-      "beautyPro": beautyPro,
-      "ownerId": ownerId,
-      "ownerIdDisplayName": displayName,
+      "beautyProId": beautyProId,
+      "beautyProDisplayName": beautyProDisplayName,
+      "beautyProUserName": beautyProUserName,
       "style": style,
       "bookedBy": currentUserModel.id,
       "bookedByUserName": currentUserModel.username,
@@ -456,6 +512,9 @@ class _InstaListState extends State<InstaList> {
           textAlign: TextAlign.center,
         ),
       ));
+    });
+    setState(() {
+      _isLoading = false;
     });
   }
 

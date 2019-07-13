@@ -51,7 +51,7 @@ class _BookingPageState extends State<BookingPage> {
               child: StreamBuilder(
                 stream: Firestore.instance
                     .collection("bookings")
-                    .where("bookedBy", isEqualTo: widget.userId)
+                    .where("bookedBy", isEqualTo: widget.userId).limit(10)
                     .snapshots(),
                 builder: (context, snapshot) {
                   return !snapshot.hasData
@@ -65,7 +65,7 @@ class _BookingPageState extends State<BookingPage> {
               child: StreamBuilder(
                 stream: Firestore.instance
                     .collection("bookings")
-                    .where("ownerId", isEqualTo: widget.userId)
+                    .where("beautyProId", isEqualTo: widget.userId).limit(10)
                     .snapshots(),
                 builder: (context, snapshot) {
                   return !snapshot.hasData
@@ -83,6 +83,7 @@ class _BookingPageState extends State<BookingPage> {
 
   Widget _buildYourBookingList(
       BuildContext context, List<DocumentSnapshot> snapshots) {
+        double height = MediaQuery.of(context).size.height;
     if (snapshots.length == 0) {
       return Container(
         child: Column(
@@ -90,7 +91,7 @@ class _BookingPageState extends State<BookingPage> {
           children: <Widget>[
             Icon(
               Icons.calendar_today,
-              size: 40.0,
+              size: height < 600 ? 30.0 : 40.0,
             ),
             const Padding(
               padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
@@ -98,7 +99,7 @@ class _BookingPageState extends State<BookingPage> {
             Text(
               "Not booked a style yet?",
               style: TextStyle(
-                fontSize: 25.0,
+                fontSize: height < 600 ? 20.0 : 25.0,
                 fontWeight: FontWeight.bold,
                 fontFamily: 'Montserrat',
               ),
@@ -109,14 +110,14 @@ class _BookingPageState extends State<BookingPage> {
             Text(
               "Go book the look you've been dreaming of",
               style: TextStyle(
-                fontSize: 18.0,
+                fontSize: height < 600 ? 15.0 : 18.0,
                 fontFamily: 'Montserrat',
               ),
             ),
             Text(
               "and we'll keep the details in here for you",
               style: TextStyle(
-                fontSize: 18.0,
+                fontSize: height < 600 ? 15.0 : 18.0,
                 fontFamily: 'Montserrat',
               ),
             ),
@@ -139,6 +140,7 @@ class _BookingPageState extends State<BookingPage> {
 
 Widget _buildBookingForYouList(
     BuildContext context, List<DocumentSnapshot> snapshots) {
+      double height = MediaQuery.of(context).size.height;
   if (snapshots.length == 0) {
     return Container(
       child: Column(
@@ -146,7 +148,7 @@ Widget _buildBookingForYouList(
         children: <Widget>[
           Icon(
             Icons.calendar_today,
-            size: 40.0,
+            size: height < 600 ? 30.0 : 40.0,
           ),
           const Padding(
             padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
@@ -154,7 +156,7 @@ Widget _buildBookingForYouList(
           Text(
             "No bookings found for you",
             style: TextStyle(
-              fontSize: 22.0,
+              fontSize: height < 600 ? 18.0 : 22.0,
               fontWeight: FontWeight.bold,
               fontFamily: 'Montserrat',
             ),
@@ -190,7 +192,7 @@ class _YourBookingListArticleDescription extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Text(
-                'Beauty Pro: ${booking.beautyPro}',
+                'Beauty Pro: ${booking.beautyProUserName}',
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
@@ -200,18 +202,7 @@ class _YourBookingListArticleDescription extends StatelessWidget {
               ),
               const Padding(padding: EdgeInsets.only(bottom: 2.0)),
               Text(
-                'Beautician: ${booking.displayName}',
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 12.0,
-                  color: Colors.black54,
-                  fontFamily: 'Montserrat',
-                ),
-              ),
-              const Padding(padding: EdgeInsets.only(bottom: 2.0)),
-              Text(
-                'Booked By: ${booking.bookedByUserName} (${booking.bookedByDisplayName})',
+                'Beautician: ${booking.beautyProDisplayName}',
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(

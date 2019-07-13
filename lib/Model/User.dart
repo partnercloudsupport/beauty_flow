@@ -21,7 +21,9 @@ class User {
       this.followers,
       this.following,
       this.isPro});
-
+  @override
+  String toString() => username;
+  
   factory User.fromDocument(DocumentSnapshot document) {
     return User(
       email: document['email'],

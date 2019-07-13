@@ -37,9 +37,16 @@ class _DashBoardPageState extends State<DashBoardPage>
 
   buildFeed() {
     if (feedData != null) {
-      return ListView(
-        children: feedData,
-      );
+      if (feedData.length > 0) {
+        return ListView(
+          children: feedData,
+        );
+      } else {
+        return Container(
+          alignment: FractionalOffset.center,
+          child: Center(child: Text("Pull To Refresh")),
+        );
+      }
     } else {
       return Container(
           alignment: FractionalOffset.center,
