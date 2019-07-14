@@ -119,8 +119,7 @@ class _SignUpPageNewState extends State<SignUpPageNew> {
     double height = MediaQuery.of(context).size.height;
     return Form(
       key: _formKey,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: ListView(
         children: <Widget>[
           new Stack(
             children: <Widget>[
@@ -136,7 +135,7 @@ class _SignUpPageNewState extends State<SignUpPageNew> {
               ),
               Container(
                 padding: EdgeInsets.fromLTRB(
-                    260.0, height < 600 ? height * 0.05 : 125.0, 0.0, 0.0),
+                    280.0, height < 600 ? height * 0.05 : 130.0, 0.0, 0.0),
                 child: Text(
                   '.',
                   style: TextStyle(

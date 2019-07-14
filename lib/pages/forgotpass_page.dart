@@ -102,8 +102,7 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
     double height = MediaQuery.of(context).size.height;
     return Form(
       key: _formKey,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: ListView(
         children: <Widget>[
           new Stack(
             children: <Widget>[
@@ -112,7 +111,7 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
                     15.0, height < 600 ? height * 0.08 : 130.0, 0.0, 0.0),
                 child: Text('Forgot',
                     style: TextStyle(
-                        fontSize: height < 600 ? 50 : 80.0,
+                        fontSize: height < 600 ? 50 : 60.0,
                         fontWeight: FontWeight.bold)),
               ),
               Container(
@@ -120,15 +119,15 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
                     17.0, height < 600 ? height * 0.18 : 210.0, 0.0, 0.0),
                 child: Text('Password',
                     style: TextStyle(
-                        fontSize: height < 600 ? 50 : 80.0,
+                        fontSize: height < 600 ? 50 : 60.0,
                         fontWeight: FontWeight.bold)),
               ),
               Container(
-                padding: EdgeInsets.fromLTRB(height < 600 ? 260 : 400.0,
+                padding: EdgeInsets.fromLTRB(height < 600 ? 260 : 310.0,
                     height < 600 ? height * 0.13 : 210.0, 0.0, 0.0),
                 child: Text('.',
                     style: TextStyle(
-                        fontSize: 80.0,
+                        fontSize: 60.0,
                         fontWeight: FontWeight.bold,
                         color: Colors.green)),
               )

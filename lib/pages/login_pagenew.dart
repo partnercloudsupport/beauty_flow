@@ -138,8 +138,7 @@ class _LoginPageNewState extends State<LoginPageNew> {
     return Container(
       child: Form(
         key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: ListView(
           children: <Widget>[
             Container(
               child: Stack(

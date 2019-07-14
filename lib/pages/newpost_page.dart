@@ -7,7 +7,6 @@ import 'package:beauty_flow/authentication/authentication.dart';
 import 'package:flutter/material.dart';
 import 'package:beauty_flow/util/random_string.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 
 class NewPostPage extends StatefulWidget {
   NewPostPage({Key key, this.auth, this.userId}) : super(key: key);
@@ -29,11 +28,6 @@ class _NewPostPageState extends State<NewPostPage> {
   User _beautyPro;
   String _decription;
   bool _isLoading = false;
-
-  // AutoComplete
-  GlobalKey<AutoCompleteTextFieldState<User>> key = new GlobalKey();
-
-  AutoCompleteTextField searchTextField;
 
   TextEditingController controller = new TextEditingController();
 
@@ -67,334 +61,329 @@ class _NewPostPageState extends State<NewPostPage> {
         color: Colors.white,
         child: Builder(
           builder: (context) => Form(
-                key: _formKey,
-                child: new ListView(
+            key: _formKey,
+            child: new ListView(
+              children: <Widget>[
+                _isLoading == true ? LinearProgressIndicator() : Container(),
+                Column(
                   children: <Widget>[
-                    _isLoading == true
-                        ? LinearProgressIndicator()
-                        : Container(),
-                    Column(
-                      children: <Widget>[
-                        new Container(
-                          height: 210.0,
-                          color: Colors.white,
-                          child: new Column(
-                            children: <Widget>[
-                              Padding(
-                                padding: EdgeInsets.only(top: 10.0, left: 20.0),
-                                child: new Stack(
-                                  fit: StackFit.loose,
+                    new Container(
+                      height: 210.0,
+                      color: Colors.white,
+                      child: new Column(
+                        children: <Widget>[
+                          Padding(
+                            padding: EdgeInsets.only(top: 10.0, left: 20.0),
+                            child: new Stack(
+                              fit: StackFit.loose,
+                              children: <Widget>[
+                                new Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.start,
                                   children: <Widget>[
-                                    new Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: <Widget>[
-                                        new Container(
-                                          width: 140.0,
-                                          height: 140.0,
-                                          decoration: new BoxDecoration(
-                                            shape: BoxShape.rectangle,
-                                            image: new DecorationImage(
-                                              image: file == null
-                                                  ? new ExactAssetImage(
-                                                      'assets/img/as.png')
-                                                  : FileImage(file),
-                                              fit: BoxFit.contain,
-                                            ),
-                                          ),
+                                    new Container(
+                                      width: 140.0,
+                                      height: 140.0,
+                                      decoration: new BoxDecoration(
+                                        shape: BoxShape.rectangle,
+                                        image: new DecorationImage(
+                                          image: file == null
+                                              ? new ExactAssetImage(
+                                                  'assets/img/as.png')
+                                              : FileImage(file),
+                                          fit: BoxFit.contain,
                                         ),
-                                      ],
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                          top: 90.0, right: 285.0),
-                                      child: new Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: <Widget>[
-                                          new CircleAvatar(
-                                            backgroundColor: Colors.red,
-                                            radius: 25.0,
-                                            child: new IconButton(
-                                              icon: Icon(Icons.camera_alt),
-                                              color: Colors.white,
-                                              onPressed: () {
-                                                _selectImage(context);
-                                              },
-                                            ),
-                                          )
-                                        ],
                                       ),
                                     ),
                                   ],
                                 ),
-                              )
-                            ],
-                          ),
-                        ),
-                        new Container(
-                          color: Color(0xffFFFFFF),
-                          child: Padding(
-                            padding: EdgeInsets.only(bottom: 25.0),
-                            child: new Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: <Widget>[
                                 Padding(
                                   padding:
-                                      EdgeInsets.only(left: 25.0, right: 25.0),
+                                      EdgeInsets.only(top: 90.0, right: 285.0),
                                   child: new Row(
-                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: <Widget>[
-                                      new Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: <Widget>[
-                                          new Text(
-                                            'Style Name',
-                                            style: TextStyle(
-                                                fontSize: 16.0,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(
-                                      left: 25.0, right: 25.0, top: 2.0),
-                                  child: new Row(
-                                    mainAxisSize: MainAxisSize.max,
-                                    children: <Widget>[
-                                      new Flexible(
-                                        child: new TextFormField(
-                                          decoration: const InputDecoration(
-                                            hintText: "Enter Style",
-                                          ),
-                                          validator: (value) {
-                                            if (value.isEmpty) {
-                                              return 'Please enter style';
-                                            }
+                                      new CircleAvatar(
+                                        backgroundColor: Colors.red,
+                                        radius: 25.0,
+                                        child: new IconButton(
+                                          icon: Icon(Icons.camera_alt),
+                                          color: Colors.white,
+                                          onPressed: () {
+                                            _selectImage(context);
                                           },
-                                          onSaved: (val) =>
-                                              setState(() => _style = val),
                                         ),
-                                      ),
+                                      )
                                     ],
                                   ),
                                 ),
-                                Padding(
-                                  padding: EdgeInsets.only(
-                                      left: 25.0, right: 25.0, top: 25.0),
-                                  child: new Row(
-                                    mainAxisSize: MainAxisSize.max,
-                                    children: <Widget>[
-                                      new Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: <Widget>[
-                                          new Text(
-                                            'Price',
-                                            style: TextStyle(
-                                                fontSize: 16.0,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(
-                                      left: 25.0, right: 25.0, top: 2.0),
-                                  child: new Row(
-                                    mainAxisSize: MainAxisSize.max,
-                                    children: <Widget>[
-                                      new Flexible(
-                                        child: new TextFormField(
-                                            decoration: const InputDecoration(
-                                              hintText: "Enter Price",
-                                            ),
-                                            keyboardType: TextInputType.number,
-                                            validator: (value) {
-                                              if (value.isEmpty) {
-                                                return 'Please enter price.';
-                                              }
-                                            },
-                                            onSaved: (val) => setState(
-                                                () => _price = int.parse(val))),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(
-                                      left: 25.0, right: 25.0, top: 25.0),
-                                  child: new Row(
-                                    mainAxisSize: MainAxisSize.max,
-                                    children: <Widget>[
-                                      new Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: <Widget>[
-                                          new Text(
-                                            'Duration',
-                                            style: TextStyle(
-                                                fontSize: 16.0,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(
-                                      left: 25.0, right: 25.0, top: 2.0),
-                                  child: new Row(
-                                    mainAxisSize: MainAxisSize.max,
-                                    children: <Widget>[
-                                      new Flexible(
-                                        child: new TextFormField(
-                                            decoration: const InputDecoration(
-                                              hintText: "Enter Duration in Min",
-                                            ),
-                                            keyboardType: TextInputType.number,
-                                            validator: (value) {
-                                              if (value.isEmpty) {
-                                                return 'Please enter duration.';
-                                              }
-                                            },
-                                            onSaved: (val) => setState(() =>
-                                                _duration = int.parse(val))),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(
-                                      left: 25.0, right: 25.0, top: 25.0),
-                                  child: new Row(
-                                    mainAxisSize: MainAxisSize.max,
-                                    children: <Widget>[
-                                      new Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: <Widget>[
-                                          new Text(
-                                            'Description',
-                                            style: TextStyle(
-                                                fontSize: 16.0,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(
-                                      left: 25.0, right: 25.0, top: 2.0),
-                                  child: new Row(
-                                    mainAxisSize: MainAxisSize.max,
-                                    children: <Widget>[
-                                      new Flexible(
-                                        child: new TextFormField(
-                                            decoration: const InputDecoration(
-                                              hintText:
-                                                  "Tell us about the treatment",
-                                            ),
-                                            validator: (value) {
-                                              if (value.isEmpty) {
-                                                return 'Please enter description';
-                                              }
-                                            },
-                                            onSaved: (val) => setState(
-                                                () => _decription = val)),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(
-                                      left: 25.0, right: 25.0, top: 25.0),
-                                  child: new Row(
-                                    mainAxisSize: MainAxisSize.max,
-                                    children: <Widget>[
-                                      new Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: <Widget>[
-                                          new Text(
-                                            'Beauty Pro',
-                                            style: TextStyle(
-                                                fontSize: 16.0,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(
-                                      left: 25.0, right: 25.0, top: 2.0),
-                                  child: SimpleAutocompleteFormField<User>(
-                                    decoration: InputDecoration(
-                                      hintText: 'Select Beauty Pro',
-                                    ),
-                                    suggestionsHeight: 100.0,
-                                    itemBuilder: (context, person) => Padding(
-                                          padding: EdgeInsets.all(8.0),
-                                          child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text('${person.username}',
-                                                    style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold)),
-                                                Text('${person.displayName}')
-                                              ]),
-                                        ),
-                                    onSearch: (search) async => listUser
-                                        .where((person) => person.username
-                                            .toLowerCase()
-                                            .contains(search.toLowerCase()))
-                                        .toList(),
-                                    itemFromString: (string) =>
-                                        listUser.singleWhere(
-                                            (person) =>
-                                                person.username.toLowerCase() ==
-                                                string.toLowerCase(),
-                                            orElse: () => null),
-                                    onChanged: (value) =>
-                                        setState(() => _beautyPro = value),
-                                    onSaved: (value) =>
-                                        setState(() => _beautyPro = value),
-                                    validator: (person) => person == null
-                                        ? 'Invalid person.'
-                                        : null,
-                                  ),
-                                ),
-                                _getActionButtons()
                               ],
                             ),
-                          ),
-                        )
-                      ],
+                          )
+                        ],
+                      ),
                     ),
+                    new Container(
+                      color: Color(0xffFFFFFF),
+                      child: Padding(
+                        padding: EdgeInsets.only(bottom: 25.0),
+                        child: new Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: <Widget>[
+                            Padding(
+                              padding: EdgeInsets.only(left: 25.0, right: 25.0),
+                              child: new Row(
+                                mainAxisSize: MainAxisSize.max,
+                                children: <Widget>[
+                                  new Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: <Widget>[
+                                      new Text(
+                                        'Style Name',
+                                        style: TextStyle(
+                                            fontSize: 16.0,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(
+                                  left: 25.0, right: 25.0, top: 2.0),
+                              child: new Row(
+                                mainAxisSize: MainAxisSize.max,
+                                children: <Widget>[
+                                  new Flexible(
+                                    child: new TextFormField(
+                                      decoration: const InputDecoration(
+                                        hintText: "Enter Style",
+                                      ),
+                                      validator: (value) {
+                                        if (value.isEmpty) {
+                                          return 'Please enter style';
+                                        } else {
+                                          return value;
+                                        }
+                                      },
+                                      onSaved: (val) =>
+                                          setState(() => _style = val),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(
+                                  left: 25.0, right: 25.0, top: 25.0),
+                              child: new Row(
+                                mainAxisSize: MainAxisSize.max,
+                                children: <Widget>[
+                                  new Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: <Widget>[
+                                      new Text(
+                                        'Price',
+                                        style: TextStyle(
+                                            fontSize: 16.0,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(
+                                  left: 25.0, right: 25.0, top: 2.0),
+                              child: new Row(
+                                mainAxisSize: MainAxisSize.max,
+                                children: <Widget>[
+                                  new Flexible(
+                                    child: new TextFormField(
+                                        decoration: const InputDecoration(
+                                          hintText: "Enter Price",
+                                        ),
+                                        keyboardType: TextInputType.number,
+                                        validator: (value) {
+                                          if (value.isEmpty) {
+                                            return 'Please enter price.';
+                                          } else {
+                                            return value;
+                                          }
+                                        },
+                                        onSaved: (val) => setState(
+                                            () => _price = int.parse(val))),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(
+                                  left: 25.0, right: 25.0, top: 25.0),
+                              child: new Row(
+                                mainAxisSize: MainAxisSize.max,
+                                children: <Widget>[
+                                  new Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: <Widget>[
+                                      new Text(
+                                        'Duration',
+                                        style: TextStyle(
+                                            fontSize: 16.0,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(
+                                  left: 25.0, right: 25.0, top: 2.0),
+                              child: new Row(
+                                mainAxisSize: MainAxisSize.max,
+                                children: <Widget>[
+                                  new Flexible(
+                                    child: new TextFormField(
+                                        decoration: const InputDecoration(
+                                          hintText: "Enter Duration in Min",
+                                        ),
+                                        keyboardType: TextInputType.number,
+                                        validator: (value) {
+                                          if (value.isEmpty) {
+                                            return 'Please enter duration.';
+                                          } else {
+                                            return value;
+                                          }
+                                        },
+                                        onSaved: (val) => setState(
+                                            () => _duration = int.parse(val))),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(
+                                  left: 25.0, right: 25.0, top: 25.0),
+                              child: new Row(
+                                mainAxisSize: MainAxisSize.max,
+                                children: <Widget>[
+                                  new Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: <Widget>[
+                                      new Text(
+                                        'Description',
+                                        style: TextStyle(
+                                            fontSize: 16.0,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(
+                                  left: 25.0, right: 25.0, top: 2.0),
+                              child: new Row(
+                                mainAxisSize: MainAxisSize.max,
+                                children: <Widget>[
+                                  new Flexible(
+                                    child: new TextFormField(
+                                        decoration: const InputDecoration(
+                                          hintText:
+                                              "Tell us about the treatment",
+                                        ),
+                                        validator: (value) {
+                                          if (value.isEmpty) {
+                                            return 'Please enter description';
+                                          } else {
+                                            return value;
+                                          }
+                                        },
+                                        onSaved: (val) =>
+                                            setState(() => _decription = val)),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(
+                                  left: 25.0, right: 25.0, top: 25.0),
+                              child: new Row(
+                                mainAxisSize: MainAxisSize.max,
+                                children: <Widget>[
+                                  new Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: <Widget>[
+                                      new Text(
+                                        'Beauty Pro',
+                                        style: TextStyle(
+                                            fontSize: 16.0,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(
+                                  left: 25.0, right: 25.0, top: 2.0),
+                              child: SimpleAutocompleteFormField<User>(
+                                decoration: InputDecoration(
+                                  hintText: 'Select Beauty Pro',
+                                ),
+                                suggestionsHeight: 100.0,
+                                itemBuilder: (context, person) => Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text('${person.username}',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold)),
+                                        Text('${person.displayName}')
+                                      ]),
+                                ),
+                                onSearch: (search) async => listUser
+                                    .where((person) => person.username
+                                        .toLowerCase()
+                                        .contains(search.toLowerCase()))
+                                    .toList(),
+                                itemFromString: (string) =>
+                                    listUser.singleWhere(
+                                        (person) =>
+                                            person.username.toLowerCase() ==
+                                            string.toLowerCase(),
+                                        orElse: () => null),
+                                onChanged: (value) =>
+                                    setState(() => _beautyPro = value),
+                                onSaved: (value) =>
+                                    setState(() => _beautyPro = value),
+                                validator: (person) =>
+                                    person == null ? 'Invalid person.' : null,
+                              ),
+                            ),
+                            _getActionButtons()
+                          ],
+                        ),
+                      ),
+                    )
                   ],
                 ),
-              ),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -553,7 +542,7 @@ class _NewPostPageState extends State<NewPostPage> {
         "duration": _duration,
         "beautyProUserName": _beautyPro.username,
         "beautyProDisplayName": _beautyPro.displayName,
-        "beautyProId": _beautyPro.id,
+        "beautyProId": _beautyPro.uid,
         "likes": {},
         "mediaUrl": downloadUrl,
         "description": _decription,

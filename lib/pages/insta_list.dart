@@ -294,7 +294,7 @@ class _InstaListState extends State<InstaList> {
   IconButton buildbookingIcon() {
     Color color;
     bool isDisabled;
-    if (beautyProId == currentUserModel.id) {
+    if (beautyProId == currentUserModel.uid) {
       color = Colors.red;
       isDisabled = true;
     } else {
@@ -313,7 +313,7 @@ class _InstaListState extends State<InstaList> {
 
   @override
   Widget build(BuildContext context) {
-    liked = (likes[currentUserModel.id.toString()] == true);
+    liked = (likes[currentUserModel.uid.toString()] == true);
 
     return Stack(
       children: <Widget>[
@@ -433,7 +433,7 @@ class _InstaListState extends State<InstaList> {
   }
 
   void _likePost(String postId2) {
-    var userId = currentUserModel.id;
+    var userId = currentUserModel.uid;
     bool _liked = likes[userId] == true;
 
     if (_liked) {
@@ -499,7 +499,7 @@ class _InstaListState extends State<InstaList> {
       "beautyProDisplayName": beautyProDisplayName,
       "beautyProUserName": beautyProUserName,
       "style": style,
-      "bookedBy": currentUserModel.id,
+      "bookedBy": currentUserModel.uid,
       "bookedByUserName": currentUserModel.username,
       "bookedByDisplayName": currentUserModel.displayName,
       "timestamp": DateTime.now(),
@@ -526,7 +526,7 @@ class _InstaListState extends State<InstaList> {
         .document(postId)
         .setData({
       "displayName": currentUserModel.displayName,
-      "userId": currentUserModel.id,
+      "userId": currentUserModel.uid,
       "type": "like",
       "userProfileImg": currentUserModel.photoURL,
       "mediaUrl": mediaUrl,

@@ -78,7 +78,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         }
 
         DocumentReference userRef =
-            _db.collection('users').document(currentUserModel.id);
+            _db.collection('users').document(currentUserModel.uid);
 
         userRef.updateData({
           'bio': _bio,
@@ -90,7 +90,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
         User currentUser = User(
             email: _email,
-            id: currentUserModel.id,
+            uid: currentUserModel.uid,
             photoURL: downloadUrl,
             username: _userName,
             displayName: _displayName,

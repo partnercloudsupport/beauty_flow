@@ -17,7 +17,7 @@ class SearchProfilePage extends StatefulWidget {
 
 class _SearchProfilePageState extends State<SearchProfilePage> {
   final Firestore _db = Firestore.instance;
-  String currentUserId = currentUserModel.id;
+  String currentUserId = currentUserModel.uid;
   bool isFollowing = false;
   bool followButtonClicked = false;
 

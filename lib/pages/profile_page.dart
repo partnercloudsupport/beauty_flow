@@ -21,7 +21,7 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   final Firestore _db = Firestore.instance;
-  String currentUserId = currentUserModel.id;
+  String currentUserId = currentUserModel.uid;
   bool isFollowing = false;
   bool followButtonClicked = false;
   int postCount = 0;
@@ -76,7 +76,7 @@ class _ProfilePageState extends State<ProfilePage> {
       List<InstaList> posts = [];
       var snap = await _db
           .collection('beautyPosts')
-          .where('ownerId', isEqualTo: currentUserModel.id)
+          .where('ownerId', isEqualTo: currentUserModel.uid)
           .getDocuments();
 
       for (var doc in snap.documents) {

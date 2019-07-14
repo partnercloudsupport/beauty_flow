@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class User {
   final String email;
-  final String id;
+  final String uid;
   final String photoURL;
   final String username;
   final String displayName;
@@ -10,16 +10,19 @@ class User {
   final Map followers;
   final Map following;
   final bool isPro;
+  final int followersCount, followingCount;
 
   const User(
       {this.username,
-      this.id,
+      this.uid,
       this.photoURL,
       this.email,
       this.displayName,
       this.bio,
       this.followers,
       this.following,
+      this.followersCount,
+      this.followingCount,
       this.isPro});
   @override
   String toString() => username;
@@ -29,12 +32,33 @@ class User {
       email: document['email'],
       username: document['username'],
       photoURL: document['photoURL'],
-      id: document.documentID,
+      uid: document.documentID,
       displayName: document['displayName'],
       bio: document['bio'],
       followers: document['followers'],
       following: document['following'],
+      followersCount: document['followersCount'],
+      followingCount: document['followingCount'],
       isPro: document['isPro']
     );
   }
+
+  User.fromMap(Map<String, dynamic> map)
+      : assert(map['email'] != null),
+        assert(map['username'] != null),
+        assert(map['uid'] != null),
+        assert(map['isPro'] != null),
+        email = map['email'],
+        username = map['username'],
+        photoURL = map['photoURL'] == null ? "" : map['photoURL'],
+        displayName = map['displayName'],
+        uid = map['uid'],
+        bio = map['bio'],
+        followers = map['followers'],
+        following = map['following'],
+        followersCount = map['followersCount'],
+        followingCount = map['followingCount'],
+        isPro = map['isPro'];
+
+  User.fromSnapshot(DocumentSnapshot snapshot) : this.fromMap(snapshot.data);
 }
