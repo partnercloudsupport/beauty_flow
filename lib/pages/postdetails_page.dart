@@ -327,6 +327,7 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
       "bookedByUserName": currentUserModel.username,
       "bookedByDisplayName": currentUserModel.displayName,
       "booking": date,
+      "isConfirmed":false,
       "timestamp": FieldValue.serverTimestamp(),
     }).then((DocumentReference doc) {
       String docId = doc.documentID;

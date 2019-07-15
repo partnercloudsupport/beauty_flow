@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:beauty_flow/Model/booking.dart';
 import 'package:beauty_flow/authentication/authentication.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -51,7 +53,8 @@ class _BookingPageState extends State<BookingPage> {
               child: StreamBuilder(
                 stream: Firestore.instance
                     .collection("bookings")
-                    .where("bookedBy", isEqualTo: widget.userId).limit(10)
+                    .where("bookedBy", isEqualTo: widget.userId)
+                    .limit(10)
                     .snapshots(),
                 builder: (context, snapshot) {
                   return !snapshot.hasData
@@ -65,7 +68,8 @@ class _BookingPageState extends State<BookingPage> {
               child: StreamBuilder(
                 stream: Firestore.instance
                     .collection("bookings")
-                    .where("beautyProId", isEqualTo: widget.userId).limit(10)
+                    .where("beautyProId", isEqualTo: widget.userId)
+                    .limit(10)
                     .snapshots(),
                 builder: (context, snapshot) {
                   return !snapshot.hasData
@@ -83,7 +87,7 @@ class _BookingPageState extends State<BookingPage> {
 
   Widget _buildYourBookingList(
       BuildContext context, List<DocumentSnapshot> snapshots) {
-        double height = MediaQuery.of(context).size.height;
+    double height = MediaQuery.of(context).size.height;
     if (snapshots.length == 0) {
       return Container(
         child: Column(
@@ -140,7 +144,7 @@ class _BookingPageState extends State<BookingPage> {
 
 Widget _buildBookingForYouList(
     BuildContext context, List<DocumentSnapshot> snapshots) {
-      double height = MediaQuery.of(context).size.height;
+  double height = MediaQuery.of(context).size.height;
   if (snapshots.length == 0) {
     return Container(
       child: Column(
@@ -257,7 +261,7 @@ class YourBookingList extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
-        height: 150,
+        height: 160,
         decoration: new BoxDecoration(
           color: Colors.tealAccent,
         ),
@@ -306,7 +310,7 @@ class _BookingForYouListArticleDescription extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Text(
-                'Booked By: ${booking.bookedByUserName} ( ${booking.bookedByDisplayName} )',
+                'Booked By: ${booking.bookedByUserName}',
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
@@ -336,25 +340,19 @@ class _BookingForYouListArticleDescription extends StatelessWidget {
                   fontFamily: 'Montserrat',
                 ),
               ),
-            ],
-          ),
-        ),
-        Expanded(
-          flex: 1,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: <Widget>[
+              const Padding(padding: EdgeInsets.only(bottom: 2.0)),
               Text(
                 'Cost: ${booking.price} in Rs.',
                 style: const TextStyle(
                   fontSize: 12.0,
                   color: Colors.black87,
+                  fontWeight: FontWeight.bold,
                   fontFamily: 'Montserrat',
                 ),
               ),
+              const Padding(padding: EdgeInsets.only(bottom: 2.0)),
               Text(
-                'Booking On: ${booking.timestamp.toDate()}',
+                'Booking For: ${booking.booking != null ? booking.booking.toDate() : ''}',
                 style: const TextStyle(
                   fontSize: 12.0,
                   color: Colors.black54,
@@ -364,8 +362,37 @@ class _BookingForYouListArticleDescription extends StatelessWidget {
             ],
           ),
         ),
+        Expanded(
+          flex: 1,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: <Widget>[
+              IconButton(
+                icon:
+                    booking.isConfirmed ? Icon(Icons.close) : Icon(Icons.check),
+                color: Colors.black,
+                tooltip: 'Confirm/Reject',
+                onPressed: () {
+                  _bookingStatus(booking.isConfirmed);
+                },
+              ),
+            ],
+          ),
+        ),
       ],
     );
+  }
+
+  _bookingStatus(bool isConfirmed) {
+    print(isConfirmed);
+    bool bookingStatus = !isConfirmed;
+    Firestore.instance
+        .collection('bookings')
+        .document(booking.bookingId)
+        .updateData({
+      'isConfirmed': bookingStatus,
+      'timestamp': FieldValue.serverTimestamp()
+    });
   }
 }
 
@@ -382,7 +409,7 @@ class BookingForList extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
-        height: 150,
+        height: 160,
         decoration: new BoxDecoration(
           color: Colors.tealAccent,
         ),
@@ -407,6 +434,9 @@ class BookingForList extends StatelessWidget {
                 ),
               ),
             ),
+            Padding(
+              padding: EdgeInsets.only(bottom: 30),
+            )
           ],
         ),
       ),

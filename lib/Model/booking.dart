@@ -3,7 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class Booking {
   final String beautyProId,beautyProDisplayName, beautyProUserName, bookedBy,bookedByUserName, bookedByDisplayName, bookingId, mediaUrl, postId, style;
   final double price;
-  final Timestamp timestamp;
+  final Timestamp timestamp,booking;
+  final bool isConfirmed;
 
   Booking.fromMap(Map<String, dynamic> map)
       : assert(map['bookedBy'] != null),
@@ -15,7 +16,6 @@ class Booking {
         assert(map['beautyProDisplayName'] != null),
         assert(map['beautyProUserName'] != null),
         assert(map['postId'] != null),
-        assert(map['timestamp'] != null),
         assert(map['price'] != null),
         assert(map['style'] != null),
         beautyProId = map['beautyProId'],
@@ -28,6 +28,8 @@ class Booking {
         beautyProDisplayName = map["beautyProDisplayName"],
         beautyProUserName = map["beautyProUserName"],
         postId = map["postId"],
+        isConfirmed = map["isConfirmed"],
+        booking = map["booking"],
         style = map["style"],
         mediaUrl = map["mediaUrl"];
 

@@ -63,280 +63,295 @@ class _NewPostPageState extends State<NewPostPage> {
       appBar: AppBar(
         title: Center(child: Text("Beauty Flow")),
       ),
-      body: new Container(
-        color: Colors.white,
-        child: Builder(
-          builder: (context) => Form(
-            key: _formKey,
-            child: new ListView(
-              children: <Widget>[
-                _isLoading == true ? LinearProgressIndicator() : Container(),
-                Column(
-                  children: <Widget>[
-                    new Container(
-                      height: 210.0,
-                      color: Colors.white,
-                      child: new Column(
-                        children: <Widget>[
-                          Padding(
-                            padding: EdgeInsets.only(top: 10.0, left: 20.0),
-                            child: new Stack(
-                              fit: StackFit.loose,
-                              children: <Widget>[
-                                new Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: <Widget>[
-                                    new Container(
-                                      width: 140.0,
-                                      height: 140.0,
-                                      decoration: new BoxDecoration(
-                                        shape: BoxShape.rectangle,
-                                        image: new DecorationImage(
-                                          image: file == null
-                                              ? new ExactAssetImage(
-                                                  'assets/img/as.png')
-                                              : FileImage(file),
-                                          fit: BoxFit.contain,
-                                        ),
+      body: Stack(
+        children: <Widget>[
+          _showBody(height),
+          _showCircularProgress(),
+        ],
+      ),
+    );
+  }
+
+  Widget _showCircularProgress() {
+    if (_isLoading) {
+      return Center(child: CircularProgressIndicator());
+    }
+    return Container(
+      height: 0.0,
+      width: 0.0,
+    );
+  }
+
+  Widget _showBody(height) {
+    return Container(
+      color: Colors.white,
+      child: Builder(
+        builder: (context) => Form(
+          key: _formKey,
+          child: new ListView(
+            children: <Widget>[
+              Column(
+                children: <Widget>[
+                  new Container(
+                    height: 210.0,
+                    color: Colors.white,
+                    child: new Column(
+                      children: <Widget>[
+                        Padding(
+                          padding: EdgeInsets.only(top: 10.0, left: 20.0),
+                          child: new Stack(
+                            fit: StackFit.loose,
+                            children: <Widget>[
+                              new Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: <Widget>[
+                                  new Container(
+                                    width: 140.0,
+                                    height: 140.0,
+                                    decoration: new BoxDecoration(
+                                      shape: BoxShape.rectangle,
+                                      image: new DecorationImage(
+                                        image: file == null
+                                            ? new ExactAssetImage(
+                                                'assets/img/as.png')
+                                            : FileImage(file),
+                                        fit: BoxFit.contain,
                                       ),
                                     ),
+                                  ),
+                                ],
+                              ),
+                              Padding(
+                                padding:
+                                    EdgeInsets.only(top: 90.0, right: 285.0),
+                                child: new Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    new CircleAvatar(
+                                      backgroundColor: Colors.red,
+                                      radius: 25.0,
+                                      child: new IconButton(
+                                        icon: Icon(Icons.camera_alt),
+                                        color: Colors.white,
+                                        onPressed: () {
+                                          _selectImage(context);
+                                        },
+                                      ),
+                                    )
                                   ],
                                 ),
-                                Padding(
-                                  padding:
-                                      EdgeInsets.only(top: 90.0, right: 285.0),
-                                  child: new Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: <Widget>[
-                                      new CircleAvatar(
-                                        backgroundColor: Colors.red,
-                                        radius: 25.0,
-                                        child: new IconButton(
-                                          icon: Icon(Icons.camera_alt),
-                                          color: Colors.white,
-                                          onPressed: () {
-                                            _selectImage(context);
-                                          },
-                                        ),
-                                      )
-                                    ],
-                                  ),
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                  new Container(
+                    color: Color(0xffFFFFFF),
+                    child: Padding(
+                      padding: EdgeInsets.only(bottom: 25.0),
+                      child: new Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(left: 25.0, right: 25.0),
+                            child: TextFormField(
+                              maxLines: 1,
+                              keyboardType: TextInputType.text,
+                              autofocus: false,
+                              focusNode: _styleName,
+                              onFieldSubmitted: (term) {
+                                _fieldFocusChange(
+                                    context, _styleName, _priceFocus);
+                              },
+                              decoration: InputDecoration(
+                                labelText: 'STYLE',
+                                labelStyle: TextStyle(
+                                    fontFamily: 'Montserrat',
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey),
+                                focusedBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.green),
                                 ),
-                              ],
+                              ),
+                              textInputAction: TextInputAction.next,
+                              validator: (value) {
+                                if (value.isEmpty) {
+                                  setState(() {
+                                    _isLoading = false;
+                                  });
+                                  return 'Style can\'t be empty';
+                                }
+                              },
+                              onSaved: (value) => _style = value,
                             ),
-                          )
+                          ),
+                          SizedBox(height: height < 600 ? 0 : 20.0),
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(left: 25.0, right: 25.0),
+                            child: TextFormField(
+                              maxLines: 1,
+                              keyboardType: TextInputType.number,
+                              autofocus: false,
+                              focusNode: _priceFocus,
+                              onFieldSubmitted: (term) {
+                                _fieldFocusChange(
+                                    context, _priceFocus, _durationFocus);
+                              },
+                              decoration: InputDecoration(
+                                labelText: 'PRICE',
+                                labelStyle: TextStyle(
+                                    fontFamily: 'Montserrat',
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey),
+                                focusedBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.green),
+                                ),
+                              ),
+                              textInputAction: TextInputAction.next,
+                              validator: (value) {
+                                if (value.isEmpty) {
+                                  setState(() {
+                                    _isLoading = false;
+                                  });
+                                  return 'Price can\'t be empty';
+                                }
+                              },
+                              onSaved: (value) => _price = int.parse(value),
+                            ),
+                          ),
+                          SizedBox(height: height < 600 ? 0 : 20.0),
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(left: 25.0, right: 25.0),
+                            child: TextFormField(
+                              maxLines: 1,
+                              keyboardType: TextInputType.number,
+                              autofocus: false,
+                              focusNode: _durationFocus,
+                              onFieldSubmitted: (term) {
+                                _fieldFocusChange(
+                                    context, _durationFocus, _description);
+                              },
+                              decoration: InputDecoration(
+                                labelText: 'DURATION',
+                                hintText: "Enter Duration in Min",
+                                labelStyle: TextStyle(
+                                    fontFamily: 'Montserrat',
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey),
+                                focusedBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.green),
+                                ),
+                              ),
+                              textInputAction: TextInputAction.next,
+                              validator: (value) {
+                                if (value.isEmpty) {
+                                  setState(() {
+                                    _isLoading = false;
+                                  });
+                                  return 'Duration can\'t be empty';
+                                }
+                              },
+                              onSaved: (value) => _duration = int.parse(value),
+                            ),
+                          ),
+                          SizedBox(height: height < 600 ? 0 : 20.0),
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(left: 25.0, right: 25.0),
+                            child: TextFormField(
+                              maxLines: 2,
+                              keyboardType: TextInputType.text,
+                              autofocus: false,
+                              focusNode: _description,
+                              onFieldSubmitted: (term) {
+                                _fieldFocusChange(
+                                    context, _description, _beautyProFocus);
+                              },
+                              decoration: InputDecoration(
+                                labelText: 'DESCRITION',
+                                hintText: "Tell us about treatment",
+                                labelStyle: TextStyle(
+                                    fontFamily: 'Montserrat',
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey),
+                                focusedBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.green),
+                                ),
+                              ),
+                              textInputAction: TextInputAction.newline,
+                              validator: (value) {
+                                if (value.isEmpty) {
+                                  setState(() {
+                                    _isLoading = false;
+                                  });
+                                  return 'Description can\'t be empty';
+                                }
+                              },
+                              onSaved: (value) => _decription = value,
+                            ),
+                          ),
+                          SizedBox(height: height < 600 ? 0 : 20.0),
+                          Padding(
+                            padding: EdgeInsets.only(left: 25.0, right: 25.0),
+                            child: SimpleAutocompleteFormField<User>(
+                              focusNode: _beautyProFocus,
+                              decoration: InputDecoration(
+                                labelText: 'Beauty Pro',
+                                hintText: 'Select Beauty Pro',
+                                labelStyle: TextStyle(
+                                    fontFamily: 'Montserrat',
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey),
+                                focusedBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.green),
+                                ),
+                              ),
+                              suggestionsHeight: 100.0,
+                              itemBuilder: (context, person) => Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text('${person.username}',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold)),
+                                      Text('${person.displayName}')
+                                    ]),
+                              ),
+                              onSearch: (search) async => listUser
+                                  .where((person) => person.username
+                                      .toLowerCase()
+                                      .contains(search.toLowerCase()))
+                                  .toList(),
+                              itemFromString: (string) => listUser.singleWhere(
+                                  (person) =>
+                                      person.username.toLowerCase() ==
+                                      string.toLowerCase(),
+                                  orElse: () => null),
+                              onChanged: (value) =>
+                                  setState(() => _beautyPro = value),
+                              onSaved: (value) =>
+                                  setState(() => _beautyPro = value),
+                              validator: (person) =>
+                                  person == null ? 'Invalid Beauty Pro.' : null,
+                            ),
+                          ),
+                          _getActionButtons()
                         ],
                       ),
                     ),
-                    new Container(
-                      color: Color(0xffFFFFFF),
-                      child: Padding(
-                        padding: EdgeInsets.only(bottom: 25.0),
-                        child: new Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: <Widget>[
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 25.0, right: 25.0),
-                              child: TextFormField(
-                                maxLines: 1,
-                                keyboardType: TextInputType.text,
-                                autofocus: false,
-                                focusNode: _styleName,
-                                onFieldSubmitted: (term) {
-                                  _fieldFocusChange(
-                                      context, _styleName, _priceFocus);
-                                },
-                                decoration: InputDecoration(
-                                  labelText: 'STYLE',
-                                  labelStyle: TextStyle(
-                                      fontFamily: 'Montserrat',
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.grey),
-                                  focusedBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.green),
-                                  ),
-                                ),
-                                textInputAction: TextInputAction.next,
-                                validator: (value) {
-                                  if (value.isEmpty) {
-                                    setState(() {
-                                      _isLoading = false;
-                                    });
-                                    return 'Style can\'t be empty';
-                                  }
-                                },
-                                onSaved: (value) => _style = value,
-                              ),
-                            ),
-                            SizedBox(height: height < 600 ? 0 : 20.0),
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 25.0, right: 25.0),
-                              child: TextFormField(
-                                maxLines: 1,
-                                keyboardType: TextInputType.number,
-                                autofocus: false,
-                                focusNode: _priceFocus,
-                                onFieldSubmitted: (term) {
-                                  _fieldFocusChange(
-                                      context, _priceFocus, _durationFocus);
-                                },
-                                decoration: InputDecoration(
-                                  labelText: 'PRICE',
-                                  labelStyle: TextStyle(
-                                      fontFamily: 'Montserrat',
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.grey),
-                                  focusedBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.green),
-                                  ),
-                                ),
-                                textInputAction: TextInputAction.next,
-                                validator: (value) {
-                                  if (value.isEmpty) {
-                                    setState(() {
-                                      _isLoading = false;
-                                    });
-                                    return 'Price can\'t be empty';
-                                  }
-                                },
-                                onSaved: (value) => _price = int.parse(value),
-                              ),
-                            ),
-                            SizedBox(height: height < 600 ? 0 : 20.0),
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 25.0, right: 25.0),
-                              child: TextFormField(
-                                maxLines: 1,
-                                keyboardType: TextInputType.number,
-                                autofocus: false,
-                                focusNode: _durationFocus,
-                                onFieldSubmitted: (term) {
-                                  _fieldFocusChange(
-                                      context, _durationFocus, _description);
-                                },
-                                decoration: InputDecoration(
-                                  labelText: 'DURATION',
-                                  hintText: "Enter Duration in Min",
-                                  labelStyle: TextStyle(
-                                      fontFamily: 'Montserrat',
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.grey),
-                                  focusedBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.green),
-                                  ),
-                                ),
-                                textInputAction: TextInputAction.next,
-                                validator: (value) {
-                                  if (value.isEmpty) {
-                                    setState(() {
-                                      _isLoading = false;
-                                    });
-                                    return 'Duration can\'t be empty';
-                                  }
-                                },
-                                onSaved: (value) =>
-                                    _duration = int.parse(value),
-                              ),
-                            ),
-                            SizedBox(height: height < 600 ? 0 : 20.0),
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 25.0, right: 25.0),
-                              child: TextFormField(
-                                maxLines: 2,
-                                keyboardType: TextInputType.text,
-                                autofocus: false,
-                                focusNode: _description,
-                                onFieldSubmitted: (term) {
-                                  _fieldFocusChange(
-                                      context, _description, _beautyProFocus);
-                                },
-                                decoration: InputDecoration(
-                                  labelText: 'DESCRITION',
-                                  hintText: "Tell us about treatment",
-                                  labelStyle: TextStyle(
-                                      fontFamily: 'Montserrat',
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.grey),
-                                  focusedBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.green),
-                                  ),
-                                ),
-                                textInputAction: TextInputAction.newline,
-                                validator: (value) {
-                                  if (value.isEmpty) {
-                                    setState(() {
-                                      _isLoading = false;
-                                    });
-                                    return 'Description can\'t be empty';
-                                  }
-                                },
-                                onSaved: (value) => _decription = value,
-                              ),
-                            ),
-                            SizedBox(height: height < 600 ? 0 : 20.0),
-                            Padding(
-                              padding: EdgeInsets.only(left: 25.0, right: 25.0),
-                              child: SimpleAutocompleteFormField<User>(
-                                focusNode: _beautyProFocus,
-                                decoration: InputDecoration(
-                                  labelText: 'Beauty Pro',
-                                  hintText: 'Select Beauty Pro',
-                                  labelStyle: TextStyle(
-                                      fontFamily: 'Montserrat',
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.grey),
-                                  focusedBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.green),
-                                  ),
-                                ),
-                                suggestionsHeight: 100.0,
-                                itemBuilder: (context, person) => Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text('${person.username}',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold)),
-                                        Text('${person.displayName}')
-                                      ]),
-                                ),
-                                onSearch: (search) async => listUser
-                                    .where((person) => person.username
-                                        .toLowerCase()
-                                        .contains(search.toLowerCase()))
-                                    .toList(),
-                                itemFromString: (string) =>
-                                    listUser.singleWhere(
-                                        (person) =>
-                                            person.username.toLowerCase() ==
-                                            string.toLowerCase(),
-                                        orElse: () => null),
-                                onChanged: (value) =>
-                                    setState(() => _beautyPro = value),
-                                onSaved: (value) =>
-                                    setState(() => _beautyPro = value),
-                                validator: (person) => person == null
-                                    ? 'Invalid Beauty Pro.'
-                                    : null,
-                              ),
-                            ),
-                            _getActionButtons()
-                          ],
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              ],
-            ),
+                  )
+                ],
+              ),
+            ],
           ),
         ),
       ),

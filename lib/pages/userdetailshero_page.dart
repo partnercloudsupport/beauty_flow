@@ -180,7 +180,7 @@ class _UserDetailsHeroPageState extends State<UserDetailsHeroPage> {
                             decoration: BoxDecoration(
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black54,
+                                  color: Colors.black26,
                                   offset: Offset(2, 2),
                                   spreadRadius: 2,
                                   blurRadius: 4,
@@ -198,7 +198,7 @@ class _UserDetailsHeroPageState extends State<UserDetailsHeroPage> {
                                 tag: posts.postId,
                                 child: CachedNetworkImage(
                                   imageUrl: posts.mediaUrl,
-                                  fit: BoxFit.cover,
+                                  fit: BoxFit.contain,
                                   fadeInDuration: Duration(milliseconds: 500),
                                   fadeInCurve: Curves.easeIn,
                                   placeholder: (context, url) =>
