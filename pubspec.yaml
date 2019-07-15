@@ -38,6 +38,7 @@ dependencies:
   sentry: any
   cached_network_image: 1.0.0
   simple_autocomplete_formfield: ^0.2.3
+  datetime_picker_formfield: ^0.2.0
 
 dev_dependencies:
   flutter_test:

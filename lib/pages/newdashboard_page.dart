@@ -4,6 +4,7 @@ import 'package:beauty_flow/Model/posts.dart';
 import 'package:beauty_flow/authentication/authentication.dart';
 import 'package:beauty_flow/main.dart';
 import 'package:beauty_flow/pages/datasearch_page.dart';
+import 'package:beauty_flow/pages/topstype_page.dart';
 import 'package:beauty_flow/pages/userdetailshero_page.dart';
 import 'package:beauty_flow/util/searchservice.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -167,6 +168,14 @@ class TopStyles extends StatelessWidget {
             InkWell(
               onTap: () {
                 print(style.styleName);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return TopStylePage(style);
+                    },
+                  ),
+                );
               },
               child: ClipOval(
                 child: Container(
@@ -214,21 +223,11 @@ class TopPros extends StatelessWidget {
           children: <Widget>[
             InkWell(
               onTap: () async {
-                print(pros.uid);
-                List<Posts> posts = List<Posts>();
-                var doc = await Firestore.instance
-                    .collection('beautyPosts')
-                    .where("ownerId", isEqualTo: pros.uid)
-                    .limit(30)
-                    .getDocuments();
-                for (int i = 0; i < doc.documents.length; ++i) {
-                  posts.add(Posts.fromMap(doc.documents[i].data));
-                }
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) {
-                      return UserDetailsHeroPage(pros, posts);
+                      return UserDetailsHeroPage(pros);
                     },
                   ),
                 );
@@ -260,9 +259,21 @@ class TopPros extends StatelessWidget {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(top: 65.0, left: 90.0),
-                    child: Row(
-                      children: <Widget>[new Center(child: Text("Pros"))],
+                    padding: const EdgeInsets.only(top: 60.0, left: 90.0),
+                    child: ClipOval(
+                      child: Center(
+                        child: Container(
+                          width: 30.0,
+                          height: 30.0,
+                          decoration: BoxDecoration(color: Colors.lightBlue),
+                          child: Padding(
+                            padding: EdgeInsets.only(top: 4,left: 3),
+                            child: Text(
+                              "Pro",
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   )
                 ],

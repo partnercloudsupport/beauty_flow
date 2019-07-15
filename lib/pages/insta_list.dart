@@ -292,23 +292,21 @@ class _InstaListState extends State<InstaList> {
   }
 
   IconButton buildbookingIcon() {
-    Color color;
     bool isDisabled;
     if (beautyProId == currentUserModel.uid) {
-      color = Colors.red;
       isDisabled = true;
     } else {
       isDisabled = false;
     }
     return IconButton(
-        icon: Icon(FontAwesomeIcons.calendar),
-        tooltip: "Book",
-        onPressed: isDisabled
-            ? null
-            : () {
-                _booking(postId);
-              },
-        disabledColor: color);
+      icon: Icon(FontAwesomeIcons.calendar),
+      tooltip: "Book",
+      onPressed: isDisabled
+          ? null
+          : () {
+              _booking(postId);
+            },
+    );
   }
 
   @override
@@ -393,17 +391,23 @@ class _InstaListState extends State<InstaList> {
                       "Style : $style",
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    const Padding(padding: EdgeInsets.fromLTRB(0, 3, 0, 3),),
+                    const Padding(
+                      padding: EdgeInsets.fromLTRB(0, 3, 0, 3),
+                    ),
                     Text(
                       "Description : $description",
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    const Padding(padding: EdgeInsets.fromLTRB(0, 3, 0, 3),),
+                    const Padding(
+                      padding: EdgeInsets.fromLTRB(0, 3, 0, 3),
+                    ),
                     Text(
                       "Price : $price",
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    const Padding(padding: EdgeInsets.fromLTRB(0, 3, 0, 5),),
+                    const Padding(
+                      padding: EdgeInsets.fromLTRB(0, 3, 0, 5),
+                    ),
                     Text(
                       "Time Duration : $duration Min.",
                       style: TextStyle(fontWeight: FontWeight.bold),
@@ -487,7 +491,7 @@ class _InstaListState extends State<InstaList> {
           Firestore.instance.collection('styles').document(list[0].documentID);
       sReference.updateData({
         "bookings": (list[0]["bookings"] + 1),
-        "timestamp": DateTime.now(),
+        "timestamp": FieldValue.serverTimestamp(),
       });
     }
 
@@ -502,7 +506,7 @@ class _InstaListState extends State<InstaList> {
       "bookedBy": currentUserModel.uid,
       "bookedByUserName": currentUserModel.username,
       "bookedByDisplayName": currentUserModel.displayName,
-      "timestamp": DateTime.now(),
+      "timestamp": FieldValue.serverTimestamp(),
     }).then((DocumentReference doc) {
       String docId = doc.documentID;
       fsReference.document(docId).updateData({"bookingId": docId});
@@ -530,7 +534,7 @@ class _InstaListState extends State<InstaList> {
       "type": "like",
       "userProfileImg": currentUserModel.photoURL,
       "mediaUrl": mediaUrl,
-      "timestamp": DateTime.now(),
+      "timestamp": FieldValue.serverTimestamp(),
       "postId": postId,
     });
   }

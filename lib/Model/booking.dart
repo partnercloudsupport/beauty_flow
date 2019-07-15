@@ -23,7 +23,7 @@ class Booking {
         bookedByUserName = map['bookedByUserName'],
         bookedByDisplayName = map['bookedByDisplayName'],
         bookingId = map['bookingId'],
-        price = map['price'],
+        price = map['price'].toDouble(),
         timestamp = map['timestamp'],
         beautyProDisplayName = map["beautyProDisplayName"],
         beautyProUserName = map["beautyProUserName"],

@@ -71,11 +71,13 @@ class Auth implements BaseAuth {
       'username': user.email.split('@')[0],
       'isPro': isPro,
       'followers': {},
+      'followersCount': 0,
+      'followingCount':0,
       'bio': "",
       'following': {
         user.uid: true
       }, // add current user so they can see their own posts in feed,
-      'lastSeen': DateTime.now()
+      'lastSeen': FieldValue.serverTimestamp()
     }, merge: true);
   }
 }

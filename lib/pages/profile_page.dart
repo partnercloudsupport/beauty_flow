@@ -257,7 +257,7 @@ class _ProfilePageState extends State<ProfilePage> {
       "userId": currentUserId,
       "type": "follow",
       "userProfileImg": currentUserModel.photoURL,
-      "timestamp": DateTime.now().toString()
+      "timestamp": FieldValue.serverTimestamp()
     });
   }
 

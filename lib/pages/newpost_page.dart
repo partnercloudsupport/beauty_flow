@@ -29,9 +29,14 @@ class _NewPostPageState extends State<NewPostPage> {
   String _decription;
   bool _isLoading = false;
 
-  TextEditingController controller = new TextEditingController();
-
   List<User> listUser = List<User>();
+
+  // Focus Fields
+  final FocusNode _styleName = FocusNode();
+  final FocusNode _priceFocus = FocusNode();
+  final FocusNode _durationFocus = FocusNode();
+  final FocusNode _description = FocusNode();
+  final FocusNode _beautyProFocus = FocusNode();
 
   @override
   void initState() {
@@ -53,6 +58,7 @@ class _NewPostPageState extends State<NewPostPage> {
   }
 
   Widget build(BuildContext context) {
+    double height = MediaQuery.of(context).size.height;
     return new Scaffold(
       appBar: AppBar(
         title: Center(child: Text("Beauty Flow")),
@@ -132,215 +138,162 @@ class _NewPostPageState extends State<NewPostPage> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: <Widget>[
                             Padding(
-                              padding: EdgeInsets.only(left: 25.0, right: 25.0),
-                              child: new Row(
-                                mainAxisSize: MainAxisSize.max,
-                                children: <Widget>[
-                                  new Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: <Widget>[
-                                      new Text(
-                                        'Style Name',
-                                        style: TextStyle(
-                                            fontSize: 16.0,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(
-                                  left: 25.0, right: 25.0, top: 2.0),
-                              child: new Row(
-                                mainAxisSize: MainAxisSize.max,
-                                children: <Widget>[
-                                  new Flexible(
-                                    child: new TextFormField(
-                                      decoration: const InputDecoration(
-                                        hintText: "Enter Style",
-                                      ),
-                                      validator: (value) {
-                                        if (value.isEmpty) {
-                                          return 'Please enter style';
-                                        } else {
-                                          return value;
-                                        }
-                                      },
-                                      onSaved: (val) =>
-                                          setState(() => _style = val),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(
-                                  left: 25.0, right: 25.0, top: 25.0),
-                              child: new Row(
-                                mainAxisSize: MainAxisSize.max,
-                                children: <Widget>[
-                                  new Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: <Widget>[
-                                      new Text(
-                                        'Price',
-                                        style: TextStyle(
-                                            fontSize: 16.0,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(
-                                  left: 25.0, right: 25.0, top: 2.0),
-                              child: new Row(
-                                mainAxisSize: MainAxisSize.max,
-                                children: <Widget>[
-                                  new Flexible(
-                                    child: new TextFormField(
-                                        decoration: const InputDecoration(
-                                          hintText: "Enter Price",
-                                        ),
-                                        keyboardType: TextInputType.number,
-                                        validator: (value) {
-                                          if (value.isEmpty) {
-                                            return 'Please enter price.';
-                                          } else {
-                                            return value;
-                                          }
-                                        },
-                                        onSaved: (val) => setState(
-                                            () => _price = int.parse(val))),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(
-                                  left: 25.0, right: 25.0, top: 25.0),
-                              child: new Row(
-                                mainAxisSize: MainAxisSize.max,
-                                children: <Widget>[
-                                  new Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: <Widget>[
-                                      new Text(
-                                        'Duration',
-                                        style: TextStyle(
-                                            fontSize: 16.0,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(
-                                  left: 25.0, right: 25.0, top: 2.0),
-                              child: new Row(
-                                mainAxisSize: MainAxisSize.max,
-                                children: <Widget>[
-                                  new Flexible(
-                                    child: new TextFormField(
-                                        decoration: const InputDecoration(
-                                          hintText: "Enter Duration in Min",
-                                        ),
-                                        keyboardType: TextInputType.number,
-                                        validator: (value) {
-                                          if (value.isEmpty) {
-                                            return 'Please enter duration.';
-                                          } else {
-                                            return value;
-                                          }
-                                        },
-                                        onSaved: (val) => setState(
-                                            () => _duration = int.parse(val))),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(
-                                  left: 25.0, right: 25.0, top: 25.0),
-                              child: new Row(
-                                mainAxisSize: MainAxisSize.max,
-                                children: <Widget>[
-                                  new Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: <Widget>[
-                                      new Text(
-                                        'Description',
-                                        style: TextStyle(
-                                            fontSize: 16.0,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(
-                                  left: 25.0, right: 25.0, top: 2.0),
-                              child: new Row(
-                                mainAxisSize: MainAxisSize.max,
-                                children: <Widget>[
-                                  new Flexible(
-                                    child: new TextFormField(
-                                        decoration: const InputDecoration(
-                                          hintText:
-                                              "Tell us about the treatment",
-                                        ),
-                                        validator: (value) {
-                                          if (value.isEmpty) {
-                                            return 'Please enter description';
-                                          } else {
-                                            return value;
-                                          }
-                                        },
-                                        onSaved: (val) =>
-                                            setState(() => _decription = val)),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(
-                                  left: 25.0, right: 25.0, top: 25.0),
-                              child: new Row(
-                                mainAxisSize: MainAxisSize.max,
-                                children: <Widget>[
-                                  new Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: <Widget>[
-                                      new Text(
-                                        'Beauty Pro',
-                                        style: TextStyle(
-                                            fontSize: 16.0,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(
-                                  left: 25.0, right: 25.0, top: 2.0),
-                              child: SimpleAutocompleteFormField<User>(
+                              padding: const EdgeInsets.only(
+                                  left: 25.0, right: 25.0),
+                              child: TextFormField(
+                                maxLines: 1,
+                                keyboardType: TextInputType.text,
+                                autofocus: false,
+                                focusNode: _styleName,
+                                onFieldSubmitted: (term) {
+                                  _fieldFocusChange(
+                                      context, _styleName, _priceFocus);
+                                },
                                 decoration: InputDecoration(
+                                  labelText: 'STYLE',
+                                  labelStyle: TextStyle(
+                                      fontFamily: 'Montserrat',
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.grey),
+                                  focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.green),
+                                  ),
+                                ),
+                                textInputAction: TextInputAction.next,
+                                validator: (value) {
+                                  if (value.isEmpty) {
+                                    setState(() {
+                                      _isLoading = false;
+                                    });
+                                    return 'Style can\'t be empty';
+                                  }
+                                },
+                                onSaved: (value) => _style = value,
+                              ),
+                            ),
+                            SizedBox(height: height < 600 ? 0 : 20.0),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 25.0, right: 25.0),
+                              child: TextFormField(
+                                maxLines: 1,
+                                keyboardType: TextInputType.number,
+                                autofocus: false,
+                                focusNode: _priceFocus,
+                                onFieldSubmitted: (term) {
+                                  _fieldFocusChange(
+                                      context, _priceFocus, _durationFocus);
+                                },
+                                decoration: InputDecoration(
+                                  labelText: 'PRICE',
+                                  labelStyle: TextStyle(
+                                      fontFamily: 'Montserrat',
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.grey),
+                                  focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.green),
+                                  ),
+                                ),
+                                textInputAction: TextInputAction.next,
+                                validator: (value) {
+                                  if (value.isEmpty) {
+                                    setState(() {
+                                      _isLoading = false;
+                                    });
+                                    return 'Price can\'t be empty';
+                                  }
+                                },
+                                onSaved: (value) => _price = int.parse(value),
+                              ),
+                            ),
+                            SizedBox(height: height < 600 ? 0 : 20.0),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 25.0, right: 25.0),
+                              child: TextFormField(
+                                maxLines: 1,
+                                keyboardType: TextInputType.number,
+                                autofocus: false,
+                                focusNode: _durationFocus,
+                                onFieldSubmitted: (term) {
+                                  _fieldFocusChange(
+                                      context, _durationFocus, _description);
+                                },
+                                decoration: InputDecoration(
+                                  labelText: 'DURATION',
+                                  hintText: "Enter Duration in Min",
+                                  labelStyle: TextStyle(
+                                      fontFamily: 'Montserrat',
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.grey),
+                                  focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.green),
+                                  ),
+                                ),
+                                textInputAction: TextInputAction.next,
+                                validator: (value) {
+                                  if (value.isEmpty) {
+                                    setState(() {
+                                      _isLoading = false;
+                                    });
+                                    return 'Duration can\'t be empty';
+                                  }
+                                },
+                                onSaved: (value) =>
+                                    _duration = int.parse(value),
+                              ),
+                            ),
+                            SizedBox(height: height < 600 ? 0 : 20.0),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 25.0, right: 25.0),
+                              child: TextFormField(
+                                maxLines: 2,
+                                keyboardType: TextInputType.text,
+                                autofocus: false,
+                                focusNode: _description,
+                                onFieldSubmitted: (term) {
+                                  _fieldFocusChange(
+                                      context, _description, _beautyProFocus);
+                                },
+                                decoration: InputDecoration(
+                                  labelText: 'DESCRITION',
+                                  hintText: "Tell us about treatment",
+                                  labelStyle: TextStyle(
+                                      fontFamily: 'Montserrat',
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.grey),
+                                  focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.green),
+                                  ),
+                                ),
+                                textInputAction: TextInputAction.newline,
+                                validator: (value) {
+                                  if (value.isEmpty) {
+                                    setState(() {
+                                      _isLoading = false;
+                                    });
+                                    return 'Description can\'t be empty';
+                                  }
+                                },
+                                onSaved: (value) => _decription = value,
+                              ),
+                            ),
+                            SizedBox(height: height < 600 ? 0 : 20.0),
+                            Padding(
+                              padding: EdgeInsets.only(left: 25.0, right: 25.0),
+                              child: SimpleAutocompleteFormField<User>(
+                                focusNode: _beautyProFocus,
+                                decoration: InputDecoration(
+                                  labelText: 'Beauty Pro',
                                   hintText: 'Select Beauty Pro',
+                                  labelStyle: TextStyle(
+                                      fontFamily: 'Montserrat',
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.grey),
+                                  focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.green),
+                                  ),
                                 ),
                                 suggestionsHeight: 100.0,
                                 itemBuilder: (context, person) => Padding(
@@ -370,8 +323,9 @@ class _NewPostPageState extends State<NewPostPage> {
                                     setState(() => _beautyPro = value),
                                 onSaved: (value) =>
                                     setState(() => _beautyPro = value),
-                                validator: (person) =>
-                                    person == null ? 'Invalid person.' : null,
+                                validator: (person) => person == null
+                                    ? 'Invalid Beauty Pro.'
+                                    : null,
                               ),
                             ),
                             _getActionButtons()
@@ -387,6 +341,12 @@ class _NewPostPageState extends State<NewPostPage> {
         ),
       ),
     );
+  }
+
+  _fieldFocusChange(
+      BuildContext context, FocusNode currentFocus, FocusNode nextFocus) {
+    currentFocus.unfocus();
+    FocusScope.of(context).requestFocus(nextFocus);
   }
 
   @override
@@ -503,62 +463,70 @@ class _NewPostPageState extends State<NewPostPage> {
 
   Future _getDownloadUrl() async {
     try {
-      DocumentSnapshot user =
-          await _db.collection('users').document(widget.userId).get();
-      String fileId = randomString(5);
-      StorageReference reference =
-          FirebaseStorage.instance.ref().child("$fileId.jpg");
-      StorageUploadTask uploadTask = reference.putFile(file);
-      StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
-      String downloadUrl = await taskSnapshot.ref.getDownloadURL();
+      if (file != null) {
+        DocumentSnapshot user =
+            await _db.collection('users').document(widget.userId).get();
+        String fileId = randomString(5);
+        StorageReference reference =
+            FirebaseStorage.instance.ref().child("$fileId.jpg");
+        StorageUploadTask uploadTask = reference.putFile(file);
+        StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
+        String downloadUrl = await taskSnapshot.ref.getDownloadURL();
 
-      var fsReference = _db.collection('beautyPosts');
-      int count = 0;
+        var fsReference = _db.collection('beautyPosts');
+        int count = 0;
 
-      QuerySnapshot ref = await _db.collection("styles").getDocuments();
-      if (ref.documents.isNotEmpty) {
-        count = ref.documents.length;
+        QuerySnapshot ref = await _db.collection("styles").getDocuments();
+        if (ref.documents.isNotEmpty) {
+          count = ref.documents.length;
+        }
+
+        QuerySnapshot docExists = await _db
+            .collection("styles")
+            .where("styleName", isEqualTo: _style)
+            .getDocuments();
+
+        if (docExists.documents.isEmpty) {
+          var sReference =
+              _db.collection('styles').document((count).toString());
+
+          sReference.setData({
+            "styleName": _style,
+            "bookings": 0,
+            "styleId": count,
+            'imageUrl': downloadUrl,
+            "timestamp": FieldValue.serverTimestamp(),
+          }, merge: true);
+        }
+
+        fsReference.add({
+          "ownerIddisplayName": user.data["displayName"],
+          "style": _style,
+          "price": _price,
+          "duration": _duration,
+          "beautyProUserName": _beautyPro.username,
+          "beautyProDisplayName": _beautyPro.displayName,
+          "beautyProId": _beautyPro.uid,
+          "likes": {},
+          "mediaUrl": downloadUrl,
+          "description": _decription,
+          "ownerId": user.data["uid"],
+          "timestamp": FieldValue.serverTimestamp(),
+        }).then((DocumentReference doc) {
+          String docId = doc.documentID;
+          fsReference.document(docId).updateData({"postId": docId});
+        });
+        setState(() {
+          file = null;
+          _isLoading = false;
+        });
+        _formKey.currentState?.reset();
+        Scaffold.of(context)
+            .showSnackBar(SnackBar(content: Text('Data Uploaded')));
+      } else {
+        Scaffold.of(context)
+            .showSnackBar(SnackBar(content: Text('Select File')));
       }
-
-      QuerySnapshot docExists = await _db
-          .collection("styles")
-          .where("styleName", isEqualTo: _style)
-          .getDocuments();
-
-      if (docExists.documents.isEmpty) {
-        var sReference = _db.collection('styles').document((count).toString());
-
-        sReference.setData({
-          "styleName": _style,
-          "bookings": 0,
-          "timestamp": DateTime.now(),
-        }, merge: true);
-      }
-
-      fsReference.add({
-        "ownerIddisplayName": user.data["displayName"],
-        "style": _style,
-        "price": _price,
-        "duration": _duration,
-        "beautyProUserName": _beautyPro.username,
-        "beautyProDisplayName": _beautyPro.displayName,
-        "beautyProId": _beautyPro.uid,
-        "likes": {},
-        "mediaUrl": downloadUrl,
-        "description": _decription,
-        "ownerId": user.data["uid"],
-        "timestamp": DateTime.now(),
-      }).then((DocumentReference doc) {
-        String docId = doc.documentID;
-        fsReference.document(docId).updateData({"postId": docId});
-      });
-      setState(() {
-        file = null;
-        _isLoading = false;
-      });
-      _formKey.currentState?.reset();
-      Scaffold.of(context)
-          .showSnackBar(SnackBar(content: Text('Data Uploaded')));
     } catch (exception, stackTrace) {
       print("exception: $exception");
       print("stackTrace: $stackTrace");
