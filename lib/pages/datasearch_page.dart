@@ -1,5 +1,5 @@
 import 'package:beauty_flow/authentication/authentication.dart';
-import 'package:beauty_flow/pages/searchprofile_page.dart';
+import 'package:beauty_flow/pages/userdetailshero_page.dart';
 import 'package:flutter/material.dart';
 
 class DataSearch extends SearchDelegate<String> {
@@ -31,7 +31,7 @@ class DataSearch extends SearchDelegate<String> {
     String userId = queryResultSet
         .where((element) => element['username'].toLowerCase() == query)
         .toList()[0]["uid"];
-    return SearchProfilePage(userId: userId, auth: auth);
+    return UserDetailsHeroPage(userId);
   }
 
   @override

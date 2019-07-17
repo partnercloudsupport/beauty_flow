@@ -4,7 +4,7 @@ class Booking {
   final String beautyProId,beautyProDisplayName, beautyProUserName, bookedBy,bookedByUserName, bookedByDisplayName, bookingId, mediaUrl, postId, style;
   final double price;
   final Timestamp timestamp,booking;
-  final bool isConfirmed;
+  final int isConfirmed;
 
   Booking.fromMap(Map<String, dynamic> map)
       : assert(map['bookedBy'] != null),

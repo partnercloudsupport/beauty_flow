@@ -44,7 +44,8 @@ class _BookingPageState extends State<BookingPage> {
               )
             ],
           ),
-          title: Text('Beauty Flow'),
+          title: Text("Beauty Flow"),
+          centerTitle: true,
         ),
         body: TabBarView(
           children: [
@@ -206,6 +207,17 @@ class _YourBookingListArticleDescription extends StatelessWidget {
               ),
               const Padding(padding: EdgeInsets.only(bottom: 2.0)),
               Text(
+                'Booked Id: ${booking.bookingId}',
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 12.0,
+                  color: Colors.black54,
+                  fontFamily: 'Montserrat',
+                ),
+              ),
+              const Padding(padding: EdgeInsets.only(bottom: 2.0)),
+              Text(
                 'Beautician: ${booking.beautyProDisplayName}',
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -215,25 +227,28 @@ class _YourBookingListArticleDescription extends StatelessWidget {
                   fontFamily: 'Montserrat',
                 ),
               ),
-            ],
-          ),
-        ),
-        Expanded(
-          flex: 1,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: <Widget>[
+              const Padding(padding: EdgeInsets.only(bottom: 2.0)),
               Text(
                 'Cost: ${booking.price} in Rs.',
                 style: const TextStyle(
                   fontSize: 12.0,
                   color: Colors.black87,
+                  fontWeight: FontWeight.bold,
                   fontFamily: 'Montserrat',
                 ),
               ),
+              const Padding(padding: EdgeInsets.only(bottom: 2.0)),
               Text(
-                'Booked On: ${booking.timestamp.toDate()}',
+                'Booking For: ${booking.booking == null ? DateTime.now() : booking.booking.toDate()}',
+                style: const TextStyle(
+                  fontSize: 12.0,
+                  color: Colors.black54,
+                  fontFamily: 'Montserrat',
+                ),
+              ),
+              const Padding(padding: EdgeInsets.only(bottom: 2.0)),
+              Text(
+                'Booking Status: ${booking.isConfirmed == 0 ? 'Pending' : booking.isConfirmed == 1 ? 'Confirmed' : 'Rejected'}',
                 style: const TextStyle(
                   fontSize: 12.0,
                   color: Colors.black54,
@@ -352,7 +367,16 @@ class _BookingForYouListArticleDescription extends StatelessWidget {
               ),
               const Padding(padding: EdgeInsets.only(bottom: 2.0)),
               Text(
-                'Booking For: ${booking.booking != null ? booking.booking.toDate() : ''}',
+                'Booking For: ${booking.booking.toDate()}',
+                style: const TextStyle(
+                  fontSize: 12.0,
+                  color: Colors.black54,
+                  fontFamily: 'Montserrat',
+                ),
+              ),
+              const Padding(padding: EdgeInsets.only(bottom: 2.0)),
+              Text(
+                'Booking Status: ${booking.isConfirmed == 0 ? 'Pending' : booking.isConfirmed == 1 ? 'Confirmed' : 'Rejected'}',
                 style: const TextStyle(
                   fontSize: 12.0,
                   color: Colors.black54,
@@ -368,13 +392,22 @@ class _BookingForYouListArticleDescription extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.end,
             children: <Widget>[
               IconButton(
-                icon:
-                    booking.isConfirmed ? Icon(Icons.close) : Icon(Icons.check),
+                icon: Icon(Icons.check),
                 color: Colors.black,
-                tooltip: 'Confirm/Reject',
-                onPressed: () {
-                  _bookingStatus(booking.isConfirmed);
-                },
+                tooltip: 'Confirm',
+                onPressed:
+                    (booking.isConfirmed == 0 || booking.isConfirmed == -1)
+                        ? _bookingStatusConfirm
+                        : null,
+              ),
+              IconButton(
+                icon: Icon(Icons.close),
+                color: Colors.black,
+                tooltip: 'Reject',
+                onPressed:
+                    (booking.isConfirmed == 0 || booking.isConfirmed == 1)
+                        ? _bookingStatusReject
+                        : null,
               ),
             ],
           ),
@@ -383,16 +416,20 @@ class _BookingForYouListArticleDescription extends StatelessWidget {
     );
   }
 
-  _bookingStatus(bool isConfirmed) {
-    print(isConfirmed);
-    bool bookingStatus = !isConfirmed;
+  _bookingStatusConfirm() {
     Firestore.instance
         .collection('bookings')
         .document(booking.bookingId)
-        .updateData({
-      'isConfirmed': bookingStatus,
-      'timestamp': FieldValue.serverTimestamp()
-    });
+        .updateData(
+            {'isConfirmed': 1, 'timestamp': FieldValue.serverTimestamp()});
+  }
+
+  _bookingStatusReject() {
+    Firestore.instance
+        .collection('bookings')
+        .document(booking.bookingId)
+        .updateData(
+            {'isConfirmed': -1, 'timestamp': FieldValue.serverTimestamp()});
   }
 }
 
@@ -409,7 +446,7 @@ class BookingForList extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
-        height: 160,
+        height: 180,
         decoration: new BoxDecoration(
           color: Colors.tealAccent,
         ),

@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:beauty_flow/pages/comment_page.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:intl/intl.dart';
 import 'package:beauty_flow/Model/posts.dart';
 import 'package:beauty_flow/main.dart';
@@ -22,6 +24,7 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
   int likeCount;
   bool liked;
   TextEditingController _controller = TextEditingController();
+  final GlobalKey<FormBuilderState> _fbKey = GlobalKey<FormBuilderState>();
 
   final formats = {
     InputType.both: DateFormat("EEEE, MMMM d, yyyy 'at' h:mma"),
@@ -35,7 +38,7 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
   }
 
   // Changeable in demo
-  DateTime date;
+  DateTime date = DateTime.now();
 
   var reference = Firestore.instance.collection('beautyPosts');
 
@@ -45,11 +48,8 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
     double height = MediaQuery.of(context).size.height;
     return Scaffold(
       appBar: AppBar(
-        title: Center(
-          child: Text(
-            "Posts",
-          ),
-        ),
+        title: Text("Beauty Flow"),
+        centerTitle: true,
       ),
       body: Container(
         child: ListView(
@@ -159,7 +159,14 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                       new IconButton(
                         icon: Icon(FontAwesomeIcons.comment),
                         tooltip: "Comments",
-                        onPressed: null,
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => CommentPage(widget.post.postId),
+                            ),
+                          );
+                        },
                       ),
                       new IconButton(
                         icon: Icon(FontAwesomeIcons.paperPlane),
@@ -218,7 +225,6 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
               ),
             ),
             _dateTimePicker(),
-            _bookingButton(),
             SizedBox(
               height: 20.0,
             )
@@ -234,47 +240,50 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
     } else {
       return Padding(
         padding: EdgeInsets.only(right: 10, left: 10, bottom: 16.0, top: 20),
-        child: DateTimePickerFormField(
-          inputType: InputType.both,
-          format: formats[InputType.both],
-          editable: false,
-          controller: _controller,
-          decoration: InputDecoration(
-              labelText: 'Select Booking Date/Time',
-              hasFloatingPlaceholder: false,
-              fillColor: Colors.transparent,
-              hoverColor: Colors.transparent),
-          onChanged: (dt) => setState(() => date = dt),
-        ),
-      );
-    }
-  }
-
-  Widget _bookingButton() {
-    if (widget.post.beautyProId == currentUserModel.uid) {
-      return Container();
-    } else {
-      return Container(
-        height: 40.0,
-        padding: EdgeInsets.only(right: 10, left: 10),
-        child: InkWell(
-          onTap: () {
-            _booking();
-          },
-          child: Material(
-            borderRadius: BorderRadius.circular(20.0),
-            shadowColor: Colors.greenAccent,
-            color: Colors.green,
-            elevation: 7.0,
-            child: Center(
-              child: Text(
-                'Book',
-                style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Montserrat'),
+        child: FormBuilder(
+          key: _fbKey,
+          child: Column(
+            children: <Widget>[
+              FormBuilderDateTimePicker(
+                attribute: "date",
+                editable: false,
+                onChanged: (value) => date = value,
+                inputType: InputType.both,
+                initialValue: date,
+                format: DateFormat("EEEE, MMMM d, yyyy 'at' h:mma"),
+                decoration: InputDecoration(
+                    labelText: "Appointment DateTime",
+                    fillColor: Colors.transparent,
+                    focusColor: Colors.transparent),
               ),
-            ),
+              const Padding(
+                padding: EdgeInsets.only(top: 20),
+              ),
+              Container(
+                height: 40.0,
+                padding: EdgeInsets.only(right: 10, left: 10),
+                child: InkWell(
+                  onTap: () {
+                    _booking();
+                  },
+                  child: Material(
+                    borderRadius: BorderRadius.circular(20.0),
+                    shadowColor: Colors.greenAccent,
+                    color: Colors.green,
+                    elevation: 7.0,
+                    child: Center(
+                      child: Text(
+                        'Book',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Montserrat'),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       );
@@ -298,48 +307,46 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
   }
 
   void _booking() async {
-    var fsReference = Firestore.instance.collection("bookings");
+    _fbKey.currentState.save();
+    if (_fbKey.currentState.validate()) {
+      var fsReference = Firestore.instance.collection("bookings");
 
-    QuerySnapshot bookingRef = await Firestore.instance
-        .collection("styles")
-        .where("styleName", isEqualTo: widget.post.style)
-        .getDocuments();
-    if (bookingRef.documents.isNotEmpty) {
-      var list = bookingRef.documents.toList();
-      print(list);
-      var sReference =
-          Firestore.instance.collection('styles').document(list[0].documentID);
-      sReference.updateData({
-        "bookings": (list[0]["bookings"] + 1),
+      QuerySnapshot bookingRef = await Firestore.instance
+          .collection("styles")
+          .where("styleName", isEqualTo: widget.post.style)
+          .getDocuments();
+      if (bookingRef.documents.isNotEmpty) {
+        var list = bookingRef.documents.toList();
+        print(list);
+        var sReference = Firestore.instance
+            .collection('styles')
+            .document(list[0].documentID);
+        sReference.updateData({
+          "bookings": (list[0]["bookings"] + 1),
+          "timestamp": FieldValue.serverTimestamp(),
+        });
+      }
+
+      fsReference.add({
+        "postId": widget.post.postId,
+        "price": widget.post.price,
+        "mediaUrl": widget.post.mediaUrl,
+        "beautyProId": widget.post.beautyProId,
+        "beautyProDisplayName": widget.post.beautyProDisplayName,
+        "beautyProUserName": widget.post.beautyProUserName,
+        "style": widget.post.style,
+        "bookedBy": currentUserModel.uid,
+        "bookedByUserName": currentUserModel.username,
+        "bookedByDisplayName": currentUserModel.displayName,
+        "booking": date,
+        "isConfirmed": 0,
         "timestamp": FieldValue.serverTimestamp(),
+      }).then((DocumentReference doc) {
+        String docId = doc.documentID;
+        fsReference.document(docId).updateData({"bookingId": docId});
       });
+      _controller.clear();
     }
-
-    fsReference.add({
-      "postId": widget.post.postId,
-      "price": widget.post.price,
-      "mediaUrl": widget.post.mediaUrl,
-      "beautyProId": widget.post.beautyProId,
-      "beautyProDisplayName": widget.post.beautyProDisplayName,
-      "beautyProUserName": widget.post.beautyProUserName,
-      "style": widget.post.style,
-      "bookedBy": currentUserModel.uid,
-      "bookedByUserName": currentUserModel.username,
-      "bookedByDisplayName": currentUserModel.displayName,
-      "booking": date,
-      "isConfirmed":false,
-      "timestamp": FieldValue.serverTimestamp(),
-    }).then((DocumentReference doc) {
-      String docId = doc.documentID;
-      fsReference.document(docId).updateData({"bookingId": docId});
-      Scaffold.of(context).showSnackBar(new SnackBar(
-        content: new Text(
-          "Booked",
-          textAlign: TextAlign.center,
-        ),
-      ));
-    });
-    _controller.clear();
   }
 
   void _likePost(String postId2) {

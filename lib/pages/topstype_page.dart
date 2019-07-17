@@ -26,7 +26,8 @@ class _TopStylePageState extends State<TopStylePage> {
             Navigator.of(context).pop();
           },
         ),
-        title: Center(child: Text(widget.style.styleName)),
+        title: Text(widget.style.styleName),
+        centerTitle: true,
       ),
       body: StreamBuilder(
           stream: Firestore.instance

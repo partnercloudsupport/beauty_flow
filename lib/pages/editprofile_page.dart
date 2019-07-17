@@ -73,7 +73,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
           downloadUrl = await taskSnapshot.ref.getDownloadURL();
           setState(() {
-           _profilePic =  downloadUrl;
+            _profilePic = downloadUrl;
           });
         }
 
@@ -135,9 +135,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: Center(
-            child: Text("Beauty Flow"),
-          ),
+          title: Text("Beauty Flow"),
+          centerTitle: true,
         ),
         body: Stack(
           children: <Widget>[
@@ -172,9 +171,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                               height: 140.0,
                               width: 140.0,
                               child: CachedNetworkImage(
-                                imageUrl: (file == null)
-                                    ? _profilePic
-                                    : file,
+                                imageUrl: (file == null) ? _profilePic : file,
                                 fit: BoxFit.contain,
                                 fadeInDuration: Duration(milliseconds: 500),
                                 fadeInCurve: Curves.easeIn,

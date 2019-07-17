@@ -1,6 +1,5 @@
 import 'package:beauty_flow/Model/Style.dart';
 import 'package:beauty_flow/Model/User.dart';
-import 'package:beauty_flow/Model/posts.dart';
 import 'package:beauty_flow/authentication/authentication.dart';
 import 'package:beauty_flow/main.dart';
 import 'package:beauty_flow/pages/datasearch_page.dart';
@@ -36,7 +35,8 @@ class _NewDashBoardPageState extends State<NewDashBoardPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Center(child: Text("Beauty Flow")),
+        title: Text("Beauty Flow"),
+        centerTitle: true,
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.search),
@@ -227,7 +227,7 @@ class TopPros extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (context) {
-                      return UserDetailsHeroPage(pros);
+                      return UserDetailsHeroPage(pros.uid);
                     },
                   ),
                 );
@@ -267,7 +267,7 @@ class TopPros extends StatelessWidget {
                           height: 30.0,
                           decoration: BoxDecoration(color: Colors.lightBlue),
                           child: Padding(
-                            padding: EdgeInsets.only(top: 4,left: 3),
+                            padding: EdgeInsets.only(top: 4, left: 3),
                             child: Text(
                               "Pro",
                             ),

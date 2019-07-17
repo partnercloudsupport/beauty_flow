@@ -48,13 +48,35 @@ class _ProfilePageState extends State<ProfilePage> {
           }
           return Scaffold(
             appBar: AppBar(
-              title: Center(child: Text("Beauty Flow")),
-              actions: <Widget>[
-                IconButton(
-                  icon: Icon(Icons.exit_to_app),
-                  onPressed: _signOut,
-                )
-              ],
+              title: Text("Beauty Flow"),
+              centerTitle: true,
+            ),
+            drawer: Drawer(
+              child: ListView(
+                children: <Widget>[
+                  UserAccountsDrawerHeader(
+                    accountName: Text(user.username),
+                    accountEmail: Text(user.email),
+                    currentAccountPicture: CircleAvatar(
+                      backgroundColor:
+                          Theme.of(context).platform == TargetPlatform.iOS
+                              ? Colors.blue
+                              : Colors.white,
+                      backgroundImage: NetworkImage(user.photoURL),
+                    ),
+                  ),
+                  ListTile(
+                    title: Text("Saved Posts"),
+                    trailing: Icon(Icons.bookmark),
+                    onTap: null,
+                  ),
+                  ListTile(
+                    title: Text("LogOut"),
+                    trailing: Icon(Icons.exit_to_app),
+                    onTap: _signOut,
+                  ),
+                ],
+              ),
             ),
             body: ListView(
               children: <Widget>[
@@ -181,8 +203,8 @@ class _ProfilePageState extends State<ProfilePage> {
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) => EditProfilePage(
-                    userId: widget.userId,
-                  ),
+                userId: widget.userId,
+              ),
             ),
           );
         },

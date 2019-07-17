@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:beauty_flow/Model/User.dart';
 import 'package:beauty_flow/Model/posts.dart';
 import 'package:beauty_flow/main.dart';
@@ -7,8 +8,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class UserDetailsHeroPage extends StatefulWidget {
-  UserDetailsHeroPage(this.user);
-  final User user;
+  UserDetailsHeroPage(this.userId);
+  final String userId;
 
   @override
   _UserDetailsHeroPageState createState() => _UserDetailsHeroPageState();
@@ -17,12 +18,31 @@ class UserDetailsHeroPage extends StatefulWidget {
 class _UserDetailsHeroPageState extends State<UserDetailsHeroPage> {
   bool isFollowing = false;
   bool followButtonClicked = false;
+  StreamSubscription<QuerySnapshot> subscription;
+  DocumentSnapshot userDetails;
+
+  @override
+  void initState() {
+    subscription = Firestore.instance.collection('users').where('uid', isEqualTo: widget.userId).snapshots().listen((datasnapshot){
+      setState(() {
+       userDetails = datasnapshot.documents.first; 
+      });
+    });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    subscription?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
-    if (widget.user.followers.containsKey(currentUserModel.uid) &&
-        widget.user.followers[currentUserModel.uid] &&
+    var userNew = User.fromDocument(userDetails);
+    if (userNew.followers.containsKey(currentUserModel.uid) &&
+        userNew.followers[currentUserModel.uid] &&
         followButtonClicked == false) {
       isFollowing = true;
     }
@@ -30,7 +50,7 @@ class _UserDetailsHeroPageState extends State<UserDetailsHeroPage> {
       body: StreamBuilder(
         stream: Firestore.instance
             .collection('beautyPosts')
-            .where("ownerId", isEqualTo: widget.user.uid)
+            .where("ownerId", isEqualTo: widget.userId)
             .limit(40)
             .snapshots(),
         builder: (context, snapshot) {
@@ -57,13 +77,13 @@ class _UserDetailsHeroPageState extends State<UserDetailsHeroPage> {
                               padding: EdgeInsets.fromLTRB(0, 30, 0, 0),
                             ),
                             Hero(
-                              tag: widget.user.uid,
+                              tag: widget.userId,
                               child: ClipOval(
                                 child: new Container(
                                   height: 100.0,
                                   width: 100.0,
                                   child: CachedNetworkImage(
-                                    imageUrl: widget.user.photoURL,
+                                    imageUrl: userNew.photoURL == null ? '' : userNew.photoURL,
                                     fit: BoxFit.fill,
                                     fadeInDuration: Duration(milliseconds: 500),
                                     fadeInCurve: Curves.easeIn,
@@ -77,7 +97,7 @@ class _UserDetailsHeroPageState extends State<UserDetailsHeroPage> {
                             ),
                             SizedBox(height: 10.0),
                             Text(
-                              widget.user.username,
+                              userNew.username,
                               style: TextStyle(
                                   fontFamily: 'Montserrat',
                                   fontSize: 20.0,
@@ -85,7 +105,7 @@ class _UserDetailsHeroPageState extends State<UserDetailsHeroPage> {
                             ),
                             SizedBox(height: 4.0),
                             Text(
-                              '${widget.user.displayName}',
+                              '${userNew.displayName}',
                               style: TextStyle(
                                   fontFamily: 'Montserrat', color: Colors.grey),
                             ),
@@ -99,7 +119,7 @@ class _UserDetailsHeroPageState extends State<UserDetailsHeroPage> {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: <Widget>[
                                       Text(
-                                        widget.user.followersCount.toString(),
+                                        userNew.followersCount.toString(),
                                         style: TextStyle(
                                             fontFamily: 'Montserrat',
                                             fontWeight: FontWeight.bold),
@@ -117,7 +137,7 @@ class _UserDetailsHeroPageState extends State<UserDetailsHeroPage> {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: <Widget>[
                                       Text(
-                                        widget.user.followingCount.toString(),
+                                        userNew.followingCount.toString(),
                                         style: TextStyle(
                                             fontFamily: 'Montserrat',
                                             fontWeight: FontWeight.bold),
@@ -228,21 +248,21 @@ class _UserDetailsHeroPageState extends State<UserDetailsHeroPage> {
       followButtonClicked = true;
     });
 
-    Firestore.instance.document("users/${widget.user.uid}").updateData({
+    Firestore.instance.document("users/${widget.userId}").updateData({
       'followers.${currentUserModel.uid}': false,
       'followersCount': FieldValue.increment(-1)
       //firestore plugin doesnt support deleting, so it must be nulled / falsed
     });
 
     Firestore.instance.document("users/${currentUserModel.uid}").updateData({
-      'following.${widget.user.uid}': false,
+      'following.${widget.userId}': false,
       'followingCount':FieldValue.increment(-1)
       //firestore plugin doesnt support deleting, so it must be nulled / falsed
     });
 
     Firestore.instance
         .collection("deautyFeed")
-        .document(widget.user.uid)
+        .document(widget.userId)
         .collection("items")
         .document(currentUserModel.uid)
         .delete();
@@ -255,14 +275,14 @@ class _UserDetailsHeroPageState extends State<UserDetailsHeroPage> {
       followButtonClicked = true;
     });
 
-    Firestore.instance.document("users/${widget.user.uid}").updateData({
+    Firestore.instance.document("users/${widget.userId}").updateData({
       'followers.${currentUserModel.uid}': true,
       'followersCount': FieldValue.increment(1)
       //firestore plugin doesnt support deleting, so it must be nulled / falsed
     });
 
     Firestore.instance.document("users/${currentUserModel.uid}").updateData({
-      'following.${widget.user.uid}': true,
+      'following.${widget.userId}': true,
       'followingCount':FieldValue.increment(1)
       //firestore plugin doesnt support deleting, so it must be nulled / falsed
     });
@@ -270,11 +290,11 @@ class _UserDetailsHeroPageState extends State<UserDetailsHeroPage> {
     //updates activity feed
     Firestore.instance
         .collection("deautyFeed")
-        .document(widget.user.uid)
+        .document(widget.userId)
         .collection("items")
         .document(currentUserModel.uid)
         .setData({
-      "ownerId": widget.user.uid,
+      "ownerId": widget.userId,
       "username": currentUserModel.username,
       "userId": currentUserModel.uid,
       "type": "follow",
@@ -284,7 +304,7 @@ class _UserDetailsHeroPageState extends State<UserDetailsHeroPage> {
   }
 
   _buildFollowutton() {
-    if (currentUserModel.uid == widget.user.uid) {
+    if (currentUserModel.uid == widget.userId) {
       return Container();
     }
 

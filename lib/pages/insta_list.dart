@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:beauty_flow/authentication/authentication.dart';
 import 'package:beauty_flow/main.dart';
+import 'package:beauty_flow/pages/comment_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -214,14 +215,7 @@ class _InstaListState extends State<InstaList> {
                         new IconButton(
                           icon: Icon(Icons.more_vert),
                           tooltip: "More Options",
-                          onPressed: () {
-                            Scaffold.of(context).showSnackBar(new SnackBar(
-                              content: new Text(
-                                "Options Comming Soon",
-                                textAlign: TextAlign.center,
-                              ),
-                            ));
-                          },
+                          onPressed: () {},
                         )
                       ],
                     ),
@@ -336,12 +330,12 @@ class _InstaListState extends State<InstaList> {
                           icon: Icon(FontAwesomeIcons.comment),
                           tooltip: "Comments",
                           onPressed: () {
-                            Scaffold.of(context).showSnackBar(new SnackBar(
-                              content: new Text(
-                                "Comment Comming Soon",
-                                textAlign: TextAlign.center,
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => CommentPage(postId),
                               ),
-                            ));
+                            );
                           },
                         ),
                         new IconButton(
@@ -506,6 +500,7 @@ class _InstaListState extends State<InstaList> {
       "bookedBy": currentUserModel.uid,
       "bookedByUserName": currentUserModel.username,
       "bookedByDisplayName": currentUserModel.displayName,
+      "isConfirmed": 0,
       "timestamp": FieldValue.serverTimestamp(),
     }).then((DocumentReference doc) {
       String docId = doc.documentID;

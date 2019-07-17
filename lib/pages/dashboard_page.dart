@@ -59,7 +59,8 @@ class _DashBoardPageState extends State<DashBoardPage>
     super.build(context); // reloads state when opened again
     return Scaffold(
       appBar: AppBar(
-        title: Center(child: Text("Beauty Flow")),
+        title: Text("Beauty Flow"),
+        centerTitle: true,
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.search),

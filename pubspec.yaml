@@ -39,6 +39,7 @@ dependencies:
   cached_network_image: 1.0.0
   simple_autocomplete_formfield: ^0.2.3
   datetime_picker_formfield: ^0.2.0
+  flutter_form_builder: ^3.2.8
 
 dev_dependencies:
   flutter_test:
