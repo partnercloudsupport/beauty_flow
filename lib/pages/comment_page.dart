@@ -31,6 +31,7 @@ class _CommentPageState extends State<CommentPage> {
                   .collection("post_comments")
                   .document(widget.postId)
                   .collection("comments")
+                  .orderBy("timestamp", descending: false)
                   .snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData)
@@ -148,8 +149,29 @@ class _CommentPageState extends State<CommentPage> {
                 ),
               ),
             ),
-            title: Text(comment.username),
-            subtitle: Text("Comment : ${comment.comment}"),
+            title: Row(
+              children: <Widget>[
+                Text(
+                  comment.username,
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 10),
+                  child: Text(comment.comment),
+                ),
+              ],
+            ),
+            subtitle: getLikeCount(comment.likes) > 0
+                ? Text(comment.timestamp != null
+                    ? getDays(comment.timestamp.microsecondsSinceEpoch) +
+                        getLikeCount(comment.likes).toString() +
+                        " like"
+                    : '0s    ' +
+                        getLikeCount(comment.likes).toString() +
+                        " like")
+                : Text(comment.timestamp != null
+                    ? getDays(comment.timestamp.microsecondsSinceEpoch)
+                    : '0s    '),
             trailing: _buildLikeButton(comment),
           );
         },
@@ -157,8 +179,54 @@ class _CommentPageState extends State<CommentPage> {
     }
   }
 
+  String getDays(int microsecondsSinceEpoch) {
+    String finalStr;
+    if (DateTime.now()
+            .difference(
+                DateTime.fromMicrosecondsSinceEpoch(microsecondsSinceEpoch))
+            .inDays >
+        0) {
+      finalStr = DateTime.now()
+              .difference(
+                  DateTime.fromMicrosecondsSinceEpoch(microsecondsSinceEpoch))
+              .inDays
+              .toString() +
+          "d    ";
+    } else if (DateTime.now()
+            .difference(
+                DateTime.fromMicrosecondsSinceEpoch(microsecondsSinceEpoch))
+            .inHours >
+        0) {
+      finalStr = DateTime.now()
+              .difference(
+                  DateTime.fromMicrosecondsSinceEpoch(microsecondsSinceEpoch))
+              .inHours
+              .toString() +
+          "h    ";
+    } else if (DateTime.now()
+            .difference(
+                DateTime.fromMicrosecondsSinceEpoch(microsecondsSinceEpoch))
+            .inMinutes >
+        0) {
+      finalStr = DateTime.now()
+              .difference(
+                  DateTime.fromMicrosecondsSinceEpoch(microsecondsSinceEpoch))
+              .inMinutes
+              .toString() +
+          "m    ";
+    } else {
+      finalStr = DateTime.now()
+              .difference(
+                  DateTime.fromMicrosecondsSinceEpoch(microsecondsSinceEpoch))
+              .inSeconds
+              .toString() +
+          "s    ";
+    }
+    return finalStr;
+  }
+
   _buildLikeButton(Comment comment) {
-    bool isLike = (comment.likes[currentUserModel.uid.toString()] == true);
+    bool isLike = comment.likes[currentUserModel.uid.toString()] == true;
 
     if (isLike) {
       return IconButton(
@@ -203,5 +271,20 @@ class _CommentPageState extends State<CommentPage> {
           .document(comment.commentId)
           .updateData({'likes.$userId': true});
     }
+  }
+
+  int getLikeCount(var likes) {
+    if (likes == null) {
+      return 0;
+    }
+// issue is below
+    var vals = likes.values;
+    int count = 0;
+    for (var val in vals) {
+      if (val == true) {
+        count = count + 1;
+      }
+    }
+    return count;
   }
 }

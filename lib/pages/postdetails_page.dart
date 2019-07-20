@@ -1,14 +1,13 @@
 import 'dart:async';
 import 'package:beauty_flow/pages/comment_page.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:intl/intl.dart';
 import 'package:beauty_flow/Model/posts.dart';
 import 'package:beauty_flow/main.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter_cupertino_date_picker/flutter_cupertino_date_picker.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class PostDetailsPage extends StatefulWidget {
   PostDetailsPage(this.post);
@@ -23,22 +22,10 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
   bool showHeart = false;
   int likeCount;
   bool liked;
-  TextEditingController _controller = TextEditingController();
-  final GlobalKey<FormBuilderState> _fbKey = GlobalKey<FormBuilderState>();
-
-  final formats = {
-    InputType.both: DateFormat("EEEE, MMMM d, yyyy 'at' h:mma"),
-    InputType.date: DateFormat('yyyy-MM-dd'),
-    InputType.time: DateFormat("HH:mm"),
-  };
-
-  void dispose() {
-    super.dispose();
-    _controller.dispose();
-  }
 
   // Changeable in demo
   DateTime date = DateTime.now();
+  String dateTimeString = "Pick Date";
 
   var reference = Firestore.instance.collection('beautyPosts');
 
@@ -163,7 +150,8 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => CommentPage(widget.post.postId),
+                              builder: (context) =>
+                                  CommentPage(widget.post.postId),
                             ),
                           );
                         },
@@ -240,54 +228,76 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
     } else {
       return Padding(
         padding: EdgeInsets.only(right: 10, left: 10, bottom: 16.0, top: 20),
-        child: FormBuilder(
-          key: _fbKey,
-          child: Column(
-            children: <Widget>[
-              FormBuilderDateTimePicker(
-                attribute: "date",
-                editable: false,
-                onChanged: (value) => date = value,
-                inputType: InputType.both,
-                initialValue: date,
-                format: DateFormat("EEEE, MMMM d, yyyy 'at' h:mma"),
-                decoration: InputDecoration(
-                    labelText: "Appointment DateTime",
-                    fillColor: Colors.transparent,
-                    focusColor: Colors.transparent),
-              ),
-              const Padding(
-                padding: EdgeInsets.only(top: 20),
-              ),
-              Container(
-                height: 40.0,
-                padding: EdgeInsets.only(right: 10, left: 10),
-                child: InkWell(
-                  onTap: () {
-                    _booking();
-                  },
-                  child: Material(
-                    borderRadius: BorderRadius.circular(20.0),
-                    shadowColor: Colors.greenAccent,
-                    color: Colors.green,
-                    elevation: 7.0,
-                    child: Center(
-                      child: Text(
-                        'Book',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'Montserrat'),
-                      ),
+        child: Column(
+          children: <Widget>[
+            FlatButton(
+              onPressed: _showDateTimePicker,
+              child: Text(dateTimeString),
+              color: Colors.tealAccent,
+              shape: RoundedRectangleBorder(
+                  borderRadius: new BorderRadius.circular(30.0)),
+            ),
+            const Padding(
+              padding: EdgeInsets.only(top: 20),
+            ),
+            Container(
+              height: 40.0,
+              padding: EdgeInsets.only(right: 10, left: 10),
+              child: InkWell(
+                onTap: () {
+                  _booking();
+                },
+                child: Material(
+                  borderRadius: BorderRadius.circular(20.0),
+                  shadowColor: Colors.greenAccent,
+                  color: Colors.green,
+                  elevation: 7.0,
+                  child: Center(
+                    child: Text(
+                      'Book',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Montserrat'),
                     ),
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       );
     }
+  }
+
+  void _showDateTimePicker() {
+    DatePicker.showDatePicker(
+      context,
+      minDateTime: DateTime.parse('1999-01-01 00:00:00'),
+      maxDateTime: DateTime.parse('2050-12-31 00:00:00'),
+      initialDateTime: DateTime.now(),
+      dateFormat: "yyyy.MM.dd G 'at' HH:mm:ss vvvv",
+      locale: DateTimePickerLocale.en_us,
+      pickerTheme: DateTimePickerTheme(
+        showTitle: true,
+      ),
+      pickerMode: DateTimePickerMode.datetime, // show TimePicker
+      onCancel: () {
+        debugPrint('onCancel');
+      },
+      onChange: (dateTime, List<int> index) {
+        setState(() {
+          date = dateTime;
+          dateTimeString = date.toLocal().toString();
+        });
+      },
+      onConfirm: (dateTime, List<int> index) {
+        setState(() {
+          date = dateTime;
+          dateTimeString = date.toLocal().toString();
+        });
+      },
+    );
   }
 
   int getLikeCount(var likes) {
@@ -307,8 +317,8 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
   }
 
   void _booking() async {
-    _fbKey.currentState.save();
-    if (_fbKey.currentState.validate()) {
+    
+    if (date != null) {
       var fsReference = Firestore.instance.collection("bookings");
 
       QuerySnapshot bookingRef = await Firestore.instance
@@ -317,12 +327,11 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
           .getDocuments();
       if (bookingRef.documents.isNotEmpty) {
         var list = bookingRef.documents.toList();
-        print(list);
         var sReference = Firestore.instance
             .collection('styles')
             .document(list[0].documentID);
         sReference.updateData({
-          "bookings": (list[0]["bookings"] + 1),
+          "bookings": FieldValue.increment(1),
           "timestamp": FieldValue.serverTimestamp(),
         });
       }
@@ -345,7 +354,24 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
         String docId = doc.documentID;
         fsReference.document(docId).updateData({"bookingId": docId});
       });
-      _controller.clear();
+      
+      Fluttertoast.showToast(
+          msg: "Booking Confirmed on ${date.toString()}",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIos: 1,
+          backgroundColor: Colors.black,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    } else {
+      Fluttertoast.showToast(
+          msg: "Please Select Date",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIos: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
     }
   }
 

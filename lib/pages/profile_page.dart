@@ -52,29 +52,70 @@ class _ProfilePageState extends State<ProfilePage> {
               centerTitle: true,
             ),
             drawer: Drawer(
-              child: ListView(
+              child: Column(
                 children: <Widget>[
-                  UserAccountsDrawerHeader(
-                    accountName: Text(user.username),
-                    accountEmail: Text(user.email),
-                    currentAccountPicture: CircleAvatar(
-                      backgroundColor:
-                          Theme.of(context).platform == TargetPlatform.iOS
-                              ? Colors.blue
-                              : Colors.white,
-                      backgroundImage: NetworkImage(user.photoURL),
+                  Expanded(
+                    child: ListView(
+                      children: <Widget>[
+                        UserAccountsDrawerHeader(
+                          accountName: Text(user.username),
+                          accountEmail: Text(user.email),
+                          currentAccountPicture: CircleAvatar(
+                            backgroundColor:
+                                Theme.of(context).platform == TargetPlatform.iOS
+                                    ? Colors.blue
+                                    : Colors.white,
+                            backgroundImage: user.photoURL == null
+                                ? AssetImage("assets/img/person.png")
+                                : NetworkImage(user.photoURL),
+                          ),
+                        ),
+                        ListTile(
+                          leading: Icon(Icons.settings),
+                          title: Text("Edit Profile"),
+                          onTap: () {
+                            Navigator.of(context).pop();
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => EditProfilePage(
+                                  userId: widget.userId,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                        ListTile(
+                          leading: Icon(Icons.bookmark),
+                          title: Text("Saved Posts"),
+                          onTap: null,
+                        ),
+                      ],
                     ),
                   ),
-                  ListTile(
-                    title: Text("Saved Posts"),
-                    trailing: Icon(Icons.bookmark),
-                    onTap: null,
-                  ),
-                  ListTile(
-                    title: Text("LogOut"),
-                    trailing: Icon(Icons.exit_to_app),
-                    onTap: _signOut,
-                  ),
+                  Container(
+                    // This align moves the children to the bottom
+                    child: Align(
+                      alignment: FractionalOffset.bottomCenter,
+                      // This container holds all the children that will be aligned
+                      // on the bottom and should not scroll with the above ListView
+                      child: Container(
+                        child: Column(
+                          children: <Widget>[
+                            Divider(),
+                            ListTile(
+                              leading: Icon(Icons.exit_to_app),
+                              title: Text("LogOut"),
+                              onTap: _signOut,
+                            ),
+                            ListTile(
+                              leading: Icon(Icons.help),
+                              title: Text('Help and Feedback'),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                  )
                 ],
               ),
             ),
@@ -198,34 +239,7 @@ class _ProfilePageState extends State<ProfilePage> {
   buildProfileFollowButton(User user) {
     // viewing your own profile - should show edit button
     if (currentUserId == widget.userId) {
-      return FlatButton(
-        onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => EditProfilePage(
-                userId: widget.userId,
-              ),
-            ),
-          );
-        },
-        child: Container(
-          height: 40.0,
-          width: 200.0,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(30.0),
-            color: Color.fromRGBO(0, 60, 126, 1),
-          ),
-          child: Center(
-            child: Text(
-              "Edit Profile",
-              style: TextStyle(
-                  color: Colors.white,
-                  fontFamily: 'Montserrat',
-                  fontSize: 15.0),
-            ),
-          ),
-        ),
-      );
+      return Container();
     }
 
     if (isFollowing) {
@@ -309,12 +323,12 @@ class _ProfilePageState extends State<ProfilePage> {
 
   _following(User user) {
     return Padding(
-      padding: EdgeInsets.only(left: 20.0, right: 20.0, top: 25.0),
+      padding: EdgeInsets.only(left: 30.0, right: 30.0, top: 25.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               Text(
                 postCount.toString(),
@@ -333,7 +347,7 @@ class _ProfilePageState extends State<ProfilePage> {
             ],
           ),
           Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               Text(
                 _countFollowings(user.followers).toString(),
@@ -352,7 +366,7 @@ class _ProfilePageState extends State<ProfilePage> {
             ],
           ),
           Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               Text(
                 _countFollowings(user.following).toString(),

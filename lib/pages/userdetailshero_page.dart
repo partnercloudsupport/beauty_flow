@@ -51,6 +51,7 @@ class _UserDetailsHeroPageState extends State<UserDetailsHeroPage> {
         stream: Firestore.instance
             .collection('beautyPosts')
             .where("ownerId", isEqualTo: widget.userId)
+            .orderBy("timestamp", descending: true)
             .limit(40)
             .snapshots(),
         builder: (context, snapshot) {

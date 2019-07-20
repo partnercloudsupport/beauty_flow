@@ -88,6 +88,7 @@ class _NewDashBoardPageState extends State<NewDashBoardPage> {
                 child: StreamBuilder(
                   stream: Firestore.instance
                       .collection("users")
+                      .where('isPro', isEqualTo: true)
                       .orderBy("followersCount", descending: true)
                       .limit(10)
                       .snapshots(),

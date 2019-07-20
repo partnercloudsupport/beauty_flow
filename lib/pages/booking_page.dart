@@ -55,7 +55,8 @@ class _BookingPageState extends State<BookingPage> {
                 stream: Firestore.instance
                     .collection("bookings")
                     .where("bookedBy", isEqualTo: widget.userId)
-                    .limit(10)
+                    .orderBy("timestamp", descending: true)
+                    .limit(20)
                     .snapshots(),
                 builder: (context, snapshot) {
                   return !snapshot.hasData
@@ -70,7 +71,8 @@ class _BookingPageState extends State<BookingPage> {
                 stream: Firestore.instance
                     .collection("bookings")
                     .where("beautyProId", isEqualTo: widget.userId)
-                    .limit(10)
+                    .orderBy("timestamp", descending: true)
+                    .limit(20)
                     .snapshots(),
                 builder: (context, snapshot) {
                   return !snapshot.hasData

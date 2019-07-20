@@ -10,7 +10,6 @@ class Style {
         assert(map['bookings'] != null),
         assert(map['imageUrl'] != null),
         assert(map['styleId'] != null),
-        assert(map['timestamp'] != null),
         styleName = map['styleName'],
         imageUrl = map['imageUrl'],
         bookings = map['bookings'],

@@ -6,13 +6,9 @@ class Comment {
   final Map likes;
 
   Comment.fromMap(Map<String, dynamic> map)
-      : assert(map['avatarUrl'] != null),
-        assert(map['comment'] != null),
+      : assert(map['comment'] != null),
         assert(map['userId'] != null),
         assert(map['username'] != null),
-        assert(map['timestamp'] != null),
-        assert(map['commentId'] != null),
-        assert(map['likes'] != null),
         avatarUrl = map['avatarUrl'],
         comment = map['comment'],
         userId = map['userId'],
