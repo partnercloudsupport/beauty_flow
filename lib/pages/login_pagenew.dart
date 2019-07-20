@@ -2,6 +2,7 @@ import 'package:beauty_flow/authentication/authentication.dart';
 import 'package:beauty_flow/pages/forgotpass_page.dart';
 import 'package:beauty_flow/pages/signup_pagenew.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class LoginPageNew extends StatefulWidget {
   LoginPageNew({this.auth, this.onSignedIn});
@@ -93,9 +94,9 @@ class _LoginPageNewState extends State<LoginPageNew> {
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => SignUpPageNew(
-                  auth: widget.auth,
-                  onSignedIn: _onLoggedIn,
-                ),
+              auth: widget.auth,
+              onSignedIn: _onLoggedIn,
+            ),
           ),
         );
       },
@@ -240,9 +241,9 @@ class _LoginPageNewState extends State<LoginPageNew> {
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) => ForgotPassPage(
-                                  auth: widget.auth,
-                                  onSignedIn: _onLoggedIn,
-                                ),
+                              auth: widget.auth,
+                              onSignedIn: _onLoggedIn,
+                            ),
                           ),
                         );
                       },
@@ -345,7 +346,12 @@ class _LoginPageNewState extends State<LoginPageNew> {
 
   Widget _showCircularProgress() {
     if (_isLoading) {
-      return Center(child: CircularProgressIndicator());
+      return Center(
+        child: SpinKitChasingDots(
+          color: Colors.blueAccent,
+          size: 60.0,
+        ),
+      );
     }
     return Container(
       height: 0.0,

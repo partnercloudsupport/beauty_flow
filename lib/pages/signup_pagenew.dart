@@ -1,5 +1,6 @@
 import 'package:beauty_flow/authentication/authentication.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class SignUpPageNew extends StatefulWidget {
   SignUpPageNew({this.auth, this.onSignedIn});
@@ -318,7 +319,12 @@ class _SignUpPageNewState extends State<SignUpPageNew> {
 
   Widget _showCircularProgress() {
     if (_isLoading) {
-      return Center(child: CircularProgressIndicator());
+      return Center(
+        child: SpinKitChasingDots(
+          color: Colors.blueAccent,
+          size: 60.0,
+        ),
+      );
     }
     return Container(
       height: 0.0,

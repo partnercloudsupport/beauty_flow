@@ -5,6 +5,7 @@ import 'package:beauty_flow/pages/comment_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -162,7 +163,12 @@ class _InstaListState extends State<InstaList> {
           username = snapshot.data.data['displayName'];
         }
         return !snapshot.hasData
-            ? Center(child: CircularProgressIndicator())
+            ? Center(
+                child: SpinKitChasingDots(
+                  color: Colors.blueAccent,
+                  size: 60.0,
+                ),
+              )
             : Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
@@ -179,10 +185,13 @@ class _InstaListState extends State<InstaList> {
                                   ? "assets/img/person.png"
                                   : imageUrl,
                               fit: BoxFit.fill,
-                              fadeInDuration: Duration(milliseconds: 500),
-                              fadeInCurve: Curves.easeIn,
+                              // fadeInDuration: Duration(milliseconds: 500),
+                              // fadeInCurve: Curves.easeIn,
                               placeholder: (context, url) =>
-                                  new CircularProgressIndicator(),
+                                  SpinKitFadingCircle(
+                                color: Colors.blueAccent,
+                                size: 30.0,
+                              ),
                               errorWidget: (context, url, error) =>
                                   Icon(Icons.error),
                             ),
@@ -240,18 +249,22 @@ class _InstaListState extends State<InstaList> {
             height: 400.0,
             fadeInDuration: Duration(milliseconds: 500),
             fadeInCurve: Curves.easeIn,
-            placeholder: (context, url) => new CircularProgressIndicator(),
+            placeholder: (context, url) => SpinKitFadingCircle(
+              color: Colors.blueAccent,
+              size: 30.0,
+            ),
             errorWidget: (context, url, error) => Icon(Icons.error),
           ),
           showHeart
               ? Positioned(
                   child: Opacity(
-                      opacity: 0.85,
-                      child: Icon(
-                        FontAwesomeIcons.solidHeart,
-                        size: 80.0,
-                        color: Colors.red,
-                      )),
+                    opacity: 0.85,
+                    child: Icon(
+                      FontAwesomeIcons.solidHeart,
+                      size: 80.0,
+                      color: Colors.red,
+                    ),
+                  ),
                 )
               : Container()
         ],
@@ -413,20 +426,7 @@ class _InstaListState extends State<InstaList> {
             ],
           ),
         ),
-        _showCircularProgress(),
       ],
-    );
-  }
-
-  Widget _showCircularProgress() {
-    if (_isLoading) {
-      return Center(
-        child: LinearProgressIndicator(),
-      );
-    }
-    return Container(
-      height: 0.0,
-      width: 0.0,
     );
   }
 

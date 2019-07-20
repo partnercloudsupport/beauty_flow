@@ -6,6 +6,7 @@ import 'package:beauty_flow/pages/insta_list.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class ProfilePage extends StatefulWidget {
   ProfilePage({Key key, this.auth, this.userId, this.onSignedOut})
@@ -157,9 +158,13 @@ class _ProfilePageState extends State<ProfilePage> {
       builder: (context, snapshot) {
         if (!snapshot.hasData)
           return Container(
-              alignment: FractionalOffset.center,
-              padding: const EdgeInsets.only(top: 10.0),
-              child: CircularProgressIndicator());
+            alignment: FractionalOffset.center,
+            padding: const EdgeInsets.only(top: 10.0),
+            child: SpinKitChasingDots(
+              color: Colors.blueAccent,
+              size: 60.0,
+            ),
+          );
         return Column(
             children: snapshot.data.map((InstaList instaList) {
           return instaList;
@@ -185,8 +190,10 @@ class _ProfilePageState extends State<ProfilePage> {
                   fit: BoxFit.fill,
                   fadeInDuration: Duration(milliseconds: 500),
                   fadeInCurve: Curves.easeIn,
-                  placeholder: (context, url) =>
-                      new CircularProgressIndicator(),
+                  placeholder: (context, url) => SpinKitFadingCircle(
+                    color: Colors.blueAccent,
+                    size: 30.0,
+                  ),
                   errorWidget: (context, url, error) => Icon(Icons.error),
                 ),
               ),

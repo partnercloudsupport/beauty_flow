@@ -9,6 +9,7 @@ import 'package:beauty_flow/util/searchservice.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class NewDashBoardPage extends StatefulWidget {
   NewDashBoardPage({Key key, this.auth, this.userId, this.onSignedOut})
@@ -71,7 +72,12 @@ class _NewDashBoardPageState extends State<NewDashBoardPage> {
                       .snapshots(),
                   builder: (context, snapshot) {
                     return !snapshot.hasData
-                        ? Center(child: CircularProgressIndicator())
+                        ? Center(
+                            child: SpinKitChasingDots(
+                              color: Colors.blueAccent,
+                              size: 60.0,
+                            ),
+                          )
                         : _buildTopStyles(context, snapshot.data.documents);
                   },
                 ),
@@ -94,7 +100,12 @@ class _NewDashBoardPageState extends State<NewDashBoardPage> {
                       .snapshots(),
                   builder: (context, snapshot) {
                     return !snapshot.hasData
-                        ? Center(child: CircularProgressIndicator())
+                        ? Center(
+                            child: SpinKitChasingDots(
+                              color: Colors.blueAccent,
+                              size: 60.0,
+                            ),
+                          )
                         : _buildTopPros(context, snapshot.data.documents);
                   },
                 ),
@@ -187,10 +198,12 @@ class TopStyles extends StatelessWidget {
                         ? "assets/img/person.png"
                         : style.imageUrl,
                     fit: BoxFit.cover,
-                    fadeInDuration: Duration(milliseconds: 500),
-                    fadeInCurve: Curves.easeIn,
-                    placeholder: (context, url) =>
-                        new CircularProgressIndicator(),
+                    // fadeInDuration: Duration(milliseconds: 500),
+                    // fadeInCurve: Curves.easeIn,
+                    placeholder: (context, url) => SpinKitFadingCircle(
+                      color: Colors.blueAccent,
+                      size: 30.0,
+                    ),
                     errorWidget: (context, url, error) => Icon(Icons.error),
                   ),
                 ),
@@ -249,10 +262,10 @@ class TopPros extends StatelessWidget {
                                   ? "assets/img/person.png"
                                   : pros.photoURL,
                           fit: BoxFit.cover,
-                          fadeInDuration: Duration(milliseconds: 500),
-                          fadeInCurve: Curves.easeIn,
-                          placeholder: (context, url) =>
-                              new CircularProgressIndicator(),
+                          placeholder: (context, url) => SpinKitFadingCircle(
+                            color: Colors.blueAccent,
+                            size: 30.0,
+                          ),
                           errorWidget: (context, url, error) =>
                               Icon(Icons.error),
                         ),

@@ -5,6 +5,7 @@ import 'package:beauty_flow/main.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_cupertino_date_picker/flutter_cupertino_date_picker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -55,10 +56,13 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                           child: CachedNetworkImage(
                             imageUrl: widget.post.mediaUrl,
                             fit: BoxFit.fill,
-                            fadeInDuration: Duration(milliseconds: 500),
-                            fadeInCurve: Curves.easeIn,
+                            // fadeInDuration: Duration(milliseconds: 500),
+                            // fadeInCurve: Curves.easeIn,
                             placeholder: (context, url) =>
-                                new CircularProgressIndicator(),
+                                new SpinKitFadingCircle(
+                              color: Colors.blueAccent,
+                              size: 30.0,
+                            ),
                             errorWidget: (context, url, error) =>
                                 Icon(Icons.error),
                           ),
@@ -114,8 +118,10 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                         fit: BoxFit.cover,
                         fadeInDuration: Duration(milliseconds: 500),
                         fadeInCurve: Curves.easeIn,
-                        placeholder: (context, url) =>
-                            new CircularProgressIndicator(),
+                        placeholder: (context, url) => SpinKitFadingCircle(
+                          color: Colors.blueAccent,
+                          size: 30.0,
+                        ),
                         errorWidget: (context, url, error) => Icon(Icons.error),
                       ),
                     ),
@@ -317,7 +323,6 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
   }
 
   void _booking() async {
-    
     if (date != null) {
       var fsReference = Firestore.instance.collection("bookings");
 
@@ -354,7 +359,7 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
         String docId = doc.documentID;
         fsReference.document(docId).updateData({"bookingId": docId});
       });
-      
+
       Fluttertoast.showToast(
           msg: "Booking Confirmed on ${date.toString()}",
           toastLength: Toast.LENGTH_SHORT,

@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:beauty_flow/main.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class BookingPage extends StatefulWidget {
   BookingPage({Key key, this.auth, this.userId}) : super(key: key);
@@ -15,7 +16,6 @@ class BookingPage extends StatefulWidget {
 }
 
 class _BookingPageState extends State<BookingPage> {
-  
   _buildBody() {
     if (currentUserModel.isPro) {
       return Container(
@@ -29,7 +29,12 @@ class _BookingPageState extends State<BookingPage> {
               .snapshots(),
           builder: (context, snapshot) {
             return !snapshot.hasData
-                ? Center(child: CircularProgressIndicator())
+                ? Center(
+                    child: SpinKitChasingDots(
+                      color: Colors.blueAccent,
+                      size: 60.0,
+                    ),
+                  )
                 : _buildBookingForYouList(context, snapshot.data.documents);
           },
         ),
@@ -46,7 +51,12 @@ class _BookingPageState extends State<BookingPage> {
               .snapshots(),
           builder: (context, snapshot) {
             return !snapshot.hasData
-                ? Center(child: CircularProgressIndicator())
+                ? Center(
+                    child: SpinKitChasingDots(
+                      color: Colors.blueAccent,
+                      size: 60.0,
+                    ),
+                  )
                 : _buildYourBookingList(context, snapshot.data.documents);
           },
         ),
@@ -308,9 +318,12 @@ class BookingList extends StatelessWidget {
                   ? "assets/img/person.png"
                   : booking.mediaUrl,
               fit: BoxFit.fill,
-              fadeInDuration: Duration(milliseconds: 500),
-              fadeInCurve: Curves.easeIn,
-              placeholder: (context, url) => new CircularProgressIndicator(),
+              // fadeInDuration: Duration(milliseconds: 500),
+              // fadeInCurve: Curves.easeIn,
+              placeholder: (context, url) => SpinKitFadingCircle(
+                color: Colors.blueAccent,
+                size: 30.0,
+              ),
               errorWidget: (context, url, error) => Icon(Icons.error),
             ),
             Expanded(
@@ -356,9 +369,12 @@ class YourBookingList extends StatelessWidget {
                   ? "assets/img/person.png"
                   : booking.mediaUrl,
               fit: BoxFit.fill,
-              fadeInDuration: Duration(milliseconds: 500),
-              fadeInCurve: Curves.easeIn,
-              placeholder: (context, url) => new CircularProgressIndicator(),
+              // fadeInDuration: Duration(milliseconds: 500),
+              // fadeInCurve: Curves.easeIn,
+              placeholder: (context, url) => SpinKitFadingCircle(
+                color: Colors.blueAccent,
+                size: 30.0,
+              ),
               errorWidget: (context, url, error) => Icon(Icons.error),
             ),
             Expanded(

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:beauty_flow/Model/User.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:simple_autocomplete_formfield/simple_autocomplete_formfield.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:beauty_flow/authentication/authentication.dart';
@@ -74,7 +75,12 @@ class _NewPostPageState extends State<NewPostPage> {
 
   Widget _showCircularProgress() {
     if (_isLoading) {
-      return Center(child: CircularProgressIndicator());
+      return Center(
+        child: SpinKitChasingDots(
+          color: Colors.blueAccent,
+          size: 60.0,
+        ),
+      );
     }
     return Container(
       height: 0.0,
