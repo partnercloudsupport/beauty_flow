@@ -124,7 +124,7 @@ class _ProfilePageState extends State<ProfilePage> {
               children: <Widget>[
                 SizedBox(height: 20.0),
                 _profilePic(user.photoURL),
-                _profileName(user.email, user.displayName),
+                _profileName(user.email, user.displayName, user.bio),
                 _following(user),
                 buildProfileFollowButton(user),
                 Divider(),
@@ -178,6 +178,7 @@ class _ProfilePageState extends State<ProfilePage> {
       padding: EdgeInsets.only(left: 20.0, right: 20.0, top: 0.0),
       child: Column(children: <Widget>[
         Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             ClipOval(
               child: new Container(
@@ -204,16 +205,39 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  _profileName(String email, String displayName) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 10.0),
-      child: Text(
-        displayName == null ? email : displayName,
-        style: TextStyle(
-            fontFamily: 'Montserrat',
-            fontWeight: FontWeight.bold,
-            fontSize: 17.0),
-      ),
+  _profileName(String email, String displayName, String bio) {
+    return Wrap(
+      children: <Widget>[
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Column(
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(left: 0.0, right: 0.0, top: 10.0),
+                  child: Text(
+                    displayName == null ? email : displayName,
+                    style: TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.bold,
+                        fontSize: 17.0),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 0.0, right: 0.0, top: 10.0),
+                  child: Text(
+                    bio == null ? '' : bio,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontSize: 12.5),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ],
     );
   }
 

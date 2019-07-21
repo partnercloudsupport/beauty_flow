@@ -19,12 +19,11 @@ class _BookingPageState extends State<BookingPage> {
   _buildBody() {
     if (currentUserModel.isPro) {
       return Container(
-        height: 400.0,
         child: StreamBuilder(
           stream: Firestore.instance
               .collection("bookings")
               .where("beautyProId", isEqualTo: widget.userId)
-              .orderBy("timestamp", descending: true)
+              .orderBy("booking", descending: true)
               .limit(20)
               .snapshots(),
           builder: (context, snapshot) {
@@ -41,12 +40,11 @@ class _BookingPageState extends State<BookingPage> {
       );
     } else {
       return Container(
-        height: 400.0,
         child: StreamBuilder(
           stream: Firestore.instance
               .collection("bookings")
               .where("bookedBy", isEqualTo: widget.userId)
-              .orderBy("timestamp", descending: true)
+              .orderBy("booking", descending: true)
               .limit(20)
               .snapshots(),
           builder: (context, snapshot) {
@@ -314,6 +312,7 @@ class BookingList extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             CachedNetworkImage(
+              width: 100,
               imageUrl: (booking.mediaUrl == "" || booking.mediaUrl == null)
                   ? "assets/img/person.png"
                   : booking.mediaUrl,
@@ -357,7 +356,7 @@ class YourBookingList extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
-        height: 160,
+        height: 180,
         decoration: new BoxDecoration(
           color: Colors.tealAccent,
         ),
@@ -469,7 +468,32 @@ class _YourBookingListArticleDescription extends StatelessWidget {
             ],
           ),
         ),
+        Expanded(
+          flex: 1,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: <Widget>[
+              IconButton(
+                icon: Icon(Icons.close),
+                color: Colors.black,
+                tooltip: 'Cancel',
+                onPressed:
+                    (booking.isConfirmed == 0)
+                        ? _bookingStatusReject
+                        : null,
+              ),
+            ],
+          ),
+        ),
       ],
     );
+  }
+
+  _bookingStatusReject() {
+    Firestore.instance
+        .collection('bookings')
+        .document(booking.bookingId)
+        .updateData(
+            {'isConfirmed': -1, 'timestamp': FieldValue.serverTimestamp()});
   }
 }

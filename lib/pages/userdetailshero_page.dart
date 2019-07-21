@@ -45,11 +45,14 @@ class _UserDetailsHeroPageState extends State<UserDetailsHeroPage> {
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
-    var userNew = User.fromDocument(userDetails);
-    if (userNew.followers.containsKey(currentUserModel.uid) &&
-        userNew.followers[currentUserModel.uid] &&
-        followButtonClicked == false) {
-      isFollowing = true;
+    var userNew;
+    if (userDetails != null) {
+      userNew = User.fromDocument(userDetails);
+      if (userNew.followers.containsKey(currentUserModel.uid) &&
+          userNew.followers[currentUserModel.uid] &&
+          followButtonClicked == false) {
+        isFollowing = true;
+      }
     }
     return Scaffold(
       body: StreamBuilder(

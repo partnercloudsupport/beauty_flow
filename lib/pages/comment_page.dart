@@ -133,8 +133,8 @@ class _CommentPageState extends State<CommentPage> {
           return ListTile(
             leading: ClipOval(
               child: new Container(
-                height: 50.0,
-                width: 50.0,
+                height: 40.0,
+                width: 40.0,
                 child: CachedNetworkImage(
                   imageUrl:
                       (comment.avatarUrl == "" || comment.avatarUrl == null)
@@ -149,29 +149,30 @@ class _CommentPageState extends State<CommentPage> {
                 ),
               ),
             ),
-            title: Row(
+            title: Text(
+              comment.username,
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text(
-                  comment.username,
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
                 Padding(
-                  padding: const EdgeInsets.only(left: 10),
+                  padding: const EdgeInsets.only(bottom: 3),
                   child: Text(comment.comment),
                 ),
+                getLikeCount(comment.likes) > 0
+                    ? Text(comment.timestamp != null
+                        ? getDays(comment.timestamp.microsecondsSinceEpoch) +
+                            getLikeCount(comment.likes).toString() +
+                            " like"
+                        : '0s    ' +
+                            getLikeCount(comment.likes).toString() +
+                            " like")
+                    : Text(comment.timestamp != null
+                        ? getDays(comment.timestamp.microsecondsSinceEpoch)
+                        : '0s    '),
               ],
             ),
-            subtitle: getLikeCount(comment.likes) > 0
-                ? Text(comment.timestamp != null
-                    ? getDays(comment.timestamp.microsecondsSinceEpoch) +
-                        getLikeCount(comment.likes).toString() +
-                        " like"
-                    : '0s    ' +
-                        getLikeCount(comment.likes).toString() +
-                        " like")
-                : Text(comment.timestamp != null
-                    ? getDays(comment.timestamp.microsecondsSinceEpoch)
-                    : '0s    '),
             trailing: _buildLikeButton(comment),
           );
         },

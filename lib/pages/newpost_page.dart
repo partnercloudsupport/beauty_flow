@@ -99,18 +99,18 @@ class _NewPostPageState extends State<NewPostPage> {
               Column(
                 children: <Widget>[
                   new Container(
-                    height: 210.0,
+                    height: 170.0,
                     color: Colors.white,
                     child: new Column(
                       children: <Widget>[
                         Padding(
-                          padding: EdgeInsets.only(top: 10.0, left: 20.0),
+                          padding: EdgeInsets.only(top: 10.0, left: 0.0),
                           child: new Stack(
                             fit: StackFit.loose,
                             children: <Widget>[
                               new Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: <Widget>[
                                   new Container(
                                     width: 140.0,
@@ -130,7 +130,7 @@ class _NewPostPageState extends State<NewPostPage> {
                               ),
                               Padding(
                                 padding:
-                                    EdgeInsets.only(top: 90.0, right: 285.0),
+                                    EdgeInsets.only(top: 70.0, left: 70.0),
                                 child: new Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: <Widget>[
@@ -157,7 +157,7 @@ class _NewPostPageState extends State<NewPostPage> {
                   new Container(
                     color: Color(0xffFFFFFF),
                     child: Padding(
-                      padding: EdgeInsets.only(bottom: 25.0),
+                      padding: EdgeInsets.only(bottom: 20.0),
                       child: new Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.start,
