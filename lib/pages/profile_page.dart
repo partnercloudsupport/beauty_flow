@@ -3,6 +3,7 @@ import 'package:beauty_flow/authentication/authentication.dart';
 import 'package:beauty_flow/main.dart';
 import 'package:beauty_flow/pages/editprofile_page.dart';
 import 'package:beauty_flow/pages/insta_list.dart';
+import 'package:beauty_flow/pages/savedposts_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -88,7 +89,17 @@ class _ProfilePageState extends State<ProfilePage> {
                         ListTile(
                           leading: Icon(Icons.bookmark),
                           title: Text("Saved Posts"),
-                          onTap: null,
+                          onTap: () {
+                            Navigator.of(context).pop();
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => SavedPostsPage(
+                                  auth: widget.auth,
+                                  userId: widget.userId,
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),
@@ -106,7 +117,10 @@ class _ProfilePageState extends State<ProfilePage> {
                             ListTile(
                               leading: Icon(Icons.exit_to_app),
                               title: Text("LogOut"),
-                              onTap: _signOut,
+                              onTap: () {
+                                Navigator.of(context).pop();
+                                _signOut();
+                              },
                             ),
                             ListTile(
                               leading: Icon(Icons.help),
@@ -182,8 +196,8 @@ class _ProfilePageState extends State<ProfilePage> {
           children: <Widget>[
             ClipOval(
               child: new Container(
-                height: 50.0,
-                width: 50.0,
+                height: 100.0,
+                width: 100.0,
                 child: CachedNetworkImage(
                   imageUrl: (photoURL == "" || photoURL == null)
                       ? "assets/img/person.png"
@@ -214,7 +228,8 @@ class _ProfilePageState extends State<ProfilePage> {
             Column(
               children: <Widget>[
                 Padding(
-                  padding: const EdgeInsets.only(left: 0.0, right: 0.0, top: 10.0),
+                  padding:
+                      const EdgeInsets.only(left: 0.0, right: 0.0, top: 10.0),
                   child: Text(
                     displayName == null ? email : displayName,
                     style: TextStyle(
@@ -224,13 +239,12 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(left: 0.0, right: 0.0, top: 10.0),
+                  padding:
+                      const EdgeInsets.only(left: 0.0, right: 0.0, top: 10.0),
                   child: Text(
                     bio == null ? '' : bio,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                        fontFamily: 'Montserrat',
-                        fontSize: 12.5),
+                    style: TextStyle(fontFamily: 'Montserrat', fontSize: 12.5),
                   ),
                 ),
               ],

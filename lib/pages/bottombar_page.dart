@@ -1,11 +1,11 @@
+import 'package:flutter/material.dart';
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:beauty_flow/authentication/authentication.dart';
 import 'package:beauty_flow/pages/booking_page.dart';
 import 'package:beauty_flow/pages/dashboard_page.dart';
 import 'package:beauty_flow/pages/newdashboard_page.dart';
 import 'package:beauty_flow/pages/newpost_page.dart';
 import 'package:beauty_flow/pages/profile_page.dart';
-import 'package:flutter/material.dart';
-import 'package:fancy_bottom_navigation/fancy_bottom_navigation.dart';
 
 class BottomBarPage extends StatefulWidget {
   BottomBarPage({Key key, this.auth, this.userId, this.onSignedOut})
@@ -20,26 +20,30 @@ class BottomBarPage extends StatefulWidget {
 }
 
 class _BottomBarPageState extends State<BottomBarPage> {
-  int currentPage = 0;
+  int _page = 0;
 
   GlobalKey bottomNavigationKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _getPage(currentPage),
-      bottomNavigationBar: FancyBottomNavigation(
-        tabs: [
-          TabData(iconData: Icons.home, title: "Home"),
-          TabData(iconData: Icons.add, title: "New Post"),
-          TabData(iconData: Icons.calendar_today, title: "Bookings"),
-          TabData(iconData: Icons.person, title: "Profile")
+      body: _getPage(_page),
+      bottomNavigationBar: CurvedNavigationBar(
+        items: [
+          Icon(Icons.home, size: 30),
+          Icon(Icons.add, size: 30),
+          Icon(Icons.calendar_today, size: 30),
+          Icon(Icons.person, size: 30)
         ],
-        initialSelection: 0,
         key: bottomNavigationKey,
-        onTabChangedListener: (position) {
+        color: Colors.white,
+        buttonBackgroundColor: Colors.white,
+        backgroundColor: Colors.blueAccent,
+        animationCurve: Curves.easeInOut,
+        animationDuration: Duration(milliseconds: 400),
+        onTap: (position) {
           setState(() {
-            currentPage = position;
+            _page = position;
           });
         },
       ),
@@ -50,31 +54,20 @@ class _BottomBarPageState extends State<BottomBarPage> {
     switch (page) {
       case 0:
         return NewDashBoardPage(
-          userId: widget.userId,
-          auth: widget.auth,
-          onSignedOut: widget.onSignedOut
-        );
+            userId: widget.userId,
+            auth: widget.auth,
+            onSignedOut: widget.onSignedOut);
       case 1:
-        return NewPostPage(
-          userId: widget.userId,
-          auth: widget.auth
-        );
+        return NewPostPage(userId: widget.userId, auth: widget.auth);
       case 2:
-        return BookingPage(
-          userId: widget.userId,
-          auth: widget.auth
-        );
+        return BookingPage(userId: widget.userId, auth: widget.auth);
       case 3:
         return ProfilePage(
-          userId: widget.userId,
-          auth: widget.auth,
-          onSignedOut: widget.onSignedOut
-        );
+            userId: widget.userId,
+            auth: widget.auth,
+            onSignedOut: widget.onSignedOut);
       default:
-        return DashBoardPage(
-          userId: widget.userId,
-          auth: widget.auth
-        );
+        return DashBoardPage(userId: widget.userId, auth: widget.auth);
     }
   }
 }

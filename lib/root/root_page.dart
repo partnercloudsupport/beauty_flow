@@ -58,14 +58,14 @@ class _RootPageState extends State<RootPage> {
   }
 
   void _onSignedOut() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    currentUserModel = null;
     setState(() {
+      currentUserModel = null;
       authStatus = AuthStatus.NOT_LOGGED_IN;
       _userId = "";
     });
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
-
-    currentUserModel = null;
   }
 
   Widget _buildWaitingScreen() {
@@ -84,14 +84,14 @@ class _RootPageState extends State<RootPage> {
         return _buildWaitingScreen();
         break;
       case AuthStatus.NOT_LOGGED_IN:
-        return new LoginPageNew(
+        return LoginPageNew(
           auth: widget.auth,
           onSignedIn: _onLoggedIn,
         );
         break;
       case AuthStatus.LOGGED_IN:
         if (_userId.length > 0 && _userId != null) {
-          return new BottomBarPage(
+          return BottomBarPage(
             userId: _userId,
             auth: widget.auth,
             onSignedOut: _onSignedOut,

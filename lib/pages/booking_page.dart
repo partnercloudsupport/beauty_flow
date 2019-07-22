@@ -16,6 +16,17 @@ class BookingPage extends StatefulWidget {
 }
 
 class _BookingPageState extends State<BookingPage> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Beauty Flow"),
+        centerTitle: true,
+      ),
+      body: _buildBody(),
+    );
+  }
+
   _buildBody() {
     if (currentUserModel.isPro) {
       return Container(
@@ -61,17 +72,6 @@ class _BookingPageState extends State<BookingPage> {
       );
     }
   }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Beauty Flow"),
-        centerTitle: true,
-      ),
-      body: _buildBody(),
-    );
-  }
 }
 
 Widget _buildBookingForYouList(
@@ -112,57 +112,57 @@ Widget _buildBookingForYouList(
   }
 }
 
-Widget _buildYourBookingList(
-    BuildContext context, List<DocumentSnapshot> snapshots) {
-  double height = MediaQuery.of(context).size.height;
-  if (snapshots.length == 0) {
-    return Container(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Icon(
-            Icons.calendar_today,
-            size: height < 600 ? 30.0 : 40.0,
+class BookingList extends StatelessWidget {
+  BookingList({
+    Key key,
+    this.booking,
+  }) : super(key: key);
+
+  final Booking booking;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Container(
+        height: 200,
+        child: Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
           ),
-          const Padding(
-            padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+          elevation: 4.0,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              CachedNetworkImage(
+                width: 120,
+                imageUrl: (booking.mediaUrl == "" || booking.mediaUrl == null)
+                    ? "assets/img/person.png"
+                    : booking.mediaUrl,
+                fit: BoxFit.fill,
+                // fadeInDuration: Duration(milliseconds: 500),
+                // fadeInCurve: Curves.easeIn,
+                placeholder: (context, url) => SpinKitFadingCircle(
+                  color: Colors.blueAccent,
+                  size: 30.0,
+                ),
+                errorWidget: (context, url, error) => Icon(Icons.error),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20.0, 10.0, 2.0, 10.0),
+                  child: _BookingArticleDescription(
+                    booking: booking,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(bottom: 30),
+              )
+            ],
           ),
-          Text(
-            "Not booked a style yet?",
-            style: TextStyle(
-              fontSize: height < 600 ? 20.0 : 25.0,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'Montserrat',
-            ),
-          ),
-          const Padding(
-            padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
-          ),
-          Text(
-            "Go book the look you've been dreaming of",
-            style: TextStyle(
-              fontSize: height < 600 ? 15.0 : 18.0,
-              fontFamily: 'Montserrat',
-            ),
-          ),
-          Text(
-            "and we'll keep the details in here for you",
-            style: TextStyle(
-              fontSize: height < 600 ? 15.0 : 18.0,
-              fontFamily: 'Montserrat',
-            ),
-          ),
-        ],
+        ),
       ),
-    );
-  } else {
-    return ListView.builder(
-      itemCount: snapshots.length,
-      scrollDirection: Axis.vertical,
-      physics: ClampingScrollPhysics(),
-      itemBuilder: (context, index) {
-        return YourBookingList(booking: Booking.fromSnapshot(snapshots[index]));
-      },
     );
   }
 }
@@ -291,54 +291,57 @@ class _BookingArticleDescription extends StatelessWidget {
   }
 }
 
-class BookingList extends StatelessWidget {
-  BookingList({
-    Key key,
-    this.booking,
-  }) : super(key: key);
-
-  final Booking booking;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: Container(
-        height: 180,
-        decoration: new BoxDecoration(
-          color: Colors.tealAccent,
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            CachedNetworkImage(
-              width: 100,
-              imageUrl: (booking.mediaUrl == "" || booking.mediaUrl == null)
-                  ? "assets/img/person.png"
-                  : booking.mediaUrl,
-              fit: BoxFit.fill,
-              // fadeInDuration: Duration(milliseconds: 500),
-              // fadeInCurve: Curves.easeIn,
-              placeholder: (context, url) => SpinKitFadingCircle(
-                color: Colors.blueAccent,
-                size: 30.0,
-              ),
-              errorWidget: (context, url, error) => Icon(Icons.error),
+Widget _buildYourBookingList(
+    BuildContext context, List<DocumentSnapshot> snapshots) {
+  double height = MediaQuery.of(context).size.height;
+  if (snapshots.length == 0) {
+    return Container(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Icon(
+            Icons.calendar_today,
+            size: height < 600 ? 30.0 : 40.0,
+          ),
+          const Padding(
+            padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+          ),
+          Text(
+            "Not booked a style yet?",
+            style: TextStyle(
+              fontSize: height < 600 ? 20.0 : 25.0,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Montserrat',
             ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20.0, 10.0, 2.0, 10.0),
-                child: _BookingArticleDescription(
-                  booking: booking,
-                ),
-              ),
+          ),
+          const Padding(
+            padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+          ),
+          Text(
+            "Go book the look you've been dreaming of",
+            style: TextStyle(
+              fontSize: height < 600 ? 15.0 : 18.0,
+              fontFamily: 'Montserrat',
             ),
-            Padding(
-              padding: EdgeInsets.only(bottom: 30),
-            )
-          ],
-        ),
+          ),
+          Text(
+            "and we'll keep the details in here for you",
+            style: TextStyle(
+              fontSize: height < 600 ? 15.0 : 18.0,
+              fontFamily: 'Montserrat',
+            ),
+          ),
+        ],
       ),
+    );
+  } else {
+    return ListView.builder(
+      itemCount: snapshots.length,
+      scrollDirection: Axis.vertical,
+      physics: ClampingScrollPhysics(),
+      itemBuilder: (context, index) {
+        return YourBookingList(booking: Booking.fromSnapshot(snapshots[index]));
+      },
     );
   }
 }
@@ -356,35 +359,39 @@ class YourBookingList extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
-        height: 180,
-        decoration: new BoxDecoration(
-          color: Colors.tealAccent,
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            CachedNetworkImage(
-              imageUrl: (booking.mediaUrl == "" || booking.mediaUrl == null)
-                  ? "assets/img/person.png"
-                  : booking.mediaUrl,
-              fit: BoxFit.fill,
-              // fadeInDuration: Duration(milliseconds: 500),
-              // fadeInCurve: Curves.easeIn,
-              placeholder: (context, url) => SpinKitFadingCircle(
-                color: Colors.blueAccent,
-                size: 30.0,
+        height: 200,
+        child: Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          elevation: 4.0,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              CachedNetworkImage(
+                imageUrl: (booking.mediaUrl == "" || booking.mediaUrl == null)
+                    ? "assets/img/person.png"
+                    : booking.mediaUrl,
+                fit: BoxFit.contain,
+                width: 120,
+                // fadeInDuration: Duration(milliseconds: 500),
+                // fadeInCurve: Curves.easeIn,
+                placeholder: (context, url) => SpinKitFadingCircle(
+                  color: Colors.blueAccent,
+                  size: 30.0,
+                ),
+                errorWidget: (context, url, error) => Icon(Icons.error),
               ),
-              errorWidget: (context, url, error) => Icon(Icons.error),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20.0, 10.0, 2.0, 10.0),
-                child: _YourBookingListArticleDescription(
-                  booking: booking,
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20.0, 10.0, 2.0, 10.0),
+                  child: _YourBookingListArticleDescription(
+                    booking: booking,
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -478,9 +485,7 @@ class _YourBookingListArticleDescription extends StatelessWidget {
                 color: Colors.black,
                 tooltip: 'Cancel',
                 onPressed:
-                    (booking.isConfirmed == 0)
-                        ? _bookingStatusReject
-                        : null,
+                    (booking.isConfirmed == 0) ? _bookingStatusReject : null,
               ),
             ],
           ),
