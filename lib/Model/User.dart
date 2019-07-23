@@ -8,7 +8,7 @@ class User {
   final String displayName;
   final String bio;
   final Map followers;
-  final Map following;
+  final Map following,savedPostIds;
   final bool isPro;
   final int followersCount, followingCount;
 
@@ -23,6 +23,7 @@ class User {
       this.following,
       this.followersCount,
       this.followingCount,
+      this.savedPostIds,
       this.isPro});
   @override
   String toString() => username;
@@ -37,6 +38,7 @@ class User {
       bio: document['bio'],
       followers: document['followers'],
       following: document['following'],
+      savedPostIds : document['savedPostIds'],
       followersCount: document['followersCount'],
       followingCount: document['followingCount'],
       isPro: document['isPro']
@@ -56,6 +58,7 @@ class User {
         bio = map['bio'],
         followers = map['followers'],
         following = map['following'],
+        savedPostIds = map['savedPostIds'],
         followersCount = map['followersCount'],
         followingCount = map['followingCount'],
         isPro = map['isPro'];

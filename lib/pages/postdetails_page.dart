@@ -23,16 +23,19 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
   bool showHeart = false;
   int likeCount;
   bool liked;
+  bool saved;
 
   // Changeable in demo
   DateTime date = DateTime.now();
   String dateTimeString = "Pick Date";
 
   var reference = Firestore.instance.collection('beautyPosts');
+  var savedPostRef = Firestore.instance.collection('users');
 
   @override
   Widget build(BuildContext context) {
     liked = (widget.post.likes[currentUserModel.uid.toString()] == true);
+    saved = (widget.post.savedBy[currentUserModel.uid.toString()] == true);
     double height = MediaQuery.of(context).size.height;
     return Scaffold(
       appBar: AppBar(
@@ -169,11 +172,7 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                       ),
                     ],
                   ),
-                  new IconButton(
-                    icon: Icon(FontAwesomeIcons.bookmark),
-                    tooltip: "BookMark",
-                    onPressed: null,
-                  )
+                  buildSavedIcon(),
                 ],
               ),
             ),
@@ -322,6 +321,49 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
     return count;
   }
 
+  void _savePost(Posts post) {
+    var userId = currentUserModel.uid;
+    bool _saved = widget.post.savedBy[userId] == true;
+
+    if (_saved) {
+      reference.document(widget.post.postId).updateData({
+        'savedBy.$userId': false
+        //firestore plugin doesnt support deleting, so it must be nulled / falsed
+      });
+
+      savedPostRef.document(currentUserModel.uid).updateData({
+        'savedPostIds.${post.postId}': false
+        //firestore plugin doesnt support deleting, so it must be nulled / falsed
+      });
+
+      setState(() {
+        // likeCount = likeCount - 1;
+        saved = false;
+        widget.post.savedBy[userId] = false;
+      });
+
+      // removeActivityFeedItem();
+    }
+
+    if (!_saved) {
+      reference
+          .document(widget.post.postId)
+          .updateData({'savedBy.$userId': true});
+
+      savedPostRef
+          .document(currentUserModel.uid)
+          .updateData({'savedPostIds.${post.postId}': true});
+
+      //addActivityFeedItem();
+
+      setState(() {
+        // likeCount = likeCount + 1;
+        saved = true;
+        widget.post.savedBy[userId] = true;
+      });
+    }
+  }
+
   void _booking() async {
     if (date != null) {
       var fsReference = Firestore.instance.collection("bookings");
@@ -436,6 +478,26 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
       color: color,
       onPressed: () {
         _likePost(widget.post.postId);
+      },
+    );
+  }
+
+  IconButton buildSavedIcon() {
+    Color color;
+    IconData icon;
+
+    if (saved) {
+      color = Colors.black;
+      icon = FontAwesomeIcons.solidBookmark;
+    } else {
+      icon = FontAwesomeIcons.bookmark;
+    }
+
+    return IconButton(
+      icon: Icon(icon),
+      color: color,
+      onPressed: () {
+        _savePost(widget.post);
       },
     );
   }

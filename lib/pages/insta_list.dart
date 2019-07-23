@@ -22,6 +22,7 @@ class InstaList extends StatefulWidget {
       this.beautyProUserName,
       this.duration,
       this.likes,
+      this.savedBy,
       this.postId,
       this.style,
       this.ownerId});
@@ -33,6 +34,7 @@ class InstaList extends StatefulWidget {
       mediaUrl: document['mediaUrl'],
       style: document['style'],
       likes: document['likes'],
+      savedBy: document['savedBy'],
       description: document['description'],
       beautyProId: document['beautyProId'],
       beautyProDisplayName: document['beautyProDisplayName'],
@@ -50,6 +52,7 @@ class InstaList extends StatefulWidget {
       mediaUrl: data['mediaUrl'],
       style: data['style'],
       likes: data['likes'],
+      savedBy: data['savedBy'],
       description: data['description'],
       beautyProId: data['beautyProId'],
       beautyProDisplayName: data['beautyProDisplayName'],
@@ -85,7 +88,7 @@ class InstaList extends StatefulWidget {
   final String beautyProId;
   final String beautyProDisplayName;
   final String beautyProUserName;
-  final likes;
+  final likes,savedBy;
   final String postId;
   final String ownerId;
 
@@ -100,6 +103,7 @@ class InstaList extends StatefulWidget {
         beautyProDisplayName: this.beautyProDisplayName,
         beautyProUserName: this.beautyProUserName,
         likes: this.likes,
+        savedBy: this.savedBy,
         likeCount: getLikeCount(this.likes),
         ownerId: this.ownerId,
         postId: this.postId,
@@ -116,10 +120,10 @@ class _InstaListState extends State<InstaList> {
   final String beautyProId;
   final String beautyProDisplayName;
   final String beautyProUserName;
-  Map likes;
+  Map likes,savedBy;
   int likeCount;
   final String postId;
-  bool liked;
+  bool liked,saved;
   final String ownerId;
 
   bool showHeart = false;
@@ -131,6 +135,7 @@ class _InstaListState extends State<InstaList> {
   );
 
   var reference = Firestore.instance.collection('beautyPosts');
+  var savedPostRef = Firestore.instance.collection('users');
 
   _InstaListState(
       {this.mediaUrl,
@@ -143,6 +148,7 @@ class _InstaListState extends State<InstaList> {
       this.beautyProUserName,
       this.beautyProDisplayName,
       this.likes,
+      this.savedBy,
       this.postId,
       this.likeCount,
       this.ownerId});
@@ -298,6 +304,26 @@ class _InstaListState extends State<InstaList> {
     );
   }
 
+  IconButton buildSavedIcon() {
+    Color color;
+    IconData icon;
+
+    if (saved) {
+      color = Colors.black;
+      icon = FontAwesomeIcons.solidBookmark;
+    } else {
+      icon = FontAwesomeIcons.bookmark;
+    }
+
+    return IconButton(
+      icon: Icon(icon),
+      color: color,
+      onPressed: () {
+        _savePost(postId);
+      },
+    );
+  }
+
   IconButton buildbookingIcon() {
     bool isDisabled;
     if (beautyProId == currentUserModel.uid) {
@@ -319,6 +345,7 @@ class _InstaListState extends State<InstaList> {
   @override
   Widget build(BuildContext context) {
     liked = (likes[currentUserModel.uid.toString()] == true);
+    saved = (savedBy[currentUserModel.uid.toString()] == true);
 
     return Stack(
       children: <Widget>[
@@ -351,12 +378,12 @@ class _InstaListState extends State<InstaList> {
                             );
                           },
                         ),
-                        new IconButton(
+                        IconButton(
                           icon: Icon(FontAwesomeIcons.paperPlane),
                           tooltip: "Share",
                           onPressed: () {
-                            Scaffold.of(context).showSnackBar(new SnackBar(
-                              content: new Text(
+                            Scaffold.of(context).showSnackBar(SnackBar(
+                              content: Text(
                                 "Share Comming Soon",
                                 textAlign: TextAlign.center,
                               ),
@@ -366,18 +393,7 @@ class _InstaListState extends State<InstaList> {
                         buildbookingIcon(),
                       ],
                     ),
-                    new IconButton(
-                      icon: Icon(FontAwesomeIcons.bookmark),
-                      tooltip: "BookMark",
-                      onPressed: () {
-                        Scaffold.of(context).showSnackBar(new SnackBar(
-                          content: new Text(
-                            "BookMark Comming Soon",
-                            textAlign: TextAlign.center,
-                          ),
-                        ));
-                      },
-                    )
+                    buildSavedIcon(),
                   ],
                 ),
               ),
@@ -464,6 +480,49 @@ class _InstaListState extends State<InstaList> {
         setState(() {
           showHeart = false;
         });
+      });
+    }
+  }
+
+    void _savePost(String postId) {
+    var userId = currentUserModel.uid;
+    bool _saved = savedBy[userId] == true;
+
+    if (_saved) {
+      reference.document(postId).updateData({
+        'savedBy.$userId': false
+        //firestore plugin doesnt support deleting, so it must be nulled / falsed
+      });
+
+      savedPostRef.document(currentUserModel.uid).updateData({
+        'savedPostIds.$postId': false
+        //firestore plugin doesnt support deleting, so it must be nulled / falsed
+      });
+
+      setState(() {
+        // likeCount = likeCount - 1;
+        saved = false;
+        savedBy[userId] = false;
+      });
+
+      // removeActivityFeedItem();
+    }
+
+    if (!_saved) {
+      reference
+          .document(postId)
+          .updateData({'savedBy.$userId': true});
+
+      savedPostRef
+          .document(currentUserModel.uid)
+          .updateData({'savedPostIds.$postId': true});
+
+      //addActivityFeedItem();
+
+      setState(() {
+        // likeCount = likeCount + 1;
+        saved = true;
+        savedBy[userId] = true;
       });
     }
   }

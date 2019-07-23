@@ -98,6 +98,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             bio: _bio,
             followers: currentUserModel.followers,
             following: currentUserModel.following,
+            savedPostIds: currentUserModel.savedPostIds,
             isPro: currentUserModel.isPro);
         currentUserModel = currentUser;
 

@@ -531,6 +531,7 @@ class _NewPostPageState extends State<NewPostPage> {
           "likes": {},
           "mediaUrl": downloadUrl,
           "description": _decription,
+          "savedBy": {},
           "ownerId": user.data["uid"],
           "timestamp": FieldValue.serverTimestamp(),
         }).then((DocumentReference doc) {

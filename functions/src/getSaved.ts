@@ -45,14 +45,16 @@ function getUserPosts(postid, res){
 
 
 function getPostIds(uid, res){
-    const doc = admin.firestore().doc(`savedPosts/${uid}`);
+    const doc = admin.firestore().doc(`users/${uid}`);
     return doc.get().then(snapshot => {
-      const savedData = snapshot.data();
+      const savedData = snapshot.data().savedPostIds;
       
       const saved_list = [];
   
       for (const saved in savedData) {
-        saved_list.push(saved);
+        if(savedData[saved] === true) {
+            saved_list.push(saved);
+        }
       }
       return saved_list; 
   }).catch(error => {

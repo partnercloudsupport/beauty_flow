@@ -71,6 +71,7 @@ class Auth implements BaseAuth {
       'username': user.email.split('@')[0],
       'isPro': isPro,
       'followers': {},
+      'savedPostIds': {},
       'followersCount': 0,
       'followingCount':0,
       'bio': "",

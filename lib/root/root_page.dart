@@ -5,6 +5,7 @@ import 'package:beauty_flow/pages/login_pagenew.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:beauty_flow/authentication/authentication.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final ref = Firestore.instance.collection('users');
@@ -72,7 +73,10 @@ class _RootPageState extends State<RootPage> {
     return Scaffold(
       body: Container(
         alignment: Alignment.center,
-        child: CircularProgressIndicator(),
+        child: SpinKitChasingDots(
+          color: Colors.blueAccent,
+          size: 60.0,
+        ),
       ),
     );
   }
