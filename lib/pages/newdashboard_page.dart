@@ -35,7 +35,31 @@ class _NewDashBoardPageState extends State<NewDashBoardPage> {
 
   @override
   void initState() {
-    super.initState();
+    _saveDeviceToken() async {
+      // Get the current user
+      String uid = widget.userId;
+      // FirebaseUser user = await _auth.currentUser();
+
+      // Get the token for this device
+      String fcmToken = await _fcm.getToken();
+      print(fcmToken);
+      // Save it to Firestore
+      if (fcmToken != null) {
+        print(fcmToken);
+        var tokens = ref
+            .collection('users')
+            .document(uid)
+            .collection('tokens')
+            .document(fcmToken);
+
+        await tokens.setData({
+          'token': fcmToken,
+          'createdAt': FieldValue.serverTimestamp(), // optional
+          'platform': Platform.operatingSystem // optional
+        });
+      }
+    }
+
     this._loadSearchList();
     if (Platform.isIOS) {
       iosSubscription = _fcm.onIosSettingsRegistered.listen((data) {
@@ -47,6 +71,8 @@ class _NewDashBoardPageState extends State<NewDashBoardPage> {
     } else {
       _saveDeviceToken();
     }
+    super.initState();
+
     _fcm.configure(
       onMessage: (Map<String, dynamic> message) async {
         print("onMessage: $message");
@@ -83,31 +109,6 @@ class _NewDashBoardPageState extends State<NewDashBoardPage> {
         print("onResume: $message");
       },
     );
-  }
-
-  _saveDeviceToken() async {
-    // Get the current user
-    String uid = widget.userId;
-    // FirebaseUser user = await _auth.currentUser();
-
-    // Get the token for this device
-    String fcmToken = await _fcm.getToken();
-    print(fcmToken);
-    // Save it to Firestore
-    if (fcmToken != null) {
-      print(fcmToken);
-      var tokens = ref
-          .collection('users')
-          .document(uid)
-          .collection('tokens')
-          .document(fcmToken);
-
-      await tokens.setData({
-        'token': fcmToken,
-        'createdAt': FieldValue.serverTimestamp(), // optional
-        'platform': Platform.operatingSystem // optional
-      });
-    }
   }
 
   @override
