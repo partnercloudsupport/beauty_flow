@@ -33,7 +33,8 @@ export const BookingsendToDevice = functions.firestore
     const payload: admin.messaging.MessagingPayload = {
       notification: {
         title: 'New Booking',
-        body: `you got a booking from ${booking.bookedByDisplayName} for ${booking.style}`
+        body: `you got a booking from ${booking.bookedByDisplayName} for ${booking.style}`,
+        click_action: 'FLUTTER_NOTIFICATION_CLICK'
       }
     };
 
