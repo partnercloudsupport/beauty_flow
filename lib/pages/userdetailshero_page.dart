@@ -45,7 +45,7 @@ class _UserDetailsHeroPageState extends State<UserDetailsHeroPage> {
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
-    var userNew;
+    User userNew;
     if (userDetails != null) {
       userNew = User.fromDocument(userDetails);
       if (userNew.followers.containsKey(currentUserModel.uid) &&
@@ -77,13 +77,18 @@ class _UserDetailsHeroPageState extends State<UserDetailsHeroPage> {
                           Navigator.of(context).pop();
                         },
                       ),
-                      pinned: false,
+                      pinned: true,
+                      centerTitle: true,
+                      title: Text(
+                        userNew.username,
+                        style: TextStyle(color: Colors.black),
+                      ),
                       flexibleSpace: FlexibleSpaceBar(
                         background: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
                             Padding(
-                              padding: EdgeInsets.fromLTRB(0, 30, 0, 0),
+                              padding: EdgeInsets.fromLTRB(0, 70, 0, 0),
                             ),
                             Hero(
                               tag: widget.userId,
@@ -111,23 +116,19 @@ class _UserDetailsHeroPageState extends State<UserDetailsHeroPage> {
                             ),
                             SizedBox(height: 10.0),
                             Text(
-                              userNew.username,
+                              userNew.displayName,
                               style: TextStyle(
                                   fontFamily: 'Montserrat',
                                   fontSize: 20.0,
                                   fontWeight: FontWeight.bold),
                             ),
                             SizedBox(height: 4.0),
-                            Text(
-                              '${userNew.displayName}',
-                              style: TextStyle(
-                                  fontFamily: 'Montserrat', color: Colors.grey),
-                            ),
                             Padding(
                               padding: EdgeInsets.all(20.0),
                               child: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
                                 children: <Widget>[
                                   Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -232,7 +233,7 @@ class _UserDetailsHeroPageState extends State<UserDetailsHeroPage> {
                                 tag: posts.postId,
                                 child: CachedNetworkImage(
                                   imageUrl: posts.mediaUrl,
-                                  fit: BoxFit.contain,
+                                  fit: BoxFit.cover,
                                   // fadeInDuration: Duration(milliseconds: 500),
                                   // fadeInCurve: Curves.easeIn,
                                   placeholder: (context, url) =>

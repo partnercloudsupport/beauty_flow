@@ -8,6 +8,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoder/geocoder.dart';
 
 class EditProfilePage extends StatefulWidget {
   EditProfilePage({Key key, this.userId}) : super(key: key);
@@ -27,6 +29,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   String _errorMessage;
   bool _isIos;
   File file;
+  double _latitude, _longitude;
 
   // Text Controllers
   final TextEditingController _emailController = new TextEditingController();
@@ -41,6 +44,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   final TextEditingController _bioController = new TextEditingController();
   String _bio = currentUserModel.bio;
+
+  final TextEditingController _addressController = new TextEditingController();
+  String _address = currentUserModel.address;
 
   String _profilePic = currentUserModel.photoURL;
 
@@ -86,6 +92,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
           'username': _userName,
           'displayName': _displayName,
           'photoURL': downloadUrl,
+          'latitude': _latitude,
+          'longitude': _longitude,
+          'address': _address,
           'lastSeen': DateTime.now()
         });
 
@@ -96,6 +105,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             username: _userName,
             displayName: _displayName,
             bio: _bio,
+            address: _address,
             followers: currentUserModel.followers,
             following: currentUserModel.following,
             savedPostIds: currentUserModel.savedPostIds,
@@ -127,6 +137,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     _displaynameController.text = _displayName;
     _userNameController.text = _userName;
     _bioController.text = _bio;
+    _addressController.text = _address;
     _errorMessage = "";
     _isLoading = false;
     return super.initState();
@@ -332,6 +343,55 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                 },
                                 onSaved: (value) => _userName = value,
                               ),
+                              SizedBox(height: height < 600 ? 0 : 20.0),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  Expanded(
+                                    child: TextFormField(
+                                      maxLines: 1,
+                                      keyboardType: TextInputType.text,
+                                      autofocus: false,
+                                      autocorrect: false,
+                                      controller: _addressController,
+                                      enabled: false,
+                                      decoration: InputDecoration(
+                                        labelText: 'LOCATION',
+                                        labelStyle: TextStyle(
+                                            fontFamily: 'Montserrat',
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.grey),
+                                        focusedBorder: UnderlineInputBorder(
+                                          borderSide:
+                                              BorderSide(color: Colors.green),
+                                        ),
+                                      ),
+                                      textInputAction: TextInputAction.done,
+                                      validator: (value) {
+                                        if (value.isEmpty) {
+                                          setState(() {
+                                            _isLoading = false;
+                                          });
+                                          return 'Address can\'t be empty';
+                                        }
+                                      },
+                                      onSaved: (value) => _address = value,
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 12),
+                                    child: SizedBox(
+                                      child: IconButton(
+                                        icon: Icon(Icons.location_on),
+                                        onPressed: () async {
+                                          await _getAddress();
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              )
                             ],
                           ),
                         ),
@@ -398,6 +458,27 @@ class _EditProfilePageState extends State<EditProfilePage> {
         ),
       ),
     );
+  }
+
+  _getAddress() async {
+    Position position = await Geolocator()
+        .getLastKnownPosition(desiredAccuracy: LocationAccuracy.medium);
+    if (position == null) {
+      position = await Geolocator()
+          .getLastKnownPosition(desiredAccuracy: LocationAccuracy.medium);
+    }
+    if (position != null) {
+      _latitude = position.latitude;
+      _longitude = position.longitude;
+      final coordinates =
+          new Coordinates(position.latitude, position.longitude);
+      var addresses =
+          await Geocoder.local.findAddressesFromCoordinates(coordinates);
+      var first = addresses.first;
+      print("${first.featureName} : ${first.addressLine}");
+      _addressController.text = first.locality;
+      setState(() {});
+    }
   }
 
   Widget _showCircularProgress() {

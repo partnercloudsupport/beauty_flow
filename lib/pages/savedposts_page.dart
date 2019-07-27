@@ -19,16 +19,9 @@ class SavedPostsPage extends StatefulWidget {
 }
 
 class _SavedPostsPageState extends State<SavedPostsPage> {
-  List<String> items = ["1", "2", "3", "4", "5", "6", "7", "8"];
   RefreshController _refreshController =
       RefreshController(initialRefresh: true);
   List<Posts> feedData;
-
-  @override
-  void initState() {
-    super.initState();
-    _getFeed();
-  }
 
   void _onRefresh() async {
     // monitor network fetch
@@ -144,7 +137,7 @@ class _SavedPostsPageState extends State<SavedPostsPage> {
                             tag: posts.postId,
                             child: CachedNetworkImage(
                               imageUrl: posts.mediaUrl,
-                              fit: BoxFit.contain,
+                              fit: BoxFit.cover,
                               // fadeInDuration: Duration(milliseconds: 500),
                               // fadeInCurve: Curves.easeIn,
                               placeholder: (context, url) =>

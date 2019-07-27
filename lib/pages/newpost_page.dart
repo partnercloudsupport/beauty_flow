@@ -62,7 +62,8 @@ class _NewPostPageState extends State<NewPostPage> {
     double height = MediaQuery.of(context).size.height;
     return new Scaffold(
       appBar: AppBar(
-        title: Center(child: Text("Beauty Flow")),
+        title: Text("Beauty Flow"),
+        centerTitle: true,
       ),
       body: Stack(
         children: <Widget>[
@@ -129,8 +130,7 @@ class _NewPostPageState extends State<NewPostPage> {
                                 ],
                               ),
                               Padding(
-                                padding:
-                                    EdgeInsets.only(top: 70.0, left: 70.0),
+                                padding: EdgeInsets.only(top: 70.0, left: 70.0),
                                 child: new Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: <Widget>[

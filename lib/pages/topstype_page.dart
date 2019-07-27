@@ -90,7 +90,7 @@ class _TopStylePageState extends State<TopStylePage> {
                             transitionOnUserGestures: true,
                             child: CachedNetworkImage(
                               imageUrl: doc.data["mediaUrl"],
-                              fit: BoxFit.contain,
+                              fit: BoxFit.cover,
                               // fadeInDuration: Duration(milliseconds: 500),
                               // fadeInCurve: Curves.easeIn,
                               placeholder: (context, url) =>

@@ -73,7 +73,10 @@ class Auth implements BaseAuth {
       'followers': {},
       'savedPostIds': {},
       'followersCount': 0,
-      'followingCount':0,
+      'followingCount': 0,
+      'latitude': 0,
+      'longitude': 0,
+      'address': '',
       'bio': "",
       'following': {
         user.uid: true

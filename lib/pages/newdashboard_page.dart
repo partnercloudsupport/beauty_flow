@@ -1,11 +1,12 @@
 import 'dart:async';
 import 'dart:io';
-
+import 'package:geolocator/geolocator.dart';
 import 'package:beauty_flow/Model/Style.dart';
 import 'package:beauty_flow/Model/User.dart';
 import 'package:beauty_flow/authentication/authentication.dart';
 import 'package:beauty_flow/main.dart';
 import 'package:beauty_flow/pages/datasearch_page.dart';
+import 'package:beauty_flow/pages/newpost_page.dart';
 import 'package:beauty_flow/pages/topstype_page.dart';
 import 'package:beauty_flow/pages/userdetailshero_page.dart';
 import 'package:beauty_flow/util/searchservice.dart';
@@ -66,13 +67,11 @@ class _NewDashBoardPageState extends State<NewDashBoardPage> {
         print(data);
         _saveDeviceToken();
       });
-
       _fcm.requestNotificationPermissions(IosNotificationSettings());
     } else {
       _saveDeviceToken();
     }
     super.initState();
-
     _fcm.configure(
       onMessage: (Map<String, dynamic> message) async {
         print("onMessage: $message");
@@ -175,7 +174,7 @@ class _NewDashBoardPageState extends State<NewDashBoardPage> {
                 ),
               ),
               Container(
-                height: 150.0,
+                height: 170.0,
                 child: StreamBuilder(
                   stream: Firestore.instance
                       .collection("users")
@@ -198,6 +197,20 @@ class _NewDashBoardPageState extends State<NewDashBoardPage> {
             ],
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  NewPostPage(userId: widget.userId, auth: widget.auth),
+            ),
+          );
+        },
+        child: Icon(
+          Icons.add,
+        ),
       ),
     );
   }
@@ -305,13 +318,44 @@ class TopStyles extends StatelessWidget {
   }
 }
 
-class TopPros extends StatelessWidget {
+class TopPros extends StatefulWidget {
   TopPros({
     Key key,
     this.pros,
   }) : super(key: key);
 
   final User pros;
+
+  @override
+  _TopProsState createState() => _TopProsState();
+}
+
+class _TopProsState extends State<TopPros> {
+  String distance;
+
+  @override
+  void initState() {
+    super.initState();
+    calDistance(widget.pros);
+  }
+
+  calDistance(User pros) async {
+    Position position = await Geolocator()
+        .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    if (position == null) {
+      position = await Geolocator()
+          .getLastKnownPosition(desiredAccuracy: LocationAccuracy.high);
+    }
+    double distanceInMeters = await Geolocator().distanceBetween(
+        position.latitude, position.longitude, pros.latitude, pros.longitude);
+    if (distanceInMeters > 1000) {
+      distance = (distanceInMeters.round() / 1000).round().toString() + ' Km';
+    } else {
+      distance = distanceInMeters.round().toString() + ' m';
+    }
+    print(distance);
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -326,7 +370,7 @@ class TopPros extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (context) {
-                      return UserDetailsHeroPage(pros.uid);
+                      return UserDetailsHeroPage(widget.pros.uid);
                     },
                   ),
                 );
@@ -340,12 +384,12 @@ class TopPros extends StatelessWidget {
                       height: 100.0,
                       child: Hero(
                         transitionOnUserGestures: true,
-                        tag: pros.uid,
+                        tag: widget.pros.uid,
                         child: CachedNetworkImage(
-                          imageUrl:
-                              (pros.photoURL == "" || pros.photoURL == null)
-                                  ? "assets/img/person.png"
-                                  : pros.photoURL,
+                          imageUrl: (widget.pros.photoURL == "" ||
+                                  widget.pros.photoURL == null)
+                              ? "assets/img/person.png"
+                              : widget.pros.photoURL,
                           fit: BoxFit.cover,
                           placeholder: (context, url) => SpinKitFadingCircle(
                             color: Colors.blueAccent,
@@ -357,30 +401,16 @@ class TopPros extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 60.0, left: 90.0),
-                    child: ClipOval(
-                      child: Center(
-                        child: Container(
-                          width: 30.0,
-                          height: 30.0,
-                          decoration: BoxDecoration(color: Colors.lightBlue),
-                          child: Padding(
-                            padding: EdgeInsets.only(top: 4, left: 3),
-                            child: Text(
-                              "Pro",
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  )
                 ],
               ),
             ),
             Text(
-              '${pros.username}',
+              '${widget.pros.username}',
               style: TextStyle(fontSize: 17.0, fontWeight: FontWeight.bold),
+            ),
+            Text(
+              distance == null ? '' : distance,
+              style: TextStyle(fontSize: 12.0, fontWeight: FontWeight.bold),
             ),
           ],
         ),

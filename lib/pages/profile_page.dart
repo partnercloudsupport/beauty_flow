@@ -138,7 +138,7 @@ class _ProfilePageState extends State<ProfilePage> {
               children: <Widget>[
                 SizedBox(height: 20.0),
                 _profilePic(user.photoURL),
-                _profileName(user.email, user.displayName, user.bio),
+                _profileName(user),
                 _following(user),
                 buildProfileFollowButton(user),
                 Divider(),
@@ -219,7 +219,7 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  _profileName(String email, String displayName, String bio) {
+  _profileName(User user) {
     return Wrap(
       children: <Widget>[
         Row(
@@ -231,7 +231,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   padding:
                       const EdgeInsets.only(left: 0.0, right: 0.0, top: 10.0),
                   child: Text(
-                    displayName == null ? email : displayName,
+                    user.displayName == null ? user.email : user.displayName,
                     style: TextStyle(
                         fontFamily: 'Montserrat',
                         fontWeight: FontWeight.bold,
@@ -241,8 +241,23 @@ class _ProfilePageState extends State<ProfilePage> {
                 Padding(
                   padding:
                       const EdgeInsets.only(left: 0.0, right: 0.0, top: 10.0),
+                  child: Row(
+                    children: <Widget>[
+                      Icon(Icons.location_on),
+                      Text(
+                        user.address == null ? '' : user.address,
+                        textAlign: TextAlign.center,
+                        style:
+                            TextStyle(fontFamily: 'Montserrat', fontSize: 12.5),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding:
+                      const EdgeInsets.only(left: 0.0, right: 0.0, top: 10.0),
                   child: Text(
-                    bio == null ? '' : bio,
+                    user.bio == null ? '' : user.bio,
                     textAlign: TextAlign.center,
                     style: TextStyle(fontFamily: 'Montserrat', fontSize: 12.5),
                   ),
