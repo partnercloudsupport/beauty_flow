@@ -1,5 +1,3 @@
-import 'dart:async';
-import 'dart:io';
 import 'package:geolocator/geolocator.dart';
 import 'package:beauty_flow/Model/Style.dart';
 import 'package:beauty_flow/Model/User.dart';
@@ -16,6 +14,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
+import 'dashboard_page_view_model.dart';
+
 class NewDashBoardPage extends StatefulWidget {
   NewDashBoardPage({Key key, this.auth, this.userId, this.onSignedOut})
       : super(key: key);
@@ -29,61 +29,29 @@ class NewDashBoardPage extends StatefulWidget {
 
 class _NewDashBoardPageState extends State<NewDashBoardPage> {
   final queryResultSet = [];
-  final ref = Firestore.instance;
+  final store = Firestore.instance;
   final FirebaseMessaging _fcm = FirebaseMessaging();
 
-  StreamSubscription iosSubscription;
+  DashboardViewModel viewModel;
 
   @override
   void initState() {
-    _saveDeviceToken() async {
-      // Get the current user
-      String uid = widget.userId;
-      // FirebaseUser user = await _auth.currentUser();
-
-      // Get the token for this device
-      String fcmToken = await _fcm.getToken();
-      print(fcmToken);
-      // Save it to Firestore
-      if (fcmToken != null) {
-        print(fcmToken);
-        var tokens = ref
-            .collection('users')
-            .document(uid)
-            .collection('tokens')
-            .document(fcmToken);
-
-        await tokens.setData({
-          'token': fcmToken,
-          'createdAt': FieldValue.serverTimestamp(), // optional
-          'platform': Platform.operatingSystem // optional
-        });
-      }
-    }
-
-    this._loadSearchList();
-    if (Platform.isIOS) {
-      iosSubscription = _fcm.onIosSettingsRegistered.listen((data) {
-        print(data);
-        _saveDeviceToken();
-      });
-      _fcm.requestNotificationPermissions(IosNotificationSettings());
-    } else {
-      _saveDeviceToken();
-    }
     super.initState();
+    viewModel = DashboardViewModel(widget.userId);
+    _loadSearchList();
+    _subscribeOnMessages();
+  }
+
+  @override
+  void dispose() {
+    viewModel.dispose();
+    super.dispose();
+  }
+
+  void _subscribeOnMessages() {
     _fcm.configure(
       onMessage: (Map<String, dynamic> message) async {
         print("onMessage: $message");
-        // final snackbar = SnackBar(
-        //   content: Text(message['notification']['title']),
-        //   action: SnackBarAction(
-        //     label: 'Go',
-        //     onPressed: () => null,
-        //   ),
-        // );
-
-        // Scaffold.of(context).showSnackBar(snackbar);
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
@@ -108,12 +76,6 @@ class _NewDashBoardPageState extends State<NewDashBoardPage> {
         print("onResume: $message");
       },
     );
-  }
-
-  @override
-  void dispose() {
-    if (iosSubscription != null) iosSubscription.cancel();
-    super.dispose();
   }
 
   @override
@@ -216,6 +178,7 @@ class _NewDashBoardPageState extends State<NewDashBoardPage> {
   }
 
   _loadSearchList() async {
+    // todo it is a big mistake do download all users from the server
     setState(() {
       SearchService().searchByName().then((QuerySnapshot docs) {
         for (int i = 0; i < docs.documents.length; ++i) {
@@ -225,7 +188,7 @@ class _NewDashBoardPageState extends State<NewDashBoardPage> {
     });
 
     if (currentUserModel == null) {
-      DocumentSnapshot userRecord = await ref
+      DocumentSnapshot userRecord = await store
           .collection('users')
           .document(widget.userId.toString())
           .get();

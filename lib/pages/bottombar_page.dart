@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:beauty_flow/authentication/authentication.dart';
 import 'package:beauty_flow/pages/booking_page.dart';
-import 'package:beauty_flow/pages/newdashboard_page.dart';
+import 'package:beauty_flow/pages/dashboard/dashboard_page.dart';
 import 'package:beauty_flow/pages/profile_page.dart';
 
 class BottomBarPage extends StatefulWidget {
