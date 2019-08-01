@@ -24,7 +24,6 @@ class DashboardViewModel extends BaseViewModel {
 
   DashboardViewModel(this._userId) {
     _prepareToSaveDeviceToken();
-    _setLocation();
     _loadNearestPosts();
     _loadProUsers();
     _loadStyles();
@@ -73,14 +72,6 @@ class DashboardViewModel extends BaseViewModel {
           .getLastKnownPosition(desiredAccuracy: LocationAccuracy.high);
     }
     return position;
-  }
-
-  _setLocation() async {
-    Firestore firestore = Firestore.instance;
-    GeoFirestore geoFirestore =
-        GeoFirestore(firestore.collection('beautyPosts'));
-    await geoFirestore.setLocation(
-        '-LkzDF9JV_5RqzP2BRRo', GeoPoint(37.7853889, -122.4056973));
   }
 
   void _prepareToSaveDeviceToken() {
