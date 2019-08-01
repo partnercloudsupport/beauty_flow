@@ -7,6 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:geo_firestore/geo_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:simple_autocomplete_formfield/simple_autocomplete_formfield.dart';
 
@@ -608,7 +609,7 @@ class _NewPostPageState extends State<NewPostPage> {
           }, merge: true);
         }
 
-        fsReference.add({
+        DocumentReference doc = await fsReference.add({
           "ownerIddisplayName": user.data["displayName"],
           "style": _style,
           "price": _price,
@@ -621,12 +622,13 @@ class _NewPostPageState extends State<NewPostPage> {
           "description": _description,
           "savedBy": {},
           "ownerId": user.data["uid"],
-          "timestamp": FieldValue.serverTimestamp(),
-          "location": GeoPoint(_latitude, _longitude)
-        }).then((DocumentReference doc) {
-          String docId = doc.documentID;
-          fsReference.document(docId).updateData({"postId": docId});
+          "timestamp": FieldValue.serverTimestamp()
         });
+        String docId = doc.documentID;
+        fsReference.document(docId).updateData({"postId": docId});
+        GeoFirestore geoFirestore = GeoFirestore(fsReference);
+        await geoFirestore.setLocation(docId, GeoPoint(_latitude, _longitude));
+
         setState(() {
           file = null;
           _isLoading = false;

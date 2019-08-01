@@ -1,6 +1,6 @@
-import 'package:geolocator/geolocator.dart';
 import 'package:beauty_flow/Model/Style.dart';
 import 'package:beauty_flow/Model/User.dart';
+import 'package:beauty_flow/Model/posts.dart';
 import 'package:beauty_flow/authentication/authentication.dart';
 import 'package:beauty_flow/main.dart';
 import 'package:beauty_flow/pages/datasearch_page.dart';
@@ -10,10 +10,12 @@ import 'package:beauty_flow/pages/userdetailshero_page.dart';
 import 'package:beauty_flow/util/searchservice.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:geolocator/geolocator.dart';
 
+import '../postdetails_page.dart';
 import 'dashboard_page_view_model.dart';
 
 class NewDashBoardPage extends StatefulWidget {
@@ -23,6 +25,7 @@ class NewDashBoardPage extends StatefulWidget {
   final BaseAuth auth;
   final String userId;
   final VoidCallback onSignedOut;
+
   @override
   _NewDashBoardPageState createState() => _NewDashBoardPageState();
 }
@@ -46,6 +49,28 @@ class _NewDashBoardPageState extends State<NewDashBoardPage> {
   void dispose() {
     viewModel.dispose();
     super.dispose();
+  }
+
+  _loadSearchList() async {
+    // todo it is a big mistake do download all users from the server
+    setState(() {
+      SearchService().searchByName().then((QuerySnapshot docs) {
+        for (int i = 0; i < docs.documents.length; ++i) {
+          queryResultSet.add(docs.documents[i].data);
+        }
+      });
+    });
+
+    if (currentUserModel == null) {
+      DocumentSnapshot userRecord = await store
+          .collection('users')
+          .document(widget.userId.toString())
+          .get();
+      currentUserModel = User.fromDocument(userRecord);
+      setState(() {
+        currentUserModel = User.fromDocument(userRecord);
+      });
+    }
   }
 
   void _subscribeOnMessages() {
@@ -96,11 +121,29 @@ class _NewDashBoardPageState extends State<NewDashBoardPage> {
           )
         ],
       ),
-      body: Stack(
+      body: ListView(
         children: <Widget>[
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
+              Padding(
+                padding: EdgeInsets.fromLTRB(15, 15, 0, 10),
+                child: Text(
+                  "Nearest Posts",
+                  style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                ),
+              ),
+              Container(
+                height: 150.0,
+                child: StreamBuilder(
+                  stream: viewModel.postList,
+                  builder: (context, snapshot) {
+                    return !snapshot.hasData
+                        ? _buildEmptyTopStyles()
+                        : _buildPosts(context, snapshot.data);
+                  },
+                ),
+              ),
               Padding(
                 padding: EdgeInsets.fromLTRB(15, 15, 0, 10),
                 child: Text(
@@ -111,20 +154,11 @@ class _NewDashBoardPageState extends State<NewDashBoardPage> {
               Container(
                 height: 150.0,
                 child: StreamBuilder(
-                  stream: Firestore.instance
-                      .collection("styles")
-                      .orderBy("bookings", descending: true)
-                      .limit(10)
-                      .snapshots(),
+                  stream: viewModel.styleList,
                   builder: (context, snapshot) {
                     return !snapshot.hasData
-                        ? Center(
-                            child: SpinKitChasingDots(
-                              color: Colors.blueAccent,
-                              size: 60.0,
-                            ),
-                          )
-                        : _buildTopStyles(context, snapshot.data.documents);
+                        ? _buildEmptyTopStyles()
+                        : _buildTopStyles(context, snapshot.data);
                   },
                 ),
               ),
@@ -138,21 +172,11 @@ class _NewDashBoardPageState extends State<NewDashBoardPage> {
               Container(
                 height: 170.0,
                 child: StreamBuilder(
-                  stream: Firestore.instance
-                      .collection("users")
-                      .where('isPro', isEqualTo: true)
-                      .orderBy("followersCount", descending: true)
-                      .limit(10)
-                      .snapshots(),
+                  stream: viewModel.proUserList,
                   builder: (context, snapshot) {
                     return !snapshot.hasData
-                        ? Center(
-                            child: SpinKitChasingDots(
-                              color: Colors.blueAccent,
-                              size: 60.0,
-                            ),
-                          )
-                        : _buildTopPros(context, snapshot.data.documents);
+                        ? _buildEmptyTopStyles()
+                        : _buildTopPros(context, snapshot.data);
                   },
                 ),
               ),
@@ -177,48 +201,102 @@ class _NewDashBoardPageState extends State<NewDashBoardPage> {
     );
   }
 
-  _loadSearchList() async {
-    // todo it is a big mistake do download all users from the server
-    setState(() {
-      SearchService().searchByName().then((QuerySnapshot docs) {
-        for (int i = 0; i < docs.documents.length; ++i) {
-          queryResultSet.add(docs.documents[i].data);
-        }
-      });
-    });
-
-    if (currentUserModel == null) {
-      DocumentSnapshot userRecord = await store
-          .collection('users')
-          .document(widget.userId.toString())
-          .get();
-      currentUserModel = User.fromDocument(userRecord);
-      setState(() {
-        currentUserModel = User.fromDocument(userRecord);
-      });
-    }
+  Center _buildEmptyTopStyles() {
+    return Center(
+      child: SpinKitChasingDots(
+        color: Colors.blueAccent,
+        size: 60.0,
+      ),
+    );
   }
 
-  Widget _buildTopStyles(
-      BuildContext context, List<DocumentSnapshot> snapshots) {
+  Widget _buildPosts(BuildContext context, List<Posts> styleList) {
     return ListView.builder(
-      itemCount: snapshots.length,
+      itemCount: styleList.length,
       scrollDirection: Axis.horizontal,
       physics: ClampingScrollPhysics(),
       itemBuilder: (context, index) {
-        return TopStyles(style: Style.fromSnapshot(snapshots[index]));
+        return PostItem(post: styleList[index]);
       },
     );
   }
 
-  Widget _buildTopPros(BuildContext context, List<DocumentSnapshot> snapshots) {
+  Widget _buildTopStyles(BuildContext context, List<Style> styleList) {
     return ListView.builder(
-      itemCount: snapshots.length,
+      itemCount: styleList.length,
       scrollDirection: Axis.horizontal,
       physics: ClampingScrollPhysics(),
       itemBuilder: (context, index) {
-        return TopPros(pros: User.fromSnapshot(snapshots[index]));
+        return TopStyles(style: styleList[index]);
       },
+    );
+  }
+
+  Widget _buildTopPros(BuildContext context, List<User> userList) {
+    return ListView.builder(
+      itemCount: userList.length,
+      scrollDirection: Axis.horizontal,
+      physics: ClampingScrollPhysics(),
+      itemBuilder: (context, index) {
+        return TopPros(pros: userList[index]);
+      },
+    );
+  }
+}
+
+class PostItem extends StatelessWidget {
+  PostItem({
+    Key key,
+    this.post,
+  }) : super(key: key);
+
+  final Posts post;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Container(
+        child: Column(
+          children: <Widget>[
+            InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return PostDetailsPage(post);
+                    },
+                  ),
+                );
+              },
+              child: ClipOval(
+                child: Container(
+                  width: 110.0,
+                  height: 100.0,
+                  child: CachedNetworkImage(
+                    imageUrl: (post.mediaUrl == "" || post.mediaUrl == null)
+                        ? "assets/img/person.png"
+                        : post.mediaUrl,
+                    fit: BoxFit.cover,
+                    // fadeInDuration: Duration(milliseconds: 500),
+                    // fadeInCurve: Curves.easeIn,
+                    placeholder: (context, url) => SpinKitFadingCircle(
+                      color: Colors.blueAccent,
+                      size: 30.0,
+                    ),
+                    errorWidget: (context, url, error) => Icon(Icons.error),
+                  ),
+                ),
+              ),
+            ),
+            Text(
+              post.style,
+              style: TextStyle(fontSize: 17.0, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -27,6 +27,7 @@ class _BottomBarPageState extends State<BottomBarPage> {
     return Scaffold(
       body: _getPage(_page),
       bottomNavigationBar: CurvedNavigationBar(
+        height: 50,
         items: [
           Icon(Icons.calendar_today, size: 30),
           Icon(Icons.home, size: 30),
