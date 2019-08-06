@@ -10,6 +10,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_cupertino_date_picker/flutter_cupertino_date_picker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
+import 'booking/booking_time_page.dart';
+
 class PostDetailsPage extends StatefulWidget {
   PostDetailsPage(this.post);
 
@@ -217,7 +219,7 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                 ],
               ),
             ),
-            _dateTimePicker(),
+            _dateTimePicker(widget.post),
             SizedBox(
               height: 20.0,
             )
@@ -227,7 +229,7 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
     );
   }
 
-  Widget _dateTimePicker() {
+  Widget _dateTimePicker(Posts post) {
     if (widget.post.beautyProId == currentUserModel.uid) {
       return Container();
     } else {
@@ -250,7 +252,14 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
               padding: EdgeInsets.only(right: 10, left: 10),
               child: InkWell(
                 onTap: () {
-                  _booking();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return BookingTimePage(post.postId);
+                      },
+                    ),
+                  );
                 },
                 child: Material(
                   borderRadius: BorderRadius.circular(20.0),
