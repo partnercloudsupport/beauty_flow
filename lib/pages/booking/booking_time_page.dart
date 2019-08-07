@@ -15,23 +15,26 @@ class BookingTimePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        elevation: 0,
+        backgroundColor: Colors.white,
+        elevation: 1,
         centerTitle: true,
+        iconTheme: IconThemeData(color: Colors.grey),
         leading: IconButton(
             icon: Icon(Icons.close), onPressed: () => Navigator.pop(context)),
-        title: Text("Select time"),
+        title: Text(
+          "Select time",
+          style: Theme.of(context).textTheme.title,
+        ),
         bottom: PreferredSize(
             child: StreamBuilder<DateTime>(
                 stream: _viewModel.selectedDay,
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    return FlatButton(
-                      color: Colors.grey,
+                    return OutlineButton(
                       child: Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(4.0),
                         child: Text(
                           snapshot.data.toIso8601String(),
-                          style: TextStyle(color: Colors.white),
                         ),
                       ),
                       onPressed: () => _selectDate(context, snapshot.data),
@@ -40,14 +43,14 @@ class BookingTimePage extends StatelessWidget {
                     return Scaffold();
                   }
                 }),
-            preferredSize: Size.fromHeight(50)),
+            preferredSize: Size.fromHeight(40)),
       ),
       body: StreamBuilder<TimeInfo>(
           stream: _viewModel.timeInfo,
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               return ListView.builder(
-                padding: EdgeInsets.only(bottom: 80),
+                padding: EdgeInsets.only(bottom: 80, top: 8),
                 itemBuilder: (context, index) {
                   return _createItem(context, snapshot, index);
                 },
@@ -71,7 +74,7 @@ class BookingTimePage extends StatelessWidget {
       padding: const EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 4),
       child: FlatButton(
         textTheme: ButtonTextTheme.normal,
-        color: Color.fromARGB(255, 240, 240, 240),
+        color: Color.fromARGB(255, 246, 246, 248),
         child: SizedBox(
           height: 52,
           width: double.infinity,

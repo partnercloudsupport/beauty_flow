@@ -6,8 +6,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 
 class BookingTimeViewModel extends BaseViewModel {
-  final _startTime = "00:00";
-  final _endTime = "00:00";
+  final _startTime = "06:00";
+  final _endTime = "20:00";
 
   final _afternoonTime = "12:00";
   final _eveningTime = "18:00";
@@ -98,7 +98,7 @@ class BookingTimeViewModel extends BaseViewModel {
   }
 
   DateTime _updateDateByTimeString(DateTime dateTime, String time) {
-    List<String> timeArray = _startTime.split(":");
+    List<String> timeArray = time.split(":");
     return DateTime(dateTime.year, dateTime.month, dateTime.day,
         int.parse(timeArray.elementAt(0)), int.parse(timeArray.elementAt(1)));
   }
