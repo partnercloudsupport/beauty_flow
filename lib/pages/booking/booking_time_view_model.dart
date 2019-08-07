@@ -15,7 +15,7 @@ class BookingTimeViewModel extends BaseViewModel {
   final _bookingList = LiveData<List<Booking>>();
   final _post = LiveData<Posts>();
 
-  final bookingDateList = LiveData<TimeInfo>();
+  final timeInfo = LiveData<TimeInfo>();
   final selectedDay = LiveData<DateTime>();
 
   BookingTimeViewModel(String postId) {
@@ -49,11 +49,11 @@ class BookingTimeViewModel extends BaseViewModel {
   _observeBookingTime() {
     LiveData.observeTriple(_bookingList, _post, selectedDay,
         (List<Booking> bookingList, Posts post, DateTime date) {
-      createBookingTimeList(bookingList, post, date);
+      _createBookingTimeList(bookingList, post, date);
     });
   }
 
-  void createBookingTimeList(List<Booking> list, Posts post, DateTime date) {
+  void _createBookingTimeList(List<Booking> list, Posts post, DateTime date) {
     DateTime afternoonTime = _updateDateByTimeString(date, _afternoonTime);
     DateTime eveningTime = _updateDateByTimeString(date, _eveningTime);
 
@@ -73,7 +73,7 @@ class BookingTimeViewModel extends BaseViewModel {
     int morningPosition = -1;
     int afternoonPosition = -1;
     int eveningPosition = -1;
-    while (nextDate.isBefore(endDate) && nextDate.isAtSameMomentAs(endDate)) {
+    while (nextDate.isBefore(endDate) || nextDate.isAtSameMomentAs(endDate)) {
       if (nextDate.isBefore(afternoonTime)) {
         morningPosition = position;
       } else if (nextDate.isBefore(eveningTime)) {
@@ -93,7 +93,7 @@ class BookingTimeViewModel extends BaseViewModel {
         .map((it) => it.booking.toDate())
         .toList();
 
-    bookingDateList.setValue(TimeInfo(null, dates, reservedList, post.duration,
+    timeInfo.setValue(TimeInfo(null, dates, reservedList, post.duration,
         morningPosition, afternoonPosition, eveningPosition));
   }
 
@@ -102,15 +102,22 @@ class BookingTimeViewModel extends BaseViewModel {
     return DateTime(dateTime.year, dateTime.month, dateTime.day,
         int.parse(timeArray.elementAt(0)), int.parse(timeArray.elementAt(1)));
   }
+
+  void selectTime(DateTime time) {
+    assert(timeInfo.getValue() != null);
+    var value = timeInfo.getValue();
+    value.bookingTime = time;
+    timeInfo.setValue(value);
+  }
 }
 
 class TimeInfo {
   final DateFormat _dateFormat = DateFormat.jm();
 
+  DateTime bookingTime;
   List<String> titles;
   final List<DateTime> times;
   final List<DateTime> reservedTimes;
-  final DateTime bookingTime;
   final int morningPosition;
   final int afternoonPosition;
   final int eveningPosition;
@@ -119,22 +126,11 @@ class TimeInfo {
       this.morningPosition, this.afternoonPosition, this.eveningPosition) {
     final List<String> list = List<String>();
     times.forEach((it) {
-      String title = _dateFormat.format(bookingTime) +
+      String title = _dateFormat.format(it) +
           " to " +
-          _dateFormat.format(bookingTime.subtract(Duration(minutes: duration)));
+          _dateFormat.format(it.add(Duration(minutes: duration)));
       list.add(title);
     });
     titles = list;
   }
-}
-
-class BookingData {
-  final List<DateTime> dates;
-
-  final int morningPosition;
-  final int afternoonPosition;
-  final int eveningPosition;
-
-  BookingData(this.dates, this.morningPosition, this.afternoonPosition,
-      this.eveningPosition);
 }

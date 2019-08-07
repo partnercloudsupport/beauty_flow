@@ -60,19 +60,24 @@ class LiveData<T> extends Stream<T> {
   }
 
   StreamController<T> _controller;
-  Stream<T> _stream;
+  ValueObservable<T> _stream;
 
   LiveData() {
     _controller = StreamController<T>();
     _stream = Observable<T>(_controller.stream).shareValue();
   }
 
-  // Set a new value to keep and notify.
+  /// Set a new value to keep and notify.
   setValue(T value) {
     _controller.add(value);
   }
 
-  // Add a stream to use its emitted values.
+  /// Last emitted value, or null if there has been no emission yet
+  T getValue() {
+    return _stream.value;
+  }
+
+  /// Add a stream to use its emitted values.
   addStream(Stream<T> stream) {
     _controller.addStream(stream);
   }
