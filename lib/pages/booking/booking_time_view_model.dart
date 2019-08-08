@@ -67,34 +67,31 @@ class BookingTimeViewModel extends BaseViewModel {
 
     endDate = endDate.add(Duration(minutes: -post.duration));
 
-    var dates = List<DateTime>();
-
-    int position = -1;
-    int morningPosition = -1;
-    int afternoonPosition = -1;
-    int eveningPosition = -1;
+    final List<DateTime> morningTimes = List();
+    final List<DateTime> afternoonTimes = List();
+    final List<DateTime> eveningTimes = List();
     while (nextDate.isBefore(endDate) || nextDate.isAtSameMomentAs(endDate)) {
       if (nextDate.isBefore(afternoonTime)) {
-        morningPosition = position;
+        morningTimes.add(nextDate);
       } else if (nextDate.isBefore(eveningTime)) {
-        afternoonPosition = position;
+        afternoonTimes.add(nextDate);
       } else {
-        eveningPosition = position;
+        eveningTimes.add(nextDate);
       }
-      dates.add(nextDate);
       nextDate = nextDate.add(Duration(minutes: post.duration));
-      position++;
     }
 
     List<DateTime> reservedList = list
         .where((it) {
-          return dates.contains(it.booking.toDate());
+          return morningTimes.contains(it.booking.toDate()) ||
+              afternoonTimes.contains(it.booking.toDate()) ||
+              eveningTimes.contains(it.booking.toDate());
         })
         .map((it) => it.booking.toDate())
         .toList();
 
-    timeInfo.setValue(TimeInfo(null, dates, reservedList, post.duration,
-        morningPosition, afternoonPosition, eveningPosition));
+    timeInfo.setValue(TimeInfo(null, morningTimes, afternoonTimes, eveningTimes,
+        reservedList, post.duration));
   }
 
   DateTime _updateDateByTimeString(DateTime dateTime, String time) {
@@ -115,22 +112,83 @@ class TimeInfo {
   final DateFormat _dateFormat = DateFormat.jm();
 
   DateTime bookingTime;
-  List<String> titles;
-  final List<DateTime> times;
-  final List<DateTime> reservedTimes;
-  final int morningPosition;
-  final int afternoonPosition;
-  final int eveningPosition;
+  final List<DateTime> _morningTimes;
+  final List<DateTime> _afternoonTimes;
+  final List<DateTime> _eveningTimes;
 
-  TimeInfo(this.bookingTime, this.times, this.reservedTimes, duration,
-      this.morningPosition, this.afternoonPosition, this.eveningPosition) {
-    final List<String> list = List<String>();
-    times.forEach((it) {
-      String title = _dateFormat.format(it) +
-          " to " +
-          _dateFormat.format(it.add(Duration(minutes: duration)));
-      list.add(title);
-    });
-    titles = list;
+  final List<DateTime> reservedTimes;
+  final int _duration;
+
+  TimeInfo(this.bookingTime, this._morningTimes, this._afternoonTimes,
+      this._eveningTimes, this.reservedTimes, this._duration);
+
+  ItemType getItemType(int index) {
+    if (_getMorningIndex() == index) {
+      return ItemType.morning;
+    } else if (_getAfternoonIndex() == index) {
+      return ItemType.afternoon;
+    } else if (_getEveningIndex() == index) {
+      return ItemType.evening;
+    } else {
+      return ItemType.item;
+    }
+  }
+
+  String getTitle(int index) {
+    DateTime time = getTime(index);
+    return _dateFormat.format(time) +
+        " to " +
+        _dateFormat.format(time.add(Duration(minutes: _duration)));
+  }
+
+  DateTime getTime(int index) {
+    var morningLength = _morningTimes.length;
+    if (morningLength >= index) {
+      return _morningTimes[index - 1];
+    }
+    var afternoonLength = _afternoonTimes.length;
+    if (afternoonLength >= index - morningLength) {
+      return _afternoonTimes[index - morningLength];
+    }
+
+    if (_eveningTimes.length >= index - afternoonLength - morningLength) {
+      return _afternoonTimes[index - afternoonLength - morningLength];
+    }
+    throw StateError("It is an impassible state you have to check the logic.");
+  }
+
+  int getLength() {
+    return _morningTimes.length +
+        _afternoonTimes.length +
+        _eveningTimes.length +
+        (_morningTimes.length > 0 ? 0 : 1) +
+        (_afternoonTimes.length > 0 ? 0 : 1) +
+        (_eveningTimes.length > 0 ? 0 : 1);
+  }
+
+  int _getMorningIndex() {
+    if (_morningTimes.length > 0) {
+      return 0;
+    } else {
+      return -1;
+    }
+  }
+
+  int _getAfternoonIndex() {
+    if (_afternoonTimes.length > 0) {
+      return _morningTimes.length;
+    } else {
+      return -1;
+    }
+  }
+
+  int _getEveningIndex() {
+    if (_eveningTimes.length > 0) {
+      return _afternoonTimes.length + _morningTimes.length;
+    } else {
+      return -1;
+    }
   }
 }
+
+enum ItemType { item, morning, afternoon, evening }

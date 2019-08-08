@@ -52,9 +52,20 @@ class BookingTimePage extends StatelessWidget {
               return ListView.builder(
                 padding: EdgeInsets.only(bottom: 80, top: 8),
                 itemBuilder: (context, index) {
-                  return _createItem(context, snapshot, index);
+                  switch(snapshot.data.getItemType(index)) {
+                    case ItemType.item:
+                      return _createItem(context, snapshot, index);
+                    case ItemType.morning:
+                      return _createTitle(context, "Morning");
+                    case ItemType.afternoon:
+                      return _createTitle(context, "Afternoon");
+                    case ItemType.evening:
+                      return _createTitle(context, "Evening");
+                    default:
+                      throw StateError("Unexpected state ");
+                  }
                 },
-                itemCount: snapshot.data.times.length,
+                itemCount: snapshot.data.getLength(),
               );
             } else {
               return Center(child: CircularProgressIndicator());
@@ -62,14 +73,18 @@ class BookingTimePage extends StatelessWidget {
           }),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {},
-        icon: Icon(Icons.save),
-        label: Text("Save"),
+        icon: Icon(Icons.send),
+        label: Text("Book"),
       ),
     );
   }
 
-  Padding _createItem(
+  Widget _createItem(
       BuildContext context, AsyncSnapshot<TimeInfo> snapshot, int index) {
+    final time = snapshot.data.getTime(index);
+    final title = snapshot.data.getTitle(index);
+    final bookingTime = snapshot.data.bookingTime;
+
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 4),
       child: FlatButton(
@@ -82,25 +97,30 @@ class BookingTimePage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 Text(
-                  snapshot.data.titles[index],
-                  style: _getItemTextStyle(context, snapshot.data, index),
+                  title,
+                  style: _getItemTextStyle(context, time, bookingTime),
                 ),
-                _getItemIcon(context, snapshot.data, index),
+                _getItemIcon(context, time, bookingTime),
               ]),
         ),
         onPressed: () {
-          _viewModel.selectTime(snapshot.data.times[index]);
+          _viewModel.selectTime(time);
         },
       ),
     );
   }
 
+  Widget _createTitle(
+      BuildContext context, String text) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 4),
+      child: Text(text),
+    );
+  }
+
   TextStyle _getItemTextStyle(
-    BuildContext context,
-    TimeInfo data,
-    int index,
-  ) {
-    if (data.bookingTime == data.times[index]) {
+      BuildContext context, DateTime time, DateTime bookingTime) {
+    if (bookingTime == time) {
       return Theme.of(context).textTheme.button.copyWith(
           color: Theme.of(context).accentColor, fontWeight: FontWeight.bold);
     } else {
@@ -108,8 +128,8 @@ class BookingTimePage extends StatelessWidget {
     }
   }
 
-  Icon _getItemIcon(BuildContext context, TimeInfo data, int index) {
-    if (data.bookingTime == data.times[index]) {
+  Icon _getItemIcon(BuildContext context, DateTime time, DateTime bookingTime) {
+    if (bookingTime == time) {
       return Icon(
         Icons.check_circle_outline,
         color: Theme.of(context).accentColor,
