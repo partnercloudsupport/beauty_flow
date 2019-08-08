@@ -52,7 +52,7 @@ class BookingTimePage extends StatelessWidget {
               return ListView.builder(
                 padding: EdgeInsets.only(bottom: 80, top: 8),
                 itemBuilder: (context, index) {
-                  switch(snapshot.data.getItemType(index)) {
+                  switch (snapshot.data.getItemType(index)) {
                     case ItemType.item:
                       return _createItem(context, snapshot, index);
                     case ItemType.morning:
@@ -72,7 +72,7 @@ class BookingTimePage extends StatelessWidget {
             }
           }),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
+        onPressed: null,
         icon: Icon(Icons.send),
         label: Text("Book"),
       ),
@@ -84,34 +84,71 @@ class BookingTimePage extends StatelessWidget {
     final time = snapshot.data.getTime(index);
     final title = snapshot.data.getTitle(index);
     final bookingTime = snapshot.data.bookingTime;
+    final enabled = !snapshot.data.reservedTimes.contains(time);
 
+    if (enabled) {
+      return _createEnableButton(title, context, time, bookingTime);
+    } else {
+      return _createDisabledButton(title, context, time, bookingTime);
+    }
+  }
+
+  Padding _createEnableButton(
+      String title, BuildContext context, DateTime time, DateTime bookingTime) {
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 4),
       child: FlatButton(
-        textTheme: ButtonTextTheme.normal,
-        color: Color.fromARGB(255, 246, 246, 248),
-        child: SizedBox(
-          height: 52,
-          width: double.infinity,
-          child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Text(
-                  title,
-                  style: _getItemTextStyle(context, time, bookingTime),
-                ),
-                _getItemIcon(context, time, bookingTime),
-              ]),
-        ),
-        onPressed: () {
-          _viewModel.selectTime(time);
-        },
-      ),
+          textTheme: ButtonTextTheme.normal,
+          color: Color.fromARGB(255, 246, 246, 248),
+          child: SizedBox(
+            height: 45,
+            width: double.infinity,
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text(
+                    title,
+                    style: _getItemTextStyle(context, time, bookingTime),
+                  ),
+                  _getItemIcon(context, time, bookingTime),
+                ]),
+          ),
+          onPressed: () {
+            _viewModel.selectTime(time);
+          }),
     );
   }
 
-  Widget _createTitle(
-      BuildContext context, String text) {
+  Padding _createDisabledButton(
+      String title, BuildContext context, DateTime time, DateTime bookingTime) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 4),
+      child: FlatButton(
+          textTheme: ButtonTextTheme.normal,
+          color: Color.fromARGB(255, 246, 246, 248),
+          child: SizedBox(
+            height: 45,
+            width: double.infinity,
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text(
+                    title,
+                    style: Theme.of(context).textTheme.button.copyWith(
+                        decoration: TextDecoration.lineThrough,
+                        color: Colors.black12),
+                  ),
+                  Icon(
+                    Icons.radio_button_unchecked,
+                    color: Colors.black12,
+                  ),
+                ]),
+          ),
+          onPressed: null),
+    );
+  }
+
+  Widget _createTitle(BuildContext context, String text) {
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 4),
       child: Text(text),
