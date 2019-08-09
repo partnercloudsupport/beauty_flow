@@ -30,12 +30,19 @@ class BookingTimePage extends StatelessWidget {
                 stream: _viewModel.selectedDay,
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    return OutlineButton(
-                      child: Padding(
-                        padding: const EdgeInsets.all(4.0),
-                        child: Text(
-                          snapshot.data.toIso8601String(),
-                        ),
+                    return MaterialButton(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.max,
+                        children: <Widget>[
+                          Text(
+                            _viewModel.formatSelectedDate(snapshot.data),
+                            style: Theme.of(context).textTheme.button.copyWith(
+                                color: Theme.of(context).accentColor,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          Icon(Icons.arrow_drop_down)
+                        ],
                       ),
                       onPressed: () => _selectDate(context, snapshot.data),
                     );
@@ -45,8 +52,8 @@ class BookingTimePage extends StatelessWidget {
                 }),
             preferredSize: Size.fromHeight(40)),
       ),
-      body: StreamBuilder<TimeInfo>(
-          stream: _viewModel.timeInfo,
+      body: StreamBuilder<TimeInfoList>(
+          stream: _viewModel.timeInfoList,
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               return ListView.builder(
@@ -71,18 +78,28 @@ class BookingTimePage extends StatelessWidget {
               return Center(child: CircularProgressIndicator());
             }
           }),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: null,
-        icon: Icon(Icons.send),
-        label: Text("Book"),
+      floatingActionButton: StreamBuilder<TimeInfoList>(
+        stream: _viewModel.timeInfoList,
+        builder: (context, snapshot) {
+          return Visibility(
+            visible: snapshot.hasData && snapshot.data.isTimeSelected(),
+            child: FloatingActionButton.extended(
+              onPressed: () {
+                _viewModel.bookTime();
+              },
+              icon: Icon(Icons.send),
+              label: Text("Book"),
+            ),
+          );
+        }
       ),
     );
   }
 
   Widget _createItem(
-      BuildContext context, AsyncSnapshot<TimeInfo> snapshot, int index) {
+      BuildContext context, AsyncSnapshot<TimeInfoList> snapshot, int index) {
     final time = snapshot.data.getTime(index);
-    final title = snapshot.data.getTitle(index);
+    final title = _viewModel.formatTimePeriod(time, snapshot.data.duration);
     final bookingTime = snapshot.data.bookingTime;
     final enabled = !snapshot.data.reservedTimes.contains(time);
 

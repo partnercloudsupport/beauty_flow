@@ -6,6 +6,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 
 class BookingTimeViewModel extends BaseViewModel {
+  final DateFormat _dateFormat = DateFormat.yMMMMd();
+  final DateFormat _timeFormat = DateFormat.jm();
+
   final _startTime = "06:00";
   final _endTime = "20:00";
 
@@ -15,7 +18,7 @@ class BookingTimeViewModel extends BaseViewModel {
   final _bookingList = LiveData<List<Booking>>();
   final _post = LiveData<Posts>();
 
-  final timeInfo = LiveData<TimeInfo>();
+  final timeInfoList = LiveData<TimeInfoList>();
   final selectedDay = LiveData<DateTime>();
 
   BookingTimeViewModel(String postId) {
@@ -24,6 +27,16 @@ class BookingTimeViewModel extends BaseViewModel {
     _loadBooking(postId);
 
     _observeBookingTime();
+  }
+
+  String formatSelectedDate(DateTime date) {
+    return _dateFormat.format(date);
+  }
+
+  String formatTimePeriod(DateTime time, int duration) {
+    return _timeFormat.format(time) +
+        " to " +
+        _timeFormat.format(time.add(Duration(minutes: duration)));
   }
 
   void _loadBooking(String postId) {
@@ -90,8 +103,8 @@ class BookingTimeViewModel extends BaseViewModel {
         .map((it) => it.booking.toDate())
         .toList();
 
-    timeInfo.setValue(TimeInfo(null, morningTimes, afternoonTimes, eveningTimes,
-        reservedList, post.duration));
+    timeInfoList.setValue(TimeInfoList(null, morningTimes, afternoonTimes,
+        eveningTimes, reservedList, post.duration));
   }
 
   DateTime _updateDateByTimeString(DateTime dateTime, String time) {
@@ -101,26 +114,26 @@ class BookingTimeViewModel extends BaseViewModel {
   }
 
   void selectTime(DateTime time) {
-    assert(timeInfo.getValue() != null);
-    var value = timeInfo.getValue();
+    assert(timeInfoList.getValue() != null);
+    var value = timeInfoList.getValue();
     value.bookingTime = time;
-    timeInfo.setValue(value);
+    timeInfoList.setValue(value);
   }
+
+  void bookTime() {}
 }
 
-class TimeInfo {
-  final DateFormat _dateFormat = DateFormat.jm();
-
+class TimeInfoList {
   DateTime bookingTime;
   final List<DateTime> _morningTimes;
   final List<DateTime> _afternoonTimes;
   final List<DateTime> _eveningTimes;
 
   final List<DateTime> reservedTimes;
-  final int _duration;
+  final int duration;
 
-  TimeInfo(this.bookingTime, this._morningTimes, this._afternoonTimes,
-      this._eveningTimes, this.reservedTimes, this._duration);
+  TimeInfoList(this.bookingTime, this._morningTimes, this._afternoonTimes,
+      this._eveningTimes, this.reservedTimes, this.duration);
 
   ItemType getItemType(int index) {
     if (_getMorningIndex() == index) {
@@ -132,13 +145,6 @@ class TimeInfo {
     } else {
       return ItemType.item;
     }
-  }
-
-  String getTitle(int index) {
-    DateTime time = getTime(index);
-    return _dateFormat.format(time) +
-        " to " +
-        _dateFormat.format(time.add(Duration(minutes: _duration)));
   }
 
   DateTime getTime(int index) {
@@ -155,6 +161,10 @@ class TimeInfo {
       return _afternoonTimes[index - afternoonLength - morningLength];
     }
     throw StateError("It is an impassible state you have to check the logic.");
+  }
+
+  bool isTimeSelected() {
+    return bookingTime != null;
   }
 
   int getLength() {
