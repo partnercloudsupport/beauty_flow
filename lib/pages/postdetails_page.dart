@@ -1,14 +1,13 @@
 import 'dart:async';
-import 'package:beauty_flow/pages/comment_page.dart';
+
 import 'package:beauty_flow/Model/posts.dart';
 import 'package:beauty_flow/main.dart';
+import 'package:beauty_flow/pages/comment_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:flutter_cupertino_date_picker/flutter_cupertino_date_picker.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 import 'booking/booking_time_page.dart';
 
@@ -44,6 +43,19 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
         title: Text("Beauty Flow"),
         centerTitle: true,
       ),
+      floatingActionButton: FloatingActionButton.extended(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) {
+                  return BookingTimePage(widget.post.postId);
+                },
+              ),
+            );
+          },
+          backgroundColor: Colors.green,
+          label: Text("Book")),
       body: Container(
         child: ListView(
           children: <Widget>[
@@ -219,98 +231,12 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                 ],
               ),
             ),
-            _dateTimePicker(widget.post),
             SizedBox(
               height: 20.0,
             )
           ],
         ),
       ),
-    );
-  }
-
-  Widget _dateTimePicker(Posts post) {
-    if (widget.post.beautyProId == currentUserModel.uid) {
-      return Container();
-    } else {
-      return Padding(
-        padding: EdgeInsets.only(right: 10, left: 10, bottom: 16.0, top: 20),
-        child: Column(
-          children: <Widget>[
-            FlatButton(
-              onPressed: _showDateTimePicker,
-              child: Text(dateTimeString),
-              color: Colors.tealAccent,
-              shape: RoundedRectangleBorder(
-                  borderRadius: new BorderRadius.circular(30.0)),
-            ),
-            const Padding(
-              padding: EdgeInsets.only(top: 20),
-            ),
-            Container(
-              height: 40.0,
-              padding: EdgeInsets.only(right: 10, left: 10),
-              child: InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return BookingTimePage(post.postId);
-                      },
-                    ),
-                  );
-                },
-                child: Material(
-                  borderRadius: BorderRadius.circular(20.0),
-                  shadowColor: Colors.greenAccent,
-                  color: Colors.green,
-                  elevation: 7.0,
-                  child: Center(
-                    child: Text(
-                      'Book',
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Montserrat'),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-  }
-
-  void _showDateTimePicker() {
-    DatePicker.showDatePicker(
-      context,
-      minDateTime: DateTime.parse('1999-01-01 00:00:00'),
-      maxDateTime: DateTime.parse('2050-12-31 00:00:00'),
-      initialDateTime: DateTime.now(),
-      dateFormat: "yyyy.MM.dd G 'at' HH:mm:ss vvvv",
-      locale: DateTimePickerLocale.en_us,
-      pickerTheme: DateTimePickerTheme(
-        showTitle: true,
-      ),
-      pickerMode: DateTimePickerMode.datetime, // show TimePicker
-      onCancel: () {
-        debugPrint('onCancel');
-      },
-      onChange: (dateTime, List<int> index) {
-        setState(() {
-          date = dateTime;
-          dateTimeString = date.toLocal().toString();
-        });
-      },
-      onConfirm: (dateTime, List<int> index) {
-        setState(() {
-          date = dateTime;
-          dateTimeString = date.toLocal().toString();
-        });
-      },
     );
   }
 
@@ -370,64 +296,6 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
         saved = true;
         widget.post.savedBy[userId] = true;
       });
-    }
-  }
-
-  void _booking() async {
-    if (date != null) {
-      var fsReference = Firestore.instance.collection("bookings");
-
-      QuerySnapshot bookingRef = await Firestore.instance
-          .collection("styles")
-          .where("styleName", isEqualTo: widget.post.style)
-          .getDocuments();
-      if (bookingRef.documents.isNotEmpty) {
-        var list = bookingRef.documents.toList();
-        var sReference = Firestore.instance
-            .collection('styles')
-            .document(list[0].documentID);
-        sReference.updateData({
-          "bookings": FieldValue.increment(1),
-          "timestamp": FieldValue.serverTimestamp(),
-        });
-      }
-
-      fsReference.add({
-        "postId": widget.post.postId,
-        "price": widget.post.price,
-        "mediaUrl": widget.post.mediaUrl,
-        "beautyProId": widget.post.beautyProId,
-        "beautyProDisplayName": widget.post.beautyProDisplayName,
-        "beautyProUserName": widget.post.beautyProUserName,
-        "style": widget.post.style,
-        "bookedBy": currentUserModel.uid,
-        "bookedByUserName": currentUserModel.username,
-        "bookedByDisplayName": currentUserModel.displayName,
-        "booking": date,
-        "isConfirmed": 0,
-        "timestamp": FieldValue.serverTimestamp(),
-      }).then((DocumentReference doc) {
-        String docId = doc.documentID;
-        fsReference.document(docId).updateData({"bookingId": docId});
-      });
-
-      Fluttertoast.showToast(
-          msg: "Booking Confirmed on ${date.toString()}",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIos: 1,
-          backgroundColor: Colors.black,
-          textColor: Colors.white,
-          fontSize: 16.0);
-    } else {
-      Fluttertoast.showToast(
-          msg: "Please Select Date",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIos: 1,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 16.0);
     }
   }
 

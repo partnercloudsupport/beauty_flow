@@ -48,6 +48,7 @@ dependencies:
   geolocator: ^5.1.1
   geocoder: ^0.2.1
   geo_firestore: ^0.0.1
+  progress_dialog: ^1.1.0+1
 
 dev_dependencies:
   flutter_test:

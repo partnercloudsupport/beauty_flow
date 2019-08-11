@@ -4,59 +4,24 @@ import 'package:rxdart/rxdart.dart';
 
 /// It is a stream object and can keep the last state. Also can have more than one subscription.
 class LiveData<T> extends Stream<T> {
-  /// Invoke listener only if values are unique and not nullable
-  static observePair<T1, T2>(
-      LiveData<T1> t1, LiveData<T2> t2, Function(T1 t1, T2 t2) listener) {
-    T1 value1;
-    T2 value2;
-    t1.listen((it) {
-      if (value1 != it) {
-        value1 = it;
-        if (value1 != null && value2 != null) {
-          listener(value1, value2);
-        }
-      }
-    });
-    t2.listen((it) {
-      if (value2 != it) {
-        value2 = it;
-        if (value1 != null && value2 != null) {
-          listener(value1, value2);
-        }
-      }
-    });
-  }
 
   /// Invoke listener only if values are unique and not nullable
-  static observeTriple<T1, T2, T3>(LiveData<T1> t1, LiveData<T2> t2,
-      LiveData<T3> t3, Function(T1 t1, T2 t2, T3 t3) listener) {
-    T1 value1;
-    T2 value2;
-    T3 value3;
-    t1.listen((it) {
-      if (value1 != it) {
-        value1 = it;
-        if (value1 != null && value2 != null && value3 != null) {
-          listener(value1, value2, value3);
+  static observeMulti(
+      List<LiveData<Object>> list, Function(List<Object>) listener) {
+    List<Object> values = List(list.length);
+    for (var index = 0; index < list.length; index++) {
+      values[index] = null;
+    }
+    for (var index = 0; index < list.length; index++) {
+      list[index].listen((it) {
+        if (values[index] != it) {
+          values[index] = it;
+          if (values.every((it) => it != null)) {
+            listener(values);
+          }
         }
-      }
-    });
-    t2.listen((it) {
-      if (value2 != it) {
-        value2 = it;
-        if (value1 != null && value2 != null && value3 != null) {
-          listener(value1, value2, value3);
-        }
-      }
-    });
-    t3.listen((it) {
-      if (value3 != it) {
-        value3 = it;
-        if (value1 != null && value2 != null && value3 != null) {
-          listener(value1, value2, value3);
-        }
-      }
-    });
+      });
+    }
   }
 
   StreamController<T> _controller;

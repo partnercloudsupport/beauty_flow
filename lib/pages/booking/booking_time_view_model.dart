@@ -2,8 +2,11 @@ import 'package:beauty_flow/Model/booking.dart';
 import 'package:beauty_flow/Model/posts.dart';
 import 'package:beauty_flow/pages/base/base_view_model.dart';
 import 'package:beauty_flow/pages/base/live_data.dart';
+import 'package:beauty_flow/pages/base/single_live_event.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+
+import '../../main.dart';
 
 class BookingTimeViewModel extends BaseViewModel {
   final DateFormat _dateFormat = DateFormat.yMMMMd();
@@ -20,6 +23,10 @@ class BookingTimeViewModel extends BaseViewModel {
 
   final timeInfoList = LiveData<TimeInfoList>();
   final selectedDay = LiveData<DateTime>();
+  final uploading = LiveData<bool>();
+
+  final messageEvent = SingleLivedEvent<String>();
+  final goBackEvent = SingleLivedEvent<int>();
 
   BookingTimeViewModel(String postId) {
     selectedDay.setValue(DateTime.now());
@@ -60,9 +67,12 @@ class BookingTimeViewModel extends BaseViewModel {
   }
 
   _observeBookingTime() {
-    LiveData.observeTriple(_bookingList, _post, selectedDay,
-        (List<Booking> bookingList, Posts post, DateTime date) {
-      _createBookingTimeList(bookingList, post, date);
+    LiveData.observeMulti([
+      _bookingList,
+      _post,
+      selectedDay,
+    ], (List list) {
+      _createBookingTimeList(list[0], list[1], list[2]);
     });
   }
 
@@ -120,7 +130,54 @@ class BookingTimeViewModel extends BaseViewModel {
     timeInfoList.setValue(value);
   }
 
-  void bookTime() {}
+  Future bookTime() async {
+    var post = _post.getValue();
+    var bookingTime = timeInfoList.getValue().bookingTime;
+    assert(post != null);
+    assert(bookingTime != null);
+
+    uploading.setValue(true);
+
+    var fsReference = Firestore.instance.collection("bookings");
+
+    QuerySnapshot bookingRef = await Firestore.instance
+        .collection("styles")
+        .where("styleName", isEqualTo: post.style)
+        .getDocuments();
+    if (bookingRef.documents.isNotEmpty) {
+      var list = bookingRef.documents.toList();
+      var sReference =
+          Firestore.instance.collection('styles').document(list[0].documentID);
+      sReference.updateData({
+        "bookings": FieldValue.increment(1),
+        "timestamp": FieldValue.serverTimestamp(),
+      });
+    }
+
+    fsReference.add({
+      "postId": post.postId,
+      "price": post.price,
+      "mediaUrl": post.mediaUrl,
+      "beautyProId": post.beautyProId,
+      "beautyProDisplayName": post.beautyProDisplayName,
+      "beautyProUserName": post.beautyProUserName,
+      "style": post.style,
+      "bookedBy": currentUserModel.uid,
+      "bookedByUserName": currentUserModel.username,
+      "bookedByDisplayName": currentUserModel.displayName,
+      "booking": Timestamp.fromDate(bookingTime),
+      "isConfirmed": 0,
+      "timestamp": FieldValue.serverTimestamp(),
+    }).then((DocumentReference doc) {
+      String docId = doc.documentID;
+      fsReference.document(docId).updateData({"bookingId": docId});
+    });
+
+    uploading.setValue(false);
+    messageEvent.sentValue(
+        "Booking Confirmed on ${formatTimePeriod(bookingTime, post.duration)}");
+    goBackEvent.sentValue(null);
+  }
 }
 
 class TimeInfoList {
@@ -131,9 +188,17 @@ class TimeInfoList {
 
   final List<DateTime> reservedTimes;
   final int duration;
+  int _length;
 
   TimeInfoList(this.bookingTime, this._morningTimes, this._afternoonTimes,
-      this._eveningTimes, this.reservedTimes, this.duration);
+      this._eveningTimes, this.reservedTimes, this.duration) {
+    _length = _morningTimes.length +
+        _afternoonTimes.length +
+        _eveningTimes.length +
+        (_morningTimes.length > 0 ? 0 : 1) +
+        (_afternoonTimes.length > 0 ? 0 : 1) +
+        (_eveningTimes.length > 0 ? 0 : 1);
+  }
 
   ItemType getItemType(int index) {
     if (_getMorningIndex() == index) {
@@ -168,12 +233,7 @@ class TimeInfoList {
   }
 
   int getLength() {
-    return _morningTimes.length +
-        _afternoonTimes.length +
-        _eveningTimes.length +
-        (_morningTimes.length > 0 ? 0 : 1) +
-        (_afternoonTimes.length > 0 ? 0 : 1) +
-        (_eveningTimes.length > 0 ? 0 : 1);
+    return _length;
   }
 
   int _getMorningIndex() {

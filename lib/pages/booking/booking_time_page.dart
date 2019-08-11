@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 
 import 'booking_time_view_model.dart';
 
@@ -13,6 +15,28 @@ class BookingTimePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var uploadingDialog =
+        new ProgressDialog(context, ProgressDialogType.Normal);
+    _viewModel.uploading.listen((isLoading) {
+      if (isLoading) {
+        uploadingDialog.show();
+      } else {
+        uploadingDialog.hide();
+      }
+    });
+    _viewModel.messageEvent.listen((message) {
+      Fluttertoast.showToast(
+          msg: message,
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIos: 1,
+          backgroundColor: Colors.black,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    });
+    _viewModel.goBackEvent.listen((it) {
+      Navigator.pop(context);
+    });
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -79,20 +103,19 @@ class BookingTimePage extends StatelessWidget {
             }
           }),
       floatingActionButton: StreamBuilder<TimeInfoList>(
-        stream: _viewModel.timeInfoList,
-        builder: (context, snapshot) {
-          return Visibility(
-            visible: snapshot.hasData && snapshot.data.isTimeSelected(),
-            child: FloatingActionButton.extended(
-              onPressed: () {
-                _viewModel.bookTime();
-              },
-              icon: Icon(Icons.send),
-              label: Text("Book"),
-            ),
-          );
-        }
-      ),
+          stream: _viewModel.timeInfoList,
+          builder: (context, snapshot) {
+            return Visibility(
+              visible: snapshot.hasData && snapshot.data.isTimeSelected(),
+              child: FloatingActionButton.extended(
+                onPressed: () {
+                  _viewModel.bookTime();
+                },
+                icon: Icon(Icons.send),
+                label: Text("Book"),
+              ),
+            );
+          }),
     );
   }
 
