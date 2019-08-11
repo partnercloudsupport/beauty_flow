@@ -1,3 +1,3 @@
-abstract class BaseViewModel {
-  void dispose();
+class BaseViewModel {
+  void dispose() {}
 }

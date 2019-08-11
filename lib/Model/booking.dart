@@ -1,9 +1,23 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Booking {
-  final String beautyProId,beautyProDisplayName, beautyProUserName, bookedBy,bookedByUserName, bookedByDisplayName, bookingId, mediaUrl, postId, style;
+  static const String TABLE_NAME = "bookings";
+  static const String FIELD_POST_ID = "postId";
+  static const String FIELD_BOOKING = "booking";
+
+  final String beautyProId;
+  final String beautyProDisplayName;
+  final String beautyProUserName;
+  final String bookedBy;
+  final String bookedByUserName;
+  final String bookedByDisplayName;
+  final String bookingId;
+  final String mediaUrl;
+  final String postId;
+  final String style;
   final double price;
-  final Timestamp timestamp,booking;
+  final Timestamp timestamp;
+  final Timestamp booking;
   final int isConfirmed;
 
   Booking.fromMap(Map<String, dynamic> map)
@@ -15,7 +29,7 @@ class Booking {
         assert(map['beautyProId'] != null),
         assert(map['beautyProDisplayName'] != null),
         assert(map['beautyProUserName'] != null),
-        assert(map['postId'] != null),
+        assert(map[FIELD_POST_ID] != null),
         assert(map['price'] != null),
         assert(map['style'] != null),
         beautyProId = map['beautyProId'],
@@ -29,7 +43,7 @@ class Booking {
         beautyProUserName = map["beautyProUserName"],
         postId = map["postId"],
         isConfirmed = map["isConfirmed"],
-        booking = map["booking"],
+        booking = map[FIELD_BOOKING],
         style = map["style"],
         mediaUrl = map["mediaUrl"];
 

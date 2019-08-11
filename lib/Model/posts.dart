@@ -1,18 +1,22 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Posts {
-  final String beautyProDisplayName,
-      beautyProId,
-      beautyProUserName,
-      description,
-      mediaUrl,
-      ownerId,
-      ownerIddisplayName,
-      postId,
-      style;
-  final int duration, price;
+  static const String TABLE_NAME = "beautyPosts";
+
+  final String beautyProDisplayName;
+  final String beautyProId;
+  final String beautyProUserName;
+  final String description;
+  final String mediaUrl;
+  final String ownerId;
+  final String ownerIddisplayName;
+  final String postId;
+  final String style;
+  final int duration;
+  final int price;
   final Timestamp timestamp;
-  final Map likes, savedBy;
+  final Map likes;
+  final Map savedBy;
 
   const Posts(
       {this.beautyProDisplayName,
@@ -65,19 +69,19 @@ class Posts {
 
   factory Posts.fromJSON(Map data) {
     return Posts(
-      beautyProDisplayName : data['beautyProDisplayName'],
-      beautyProId : data['beautyProId'],
-      beautyProUserName : data['beautyProUserName'],
-      description : data['description'],
-      mediaUrl : data['mediaUrl'],
-      ownerId : data['ownerId'],
-      ownerIddisplayName : data['ownerIddisplayName'],
-      postId : data["postId"],
-      price : data["price"],
-      style : data["style"],
-      likes : data["likes"],
-      savedBy : data["savedBy"],
-      duration : data["duration"],
+      beautyProDisplayName: data['beautyProDisplayName'],
+      beautyProId: data['beautyProId'],
+      beautyProUserName: data['beautyProUserName'],
+      description: data['description'],
+      mediaUrl: data['mediaUrl'],
+      ownerId: data['ownerId'],
+      ownerIddisplayName: data['ownerIddisplayName'],
+      postId: data["postId"],
+      price: data["price"],
+      style: data["style"],
+      likes: data["likes"],
+      savedBy: data["savedBy"],
+      duration: data["duration"],
     );
   }
 }

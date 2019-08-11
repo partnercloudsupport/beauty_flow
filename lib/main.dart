@@ -84,6 +84,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'BeautyFlow',
       theme: ThemeData(
+        scaffoldBackgroundColor: Colors.white,
         brightness: Brightness.light,
         primaryColor: Color.fromRGBO(0,60,126,1),
         accentColor: Color.fromRGBO(68,135,199,1),
