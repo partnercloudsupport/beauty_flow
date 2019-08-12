@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:beauty_flow/Model/Style.dart';
 import 'package:beauty_flow/Model/User.dart';
-import 'package:beauty_flow/Model/posts.dart';
+import 'package:beauty_flow/Model/post.dart';
 import 'package:beauty_flow/pages/base/base_view_model.dart';
 import 'package:beauty_flow/pages/base/live_data.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -20,7 +20,7 @@ class DashboardViewModel extends BaseViewModel {
 
   final LiveData<List<Style>> styleList = LiveData();
   final LiveData<List<User>> proUserList = LiveData();
-  final LiveData<List<Posts>> postList = LiveData();
+  final LiveData<List<Post>> postList = LiveData();
 
   DashboardViewModel(this._userId) {
     _prepareToSaveDeviceToken();
@@ -61,7 +61,7 @@ class DashboardViewModel extends BaseViewModel {
         GeoFirestore(Firestore.instance.collection('beautyPosts'));
     List<DocumentSnapshot> list = await geoFirestore.getAtLocation(
         GeoPoint(position.latitude, position.longitude), 5);
-    postList.setValue(list.map((it) => Posts.fromDocument(it)).toList());
+    postList.setValue(list.map((it) => Post.fromDocument(it)).toList());
   }
 
   Future<Position> _getGeolocation() async {

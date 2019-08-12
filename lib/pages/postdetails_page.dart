@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:beauty_flow/Model/posts.dart';
+import 'package:beauty_flow/Model/post.dart';
 import 'package:beauty_flow/main.dart';
 import 'package:beauty_flow/pages/comment_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -14,7 +14,7 @@ import 'booking/booking_time_page.dart';
 class PostDetailsPage extends StatefulWidget {
   PostDetailsPage(this.post);
 
-  final Posts post;
+  final Post post;
 
   @override
   _PostDetailsPageState createState() => _PostDetailsPageState();
@@ -92,7 +92,7 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           Text(
-                            widget.post.ownerIddisplayName,
+                            widget.post.ownerIdDisplayName,
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                           Text(
@@ -256,7 +256,7 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
     return count;
   }
 
-  void _savePost(Posts post) {
+  void _savePost(Post post) {
     var userId = currentUserModel.uid;
     bool _saved = widget.post.savedBy[userId] == true;
 

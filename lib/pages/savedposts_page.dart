@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:beauty_flow/Model/posts.dart';
+import 'package:beauty_flow/Model/post.dart';
 import 'package:beauty_flow/authentication/authentication.dart';
 import 'package:beauty_flow/pages/postdetails_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -21,7 +21,7 @@ class SavedPostsPage extends StatefulWidget {
 class _SavedPostsPageState extends State<SavedPostsPage> {
   RefreshController _refreshController =
       RefreshController(initialRefresh: true);
-  List<Posts> feedData;
+  List<Post> feedData;
 
   void _onRefresh() async {
     // monitor network fetch
@@ -38,7 +38,7 @@ class _SavedPostsPageState extends State<SavedPostsPage> {
             widget.userId.toString();
     var httpClient = HttpClient();
 
-    List<Posts> listOfPosts;
+    List<Post> listOfPosts;
     String result;
     try {
       var request = await httpClient.getUrl(Uri.parse(url));
@@ -64,11 +64,11 @@ class _SavedPostsPageState extends State<SavedPostsPage> {
     });
   }
 
-  List<Posts> _generateFeed(List<Map<String, dynamic>> feedData) {
-    List<Posts> listOfPosts = [];
+  List<Post> _generateFeed(List<Map<String, dynamic>> feedData) {
+    List<Post> listOfPosts = [];
 
     for (var postData in feedData) {
-      listOfPosts.add(Posts.fromJSON(postData));
+      listOfPosts.add(Post.fromJSON(postData));
     }
 
     return listOfPosts;

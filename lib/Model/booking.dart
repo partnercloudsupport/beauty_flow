@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'extra_service.dart';
+
 class Booking {
   static const String TABLE_NAME = "bookings";
   static const String FIELD_POST_ID = "postId";
@@ -19,6 +21,7 @@ class Booking {
   final Timestamp timestamp;
   final Timestamp booking;
   final int isConfirmed;
+  final List<ServiceCount> services;
 
   Booking.fromMap(Map<String, dynamic> map)
       : assert(map['bookedBy'] != null),
@@ -45,7 +48,8 @@ class Booking {
         isConfirmed = map["isConfirmed"],
         booking = map[FIELD_BOOKING],
         style = map["style"],
-        mediaUrl = map["mediaUrl"];
+        mediaUrl = map["mediaUrl"],
+        services = ServiceCount.fromListOfMaps(map["extraServices"]);
 
   Booking.fromSnapshot(DocumentSnapshot snapshot) : this.fromMap(snapshot.data);
 }

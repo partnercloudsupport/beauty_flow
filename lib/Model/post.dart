@@ -1,7 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class Posts {
+import 'extra_service.dart';
+
+class Post {
   static const String TABLE_NAME = "beautyPosts";
+  static const String FIELD_EXTRA_SERVICES = "extraServices";
 
   final String beautyProDisplayName;
   final String beautyProId;
@@ -9,7 +12,7 @@ class Posts {
   final String description;
   final String mediaUrl;
   final String ownerId;
-  final String ownerIddisplayName;
+  final String ownerIdDisplayName;
   final String postId;
   final String style;
   final int duration;
@@ -17,24 +20,26 @@ class Posts {
   final Timestamp timestamp;
   final Map likes;
   final Map savedBy;
+  final List<ExtraService> extraServices;
 
-  const Posts(
+  const Post(
       {this.beautyProDisplayName,
       this.beautyProId,
       this.beautyProUserName,
       this.description,
       this.mediaUrl,
       this.ownerId,
-      this.ownerIddisplayName,
+      this.ownerIdDisplayName,
       this.postId,
       this.style,
       this.duration,
       this.price,
       this.timestamp,
       this.likes,
-      this.savedBy});
+      this.savedBy,
+      this.extraServices});
 
-  Posts.fromMap(Map<String, dynamic> map)
+  Post.fromMap(Map<String, dynamic> map)
       : assert(map['beautyProDisplayName'] != null),
         assert(map['beautyProId'] != null),
         assert(map['beautyProUserName'] != null),
@@ -54,28 +59,27 @@ class Posts {
         description = map['description'],
         mediaUrl = map['mediaUrl'],
         ownerId = map['ownerId'],
-        ownerIddisplayName = map['ownerIddisplayName'],
+        ownerIdDisplayName = map['ownerIddisplayName'],
         postId = map["postId"],
         timestamp = map["timestamp"],
         price = map["price"],
         style = map["style"],
         likes = map["likes"],
         savedBy = map["savedBy"],
-        duration = map["duration"];
+        duration = map["duration"],
+        extraServices = ExtraService.fromListOfMaps(map[FIELD_EXTRA_SERVICES]);
 
-  Posts.fromSnapshot(DocumentSnapshot snapshot) : this.fromMap(snapshot.data);
+  Post.fromDocument(DocumentSnapshot document) : this.fromMap(document.data);
 
-  Posts.fromDocument(DocumentSnapshot document) : this.fromMap(document.data);
-
-  factory Posts.fromJSON(Map data) {
-    return Posts(
+  factory Post.fromJSON(Map data) {
+    return Post(
       beautyProDisplayName: data['beautyProDisplayName'],
       beautyProId: data['beautyProId'],
       beautyProUserName: data['beautyProUserName'],
       description: data['description'],
       mediaUrl: data['mediaUrl'],
       ownerId: data['ownerId'],
-      ownerIddisplayName: data['ownerIddisplayName'],
+      ownerIdDisplayName: data['ownerIddisplayName'],
       postId: data["postId"],
       price: data["price"],
       style: data["style"],

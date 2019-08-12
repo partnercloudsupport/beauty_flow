@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:beauty_flow/Model/User.dart';
-import 'package:beauty_flow/Model/posts.dart';
+import 'package:beauty_flow/Model/post.dart';
 import 'package:beauty_flow/main.dart';
 import 'package:beauty_flow/pages/postdetails_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -201,7 +201,7 @@ class _UserDetailsHeroPageState extends State<UserDetailsHeroPage> {
                       delegate: SliverChildBuilderDelegate(
                           (BuildContext context, int index) {
                         var posts =
-                            Posts.fromMap(snapshot.data.documents[index].data);
+                            Post.fromDocument(snapshot.data.documents[index]);
                         return GestureDetector(
                           onTap: () {
                             Navigator.push(

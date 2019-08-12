@@ -1,42 +1,17 @@
+import 'package:beauty_flow/pages/extras/extra_services_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:progress_dialog/progress_dialog.dart';
 
 import 'booking_time_view_model.dart';
 
 class BookingTimePage extends StatelessWidget {
   final String _postId;
-  BookingTimeViewModel _viewModel;
+  final BookingTimeViewModel _viewModel;
 
-  BookingTimePage(this._postId) {
-    _viewModel = BookingTimeViewModel(_postId);
-  }
+  BookingTimePage(this._postId) : _viewModel = BookingTimeViewModel(_postId);
 
   @override
   Widget build(BuildContext context) {
-    var uploadingDialog =
-        new ProgressDialog(context, ProgressDialogType.Normal);
-    _viewModel.uploading.listen((isLoading) {
-      if (isLoading) {
-        uploadingDialog.show();
-      } else {
-        uploadingDialog.hide();
-      }
-    });
-    _viewModel.messageEvent.listen((message) {
-      Fluttertoast.showToast(
-          msg: message,
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIos: 1,
-          backgroundColor: Colors.black,
-          textColor: Colors.white,
-          fontSize: 16.0);
-    });
-    _viewModel.goBackEvent.listen((it) {
-      Navigator.pop(context);
-    });
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -109,10 +84,18 @@ class BookingTimePage extends StatelessWidget {
               visible: snapshot.hasData && snapshot.data.isTimeSelected(),
               child: FloatingActionButton.extended(
                 onPressed: () {
-                  _viewModel.bookTime();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return ExtraServicesPage(_postId,
+                            _viewModel.timeInfoList.getValue().bookingTime);
+                      },
+                    ),
+                  );
                 },
-                icon: Icon(Icons.send),
-                label: Text("Book"),
+                icon: Icon(Icons.navigate_next),
+                label: Text("Continue"),
               ),
             );
           }),

@@ -1,6 +1,6 @@
 import 'package:beauty_flow/Model/Style.dart';
 import 'package:beauty_flow/Model/User.dart';
-import 'package:beauty_flow/Model/posts.dart';
+import 'package:beauty_flow/Model/post.dart';
 import 'package:beauty_flow/authentication/authentication.dart';
 import 'package:beauty_flow/main.dart';
 import 'package:beauty_flow/pages/datasearch_page.dart';
@@ -210,7 +210,7 @@ class _NewDashBoardPageState extends State<NewDashBoardPage> {
     );
   }
 
-  Widget _buildPosts(BuildContext context, List<Posts> styleList) {
+  Widget _buildPosts(BuildContext context, List<Post> styleList) {
     return ListView.builder(
       itemCount: styleList.length,
       scrollDirection: Axis.horizontal,
@@ -250,7 +250,7 @@ class PostItem extends StatelessWidget {
     this.post,
   }) : super(key: key);
 
-  final Posts post;
+  final Post post;
 
   @override
   Widget build(BuildContext context) {
